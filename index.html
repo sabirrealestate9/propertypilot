@@ -1,648 +1,567 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Estate Portfolio Overview</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Base styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background: linear-gradient(135deg, theme('colors.primary.900') 0%, theme('colors.primary.800') 100%);
-            min-height: 100vh;
-            color: theme('colors.primary.50');
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Real Estate Portfolio Overview</title>
 
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Outfit', sans-serif;
-        }
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-        /* Glassmorphism effect */
-        .glass-card {
-            background-color: rgba(255, 255, 255, 0.08); /* Lighter for contrast on dark background */
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 1.5rem; /* More rounded */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.35);
-        }
+  <script src="https://cdn.tailwindcss.com"></script>
 
-        /* Gradient for buttons/accents */
-        .btn-gradient {
-            background: linear-gradient(45deg, theme('colors.accentA.500'), theme('colors.accentA.600'));
-            transition: all 0.3s ease;
-        }
-        .btn-gradient:hover {
-            background: linear-gradient(45deg, theme('colors.accentA.600'), theme('colors.accentA.700'));
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(theme('colors.accentA.500'), 0.4);
-        }
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: linear-gradient(135deg, theme('colors.primary.900') 0%, theme('colors.primary.800') 100%);
+      min-height: 100vh;
+      color: theme('colors.primary.50');
+    }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Outfit', sans-serif; }
 
-        .text-gradient {
-            background: linear-gradient(45deg, theme('colors.accentB.400'), theme('colors.accentB.500'));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    .glass-card{
+      background-color: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .glass-card:hover{
+      transform: translateY(-5px);
+      box-shadow: 0 12px 48px 0 rgba(0,0,0,0.35);
+    }
 
-        /* Status indicators */
-        .status-positive {
-            color: theme('colors.status.profit');
-            background-color: rgba(theme('colors.status.profit'), 0.15);
-        }
-        .status-negative {
-            color: theme('colors.status.loss');
-            background-color: rgba(theme('colors.status.loss'), 0.15);
-        }
-        .status-info {
-            color: theme('colors.status.info');
-            background-color: rgba(theme('colors.status.info'), 0.15);
-        }
-        .status-alert {
-            color: theme('colors.status.alert');
-            background-color: rgba(theme('colors.status.alert'), 0.15);
-        }
-        .status-ready {
-            color: theme('colors.status.profit');
-            background-color: rgba(theme('colors.status.profit'), 0.15);
-        }
-        .status-not-ready {
-            color: theme('colors.status.alert');
-            background-color: rgba(theme('colors.status.alert'), 0.15);
-        }
-        .status-label {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
+    .btn-gradient{
+      background: linear-gradient(45deg, theme('colors.accentA.500'), theme('colors.accentA.600'));
+      transition: all 0.3s ease;
+    }
+    .btn-gradient:hover{
+      background: linear-gradient(45deg, theme('colors.accentA.600'), theme('colors.accentA.700'));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(theme('colors.accentA.500'), 0.4);
+    }
 
-        /* Table styling */
-        .data-table th, .data-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    .text-gradient{
+      background: linear-gradient(45deg, theme('colors.accentB.400'), theme('colors.accentB.500'));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status-label{
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8em;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      white-space: nowrap;
+    }
+    .status-positive{ color: theme('colors.status.profit'); background-color: rgba(theme('colors.status.profit'), 0.15); }
+    .status-negative{ color: theme('colors.status.loss'); background-color: rgba(theme('colors.status.loss'), 0.15); }
+    .status-info{ color: theme('colors.status.info'); background-color: rgba(theme('colors.status.info'), 0.15); }
+    .status-alert{ color: theme('colors.status.alert'); background-color: rgba(theme('colors.status.alert'), 0.15); }
+
+    .data-table th, .data-table td{
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      vertical-align: top;
+    }
+    .data-table th{
+      font-weight: 600;
+      color: theme('colors.primary.200');
+      background-color: rgba(255,255,255,0.05);
+    }
+    .data-table tbody tr:nth-child(even){ background-color: rgba(255,255,255,0.02); }
+    .data-table tbody tr:hover{ background-color: rgba(255,255,255,0.08); }
+
+    .skeleton{
+      position: relative;
+      overflow: hidden;
+    }
+    .skeleton::after{
+      content:"";
+      position:absolute; inset:0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      animation: shimmer 1.2s infinite;
+    }
+    @keyframes shimmer{
+      100% { transform: translateX(100%); }
+    }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50:'#F5F7FA',100:'#E1E5EC',200:'#C7D0DB',300:'#A4B4C4',400:'#7E93A9',
+              500:'#5F738A',600:'#4B5E70',700:'#3A4A5A',800:'#2A3642',900:'#1C242C'
+            },
+            accentA: {50:'#E0F7FA',100:'#B2EBF2',200:'#80DEEA',300:'#4DD0E1',400:'#26C6DA',500:'#00BCD4',600:'#00ACC1',700:'#0097A7',800:'#00838F',900:'#006064'},
+            accentB: {50:'#FFFDE7',100:'#FFF9C4',200:'#FFF59D',300:'#FFF176',400:'#FFEE58',500:'#FFEB3B',600:'#FDD835',700:'#FBC02D',800:'#F9A825',900:'#F57F17'},
+            status: { profit:'#34D399', loss:'#EF4444', info:'#60A5FA', alert:'#FBBF24' }
+          },
+          fontFamily: { sans:['Inter','sans-serif'], display:['Outfit','sans-serif'] }
         }
-        .data-table th {
-            font-weight: 600;
-            color: theme('colors.primary.200');
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-        .data-table tbody tr:nth-child(even) {
-            background-color: rgba(255, 255, 255, 0.02);
-        }
-        .data-table tbody tr:hover {
-            background-color: rgba(255, 255, 255, 0.08);
-        }
-    </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#F5F7FA',    // Soft off-white
-                            100: '#E1E5EC',
-                            200: '#C7D0DB',
-                            300: '#A4B4C4',
-                            400: '#7E93A9',
-                            500: '#5F738A',   // Sophisticated Gray
-                            600: '#4B5E70',   // Darker Gray
-                            700: '#3A4A5A',
-                            800: '#2A3642',
-                            900: '#1C242C',   // Charcoal
-                        },
-                        accentA: { // Teal
-                            50: '#E0F7FA',
-                            100: '#B2EBF2',
-                            200: '#80DEEA',
-                            300: '#4DD0E1',
-                            400: '#26C6DA',
-                            500: '#00BCD4',
-                            600: '#00ACC1',
-                            700: '#0097A7',
-                            800: '#00838F',
-                            900: '#006064',
-                        },
-                        accentB: { // Soft Gold
-                            50: '#FFFDE7',
-                            100: '#FFF9C4',
-                            200: '#FFF59D',
-                            300: '#FFF176',
-                            400: '#FFEE58',
-                            500: '#FFEB3B',
-                            600: '#FDD835',
-                            700: '#FBC02D',
-                            800: '#F9A825',
-                            900: '#F57F17',
-                        },
-                        status: {
-                            profit: '#34D399', // Emerald Green (positive)
-                            loss: '#EF4444',   // Red (alerts/negative)
-                            info: '#60A5FA',   // Muted Sapphire (info)
-                            alert: '#FBBF24',  // Amber (warnings)
-                        },
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Outfit', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
+      }
+    };
+  </script>
 </head>
+
 <body class="p-4 sm:p-8">
-    <div class="max-w-7xl mx-auto py-8">
-        <!-- Header -->
-        <header class="mb-12">
-            <h1 class="text-5xl md:text-6xl font-display font-bold text-gradient mb-2 text-center">Real Estate Portfolio Overview</h1>
-            <p class="text-primary-200 text-lg md:text-xl text-center">Comprehensive insights into your property management.</p>
-        </header>
+  <div class="max-w-7xl mx-auto py-8">
+    <!-- Header -->
+    <header class="mb-12">
+      <h1 class="text-5xl md:text-6xl font-display font-bold text-gradient mb-2 text-center">
+        Real Estate Portfolio Overview
+      </h1>
+      <p class="text-primary-200 text-lg md:text-xl text-center">
+        Live portfolio view powered by Google Sheets.
+      </p>
+    </header>
 
-        <!-- Summary Cards Section -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Key Performance Indicators</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                <!-- Total Studios Managed -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Total Studios Managed</p>
-                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">15</p>
-                    </div>
-                    <span class="status-label status-info">Info</span>
-                </div>
+    <!-- Controls -->
+    <section class="mb-8">
+      <div class="glass-card p-5 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
+        <div class="flex-1">
+          <label class="text-primary-200 text-sm">Search (Studio ID / Owner / Tenant)</label>
+          <input id="searchInput" type="text"
+                 class="w-full mt-1 px-4 py-2 rounded-xl bg-white/10 border border-white/10 outline-none focus:border-accentA-400"
+                 placeholder="Type to filter...">
+        </div>
 
-                <!-- Expected Monthly Tenant Rent -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Expected Monthly Tenant Rent</p>
-                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 42,200.00</p>
-                    </div>
-                    <span class="status-label status-info">Info</span>
-                </div>
+        <div class="w-full md:w-60">
+          <label class="text-primary-200 text-sm">Status</label>
+          <select id="statusFilter"
+                  class="w-full mt-1 px-4 py-2 rounded-xl bg-white/10 border border-white/10 outline-none focus:border-accentA-400">
+            <option value="">All</option>
+            <option value="Ready">Move-in Ready</option>
+            <option value="NotReady">Not Ready</option>
+          </select>
+        </div>
 
-                <!-- Expected Monthly Owner Rent -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Expected Monthly Owner Rent</p>
-                        <p class="text-3xl font-display font-bold text-status-loss mt-1">AED 35,600.00</p>
-                    </div>
-                    <span class="status-label status-loss">Loss</span>
-                </div>
+        <div class="w-full md:w-auto flex gap-3">
+          <button id="refreshBtn"
+                  class="btn-gradient text-white font-semibold py-2 px-5 rounded-xl">
+            Refresh
+          </button>
+          <a id="openSheetBtn" href="#" target="_blank"
+             class="px-5 py-2 rounded-xl border border-white/15 text-primary-50 hover:bg-white/10 transition">
+            Open Sheet
+          </a>
+        </div>
+      </div>
+      <p id="lastUpdated" class="text-primary-300 text-xs mt-3 px-2"></p>
+      <p id="errorBox" class="hidden text-sm mt-3 px-4 py-3 rounded-xl border border-red-400/30 bg-red-500/10 text-red-200"></p>
+    </section>
 
-                <!-- Expected Monthly Profit -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Expected Monthly Profit</p>
-                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 6,600.00</p>
-                    </div>
-                    <span class="status-label status-profit">Profit</span>
-                </div>
+    <!-- KPI Section -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Key Performance Indicators</h2>
+      <div id="kpiGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <!-- Filled by JS -->
+      </div>
+    </section>
 
-                <!-- Total Profit (All Rent Records) -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Total Profit (All Rent Records)</p>
-                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 12,050.00</p>
-                    </div>
-                    <span class="status-label status-profit">Profit</span>
-                </div>
+    <!-- Properties -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Property Details Summary</h2>
+      <div id="propertiesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Filled by JS -->
+      </div>
+    </section>
 
-                <!-- Average Days Left on Contract -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Average Days Left on Contract</p>
-                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">123.9 Days</p>
-                    </div>
-                    <span class="status-label status-info">Info</span>
-                </div>
+    <!-- Recent Rent Records -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Recent Rent Collection Records</h2>
+      <div class="glass-card p-4 overflow-x-auto">
+        <table class="w-full data-table text-primary-100">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Studio ID</th>
+              <th>Payment Date</th>
+              <th>Amount</th>
+              <th>Ownership</th>
+              <th>Month/Year</th>
+              <th>Maintenance</th>
+              <th>Profit</th>
+            </tr>
+          </thead>
+          <tbody id="rentTbody">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 
-                <!-- Overall June 2025 Income -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Overall June 2025 Income</p>
-                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 40,650.00</p>
-                    </div>
-                    <span class="status-label status-info">Info</span>
-                </div>
+  <script>
+    /**
+     * ==========================
+     * CONFIG (EDIT THIS)
+     * ==========================
+     * After you deploy Apps Script as Web App, paste the /exec URL below.
+     */
+    const CONFIG = {
+      API_URL: "PASTE_YOUR_APPS_SCRIPT_WEBAPP_EXEC_URL_HERE"
+    };
 
-                <!-- Overall June 2025 Expenses -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Overall June 2025 Expenses</p>
-                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 37,950.00</p>
-                    </div>
-                    <span class="status-label status-info">Info</span>
-                </div>
+    // Optional: if your Apps Script returns sheetUrl, this button updates automatically.
+    const openSheetBtn = document.getElementById("openSheetBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const lastUpdated = document.getElementById("lastUpdated");
+    const errorBox = document.getElementById("errorBox");
 
-                <!-- Overall June 2025 Profit -->
-                <div class="glass-card p-6 flex items-center justify-between">
-                    <div>
-                        <p class="text-primary-300 text-sm">Overall June 2025 Profit</p>
-                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 2,700.00</p>
-                    </div>
-                    <span class="status-label status-profit">Profit</span>
-                </div>
-            </div>
-        </section>
+    let STATE = {
+      properties: [],
+      rentRecords: [],
+      sheetUrl: "",
+      lastUpdatedIso: ""
+    };
 
-        <!-- Property Details Summary -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Property Details Summary</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Property Card 1 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 1 (220 v321 r2)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Mushtaq (564761500)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,400.00, Tenant: AED 3,100.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 1,400.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Nov 2025 to 30 Jan 2026 (<span class="text-status-alert">80 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function moneyAED(value) {
+      const n = Number(value || 0);
+      return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED" }).format(n);
+    }
 
-                <!-- Property Card 2 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 2 (z33 v1 r6)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (545213199)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,650.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 700.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 11 Nov 2025 to 10 May 2026 (<span class="text-status-info">125 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function parseNumber(v) {
+      if (v === null || v === undefined) return 0;
+      if (typeof v === "number") return v;
+      // remove commas, AED, spaces
+      const cleaned = String(v).replace(/AED/gi, "").replace(/,/g, "").trim();
+      const n = Number(cleaned);
+      return Number.isFinite(n) ? n : 0;
+    }
 
-                <!-- Property Card 3 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 3 (27 v4)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real (569980373)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (559628434)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,600.00, Tenant: AED 3,200.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Nov 2025 to 31 Dec 2026 (<span class="text-status-alert">0 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function daysBetween(fromIso, toIso) {
+      const a = new Date(fromIso);
+      const b = new Date(toIso);
+      const ms = b.getTime() - a.getTime();
+      return Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
 
-                <!-- Property Card 4 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 4 (z16)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shaiful Islam (559963312)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> prajith kinafteri (586861734)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,300.00, Tenant: AED 3,200.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 900.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 10 Dec 2025 to 09 Feb 2026 (<span class="text-status-info">315 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function safeText(v) {
+      return (v === null || v === undefined) ? "" : String(v);
+    }
 
-                <!-- Property Card 5 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 5 (220 v76 rF1)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Kamran Ahmed (565479448)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Nov 2025 to 24 May 2026 (<span class="text-status-info">139 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function setError(message) {
+      if (!message) {
+        errorBox.classList.add("hidden");
+        errorBox.textContent = "";
+        return;
+      }
+      errorBox.classList.remove("hidden");
+      errorBox.textContent = message;
+    }
 
-                <!-- Property Card 6 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 6 (z17 v2 r3)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Real B (570082)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Methew (551743616)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,500.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 500.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 08 Sep 2025 to 08 Oct 2026 (<span class="text-status-info">276 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function kpiCard(label, value, pillText, pillClass) {
+      return `
+        <div class="glass-card p-6 flex items-center justify-between">
+          <div class="min-w-0">
+            <p class="text-primary-300 text-sm">${label}</p>
+            <p class="text-3xl font-display font-bold text-primary-50 mt-1 truncate">${value}</p>
+          </div>
+          <span class="status-label ${pillClass}">${pillText}</span>
+        </div>
+      `;
+    }
 
-                <!-- Property Card 7 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 7 (27 v4 r2)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real Estat (568570003)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Gulam Mohamed (526886254)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 700.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Nov 2025 to 24 Jan 2026 (<span class="text-status-alert">19 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function computeKPIs(properties, rentRecords) {
+      const totalStudios = properties.length;
 
-                <!-- Property Card 8 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 8 (z20 v313 r4)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (545262129)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,150.00, Tenant: AED 3,300.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 2,100.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 03 Jan 2026 to 02 Mar 2026 (<span class="text-status-alert">0 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+      const expectedTenantMonthly = properties.reduce((sum, p) => sum + parseNumber(p.TenantMonthlyRent), 0);
+      const expectedOwnerMonthly  = properties.reduce((sum, p) => sum + parseNumber(p.OwnerMonthlyRent), 0);
+      const expectedProfitMonthly = expectedTenantMonthly - expectedOwnerMonthly;
 
-                <!-- Property Card 9 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 9 (26 v70 r4)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> harikrishna (522749009)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,600.00, Tenant: AED 3,200.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 1,600.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 03 Jan 2026 to 02 Mar 2026 (<span class="text-status-info">56 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+      // Average days left (only if ContractEnd exists)
+      const todayIso = new Date().toISOString();
+      const validDays = properties
+        .map(p => {
+          const end = p.ContractEndISO;
+          if (!end) return null;
+          return daysBetween(todayIso, end);
+        })
+        .filter(x => x !== null && Number.isFinite(x));
+      const avgDaysLeft = validDays.length ? (validDays.reduce((a,b) => a + b, 0) / validDays.length) : 0;
 
-                <!-- Property Card 10 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 10 (z26)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Thomas (505325654)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Ahsan Ali (569558183)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,250.00, Tenant: AED 3,200.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 30 Nov 2025 to 28 Feb 2026 (<span class="text-status-info">54 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+      const totalProfitAllRecords = rentRecords.reduce((sum, r) => sum + parseNumber(r.Profit), 0);
 
-                <!-- Property Card 11 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 11 (27 v3 r2)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real Estat (568570003)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Jawwad Ali (502506577)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,500.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Dec 2025 to 01 Jan 2026 (<span class="text-status-alert">26 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+      // “Current month” income/expense view (based on PaymentDateISO month)
+      const now = new Date();
+      const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+      const thisMonth = rentRecords.filter(r => (r.PaymentDateISO || "").startsWith(ym));
+      const thisMonthIncome = thisMonth.reduce((sum, r) => sum + parseNumber(r.Amount), 0);
+      const thisMonthMaintenance = thisMonth.reduce((sum, r) => sum + parseNumber(r.Maintenance), 0);
+      const thisMonthProfit = thisMonth.reduce((sum, r) => sum + parseNumber(r.Profit), 0);
 
-                <!-- Property Card 12 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 12 (z12)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Saif Uddin Real E (585570082)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Dinesh (564095337)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,550.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 550.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Aug 2024 to 24 Apr 2026 (<span class="text-status-info">109 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+      return {
+        totalStudios,
+        expectedTenantMonthly,
+        expectedOwnerMonthly,
+        expectedProfitMonthly,
+        totalProfitAllRecords,
+        avgDaysLeft,
+        thisMonthIncome,
+        thisMonthMaintenance,
+        thisMonthProfit,
+        ym
+      };
+    }
 
-                <!-- Property Card 13 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 13 (233 v1 r5)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumom (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Jude Merwin (585282980)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,100.00, Tenant: AED 2,900.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</span> 22 May 2025 to 21 May 2026 (<span class="text-status-info">136 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function pillForProfit(n) {
+      if (n > 0) return { text: "Profit", cls: "status-positive" };
+      if (n < 0) return { text: "Loss", cls: "status-negative" };
+      return { text: "Info", cls: "status-info" };
+    }
 
-                <!-- Property Card 14 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 14 (21 va2 r6)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> sadiq (01987065)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Richard (566813666)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,100.00, Tenant: AED 2,600.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 12 Jun 2025 to 11 Jun 2026 (<span class="text-status-info">157 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
+    function renderKPIs(kpis) {
+      const grid = document.getElementById("kpiGrid");
+      const avgDaysText = kpis.avgDaysLeft ? `${kpis.avgDaysLeft.toFixed(1)} Days` : "—";
+      const p1 = pillForProfit(kpis.expectedProfitMonthly);
+      const p2 = pillForProfit(kpis.totalProfitAllRecords);
+      const p3 = pillForProfit(kpis.thisMonthProfit);
 
-                <!-- Property Card 15 -->
-                <div class="glass-card p-6 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 15 (219 c68 v3 r6)</h3>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Abin Balachandra (564038927)</p>
-                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 3,600.00</span></p>
-                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 08 Jan 2026 to 07 Jan 2027 (<span class="text-status-info">367 days left</span>)</p>
-                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
-                    </div>
-                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
-                </div>
-            </div>
-        </section>
+      grid.innerHTML = [
+        kpiCard("Total Units Managed", String(kpis.totalStudios), "Info", "status-info"),
+        kpiCard("Expected Monthly Tenant Rent", moneyAED(kpis.expectedTenantMonthly), "Info", "status-info"),
+        kpiCard("Expected Monthly Owner Rent", moneyAED(kpis.expectedOwnerMonthly), "Info", "status-info"),
+        kpiCard("Expected Monthly Profit", moneyAED(kpis.expectedProfitMonthly), p1.text, p1.cls),
+        kpiCard("Total Profit (All Rent Records)", moneyAED(kpis.totalProfitAllRecords), p2.text, p2.cls),
+        kpiCard("Average Days Left on Contract", avgDaysText, "Info", "status-info"),
+        kpiCard(`Income (${kpis.ym})`, moneyAED(kpis.thisMonthIncome), "Info", "status-info"),
+        kpiCard(`Maintenance (${kpis.ym})`, moneyAED(kpis.thisMonthMaintenance), "Info", "status-info"),
+        kpiCard(`Profit (${kpis.ym})`, moneyAED(kpis.thisMonthProfit), p3.text, p3.cls),
+      ].join("");
+    }
 
-        <!-- Recent Rent Collection Records -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Recent Rent Collection Records</h2>
-            <div class="glass-card p-4 overflow-x-auto">
-                <table class="w-full data-table text-primary-100">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Studio ID</th>
-                            <th>Payment Date</th>
-                            <th>Amount</th>
-                            <th>Ownership</th>
-                            <th>Month/Year</th>
-                            <th>Maintenance</th>
-                            <th>Profit</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>328</td>
-                            <td>z20 v321 r2</td>
-                            <td>09 Jan 2026</td>
-                            <td>AED 3,100.00</td>
-                            <td>Personnel</td>
-                            <td>1/2026</td>
-                            <td>AED 200.00</td>
-                            <td class="text-status-profit">AED 500.00</td>
-                        </tr>
-                        <tr>
-                            <td>327</td>
-                            <td>z20 v313 r4</td>
-                            <td>07 Jan 2026</td>
-                            <td>AED 3,300.00</td>
-                            <td>Personnel</td>
-                            <td>1/2026</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 1,150.00</td>
-                        </tr>
-                        <tr>
-                            <td>326</td>
-                            <td>z6 v70 r4</td>
-                            <td>07 Jan 2026</td>
-                            <td>AED 3,200.00</td>
-                            <td>Personnel</td>
-                            <td>1/2026</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 600.00</td>
-                        </tr>
-                        <tr>
-                            <td>325</td>
-                            <td>z26</td>
-                            <td>31 Dec 2025</td>
-                            <td>AED 3,200.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 950.00</td>
-                        </tr>
-                        <tr>
-                            <td>324</td>
-                            <td>z7 v3 r2</td>
-                            <td>03 Jan 2026</td>
-                            <td>AED 3,500.00</td>
-                            <td>Personnel</td>
-                            <td>1/2026</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 800.00</td>
-                        </tr>
-                        <tr>
-                            <td>323</td>
-                            <td>z20 v313 r4</td>
-                            <td>31 Dec 2025</td>
-                            <td>AED 416.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-loss">AED -1,734.00</td>
-                        </tr>
-                        <tr>
-                            <td>322</td>
-                            <td>z7 v3 r2</td>
-                            <td>31 Dec 2025</td>
-                            <td>AED 3,500.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 800.00</td>
-                        </tr>
-                        <tr>
-                            <td>321</td>
-                            <td>z33 v1 r5</td>
-                            <td>31 Dec 2025</td>
-                            <td>AED 2,900.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 800.00</td>
-                        </tr>
-                        <tr>
-                            <td>320</td>
-                            <td>z7 v4 r2</td>
-                            <td>29 Dec 2025</td>
-                            <td>AED 3,400.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 700.00</td>
-                        </tr>
-                        <tr>
-                            <td>319</td>
-                            <td>z12</td>
-                            <td>29 Dec 2025</td>
-                            <td>AED 2,550.00</td>
-                            <td>Personnel</td>
-                            <td>12/2025</td>
-                            <td>AED 0.00</td>
-                            <td class="text-status-profit">AED 550.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    function makePropertyCard(p) {
+      const studio = safeText(p.StudioId || p.StudioID || p.Unit || p.ID || "");
+      const owner = safeText(p.OwnerName || p.Owner || "");
+      const tenant = safeText(p.TenantName || p.Tenant || "N/A");
 
-        <!-- Financial Insights & Recurring Expenses -->
-        <section class="mb-16">
-            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Financial Insights & Recurring Expenses</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Monthly Profit Summary -->
-                <div class="lg:col-span-2 glass-card p-6 overflow-x-auto">
-                    <h3 class="text-xl font-display font-semibold text-accentB-400 mb-4">Monthly Profit Summary (Personnel)</h3>
-                    <table class="w-full data-table text-primary-100">
-                        <thead>
-                            <tr>
-                                <th>Month</th>
-                                <th>Company Profit</th>
-                                <th>Personnel Profit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>January</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>February</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>March</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>April</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>May</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>June</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>July</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>August</td><td>AED 2,000.00</td><td>AED 3,650.00</td></tr>
-                            <tr><td>September</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>October</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>November</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                            <tr><td>December</td><td>AED 0.00</td><td>AED 0.00</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+      const ownerRent = parseNumber(p.OwnerMonthlyRent);
+      const tenantRent = parseNumber(p.TenantMonthlyRent);
+      const expectedProfit = tenantRent - ownerRent;
 
-                <!-- Alerts and Overall Performance -->
-                <div class="lg:col-span-1 flex flex-col gap-6">
-                    <div class="glass-card p-6">
-                        <h3 class="text-xl font-display font-semibold text-status-alert mb-4">Recurring Expense Alert</h3>
-                        <p class="text-primary-50 text-lg">AED 210.00 for Sabir on a <span class="font-bold">Monthly</span> basis.</p>
-                        <p class="text-primary-300 text-sm mt-2">Action Required: Verify and manage this recurring expense.</p>
-                    </div>
-                    <div class="glass-card p-6">
-                        <h3 class="text-xl font-display font-semibold text-accentB-400 mb-4">Overall Financial Performance</h3>
-                        <p class="text-primary-50 text-lg mb-2"><strong class="text-primary-200">Total Income:</strong> AED 295,494.00</p>
-                        <p class="text-primary-50 text-lg mb-2"><strong class="text-primary-200">Total Maintenance Cost:</strong> AED 710.00</p>
-                        <p class="text-primary-50 text-xl font-bold"><strong class="text-primary-200">Aggregated Profit:</strong> <span class="text-status-profit">AED 12,050.00</span></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
+      const endISO = p.ContractEndISO || "";
+      const startISO = p.ContractStartISO || "";
+      const contractText = (startISO || endISO)
+        ? `${startISO ? new Date(startISO).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—"} to ${endISO ? new Date(endISO).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—"}`
+        : "—";
+
+      const daysLeft = endISO ? daysBetween(new Date().toISOString(), endISO) : null;
+
+      const readyRaw = safeText(p.MoveInReady || p.ReadyToMove || "").toLowerCase();
+      const isReady = ["yes","true","1","ready"].includes(readyRaw);
+
+      const docs = safeText(p.DriveFolderLink || p.DriveLink || p.DocumentsLink || "#");
+
+      const profitPill = pillForProfit(expectedProfit);
+      const daysPill = (daysLeft === null)
+        ? { text: "Info", cls: "status-info", extra: "" }
+        : (daysLeft <= 30 ? { text: "Alert", cls: "status-alert", extra: `${daysLeft} days left` }
+          : { text: "Info", cls: "status-info", extra: `${daysLeft} days left` });
+
+      const readyPill = isReady
+        ? `<span class="status-label status-positive">Yes</span>`
+        : `<span class="status-label status-alert">No</span>`;
+
+      return `
+        <div class="glass-card p-6 flex flex-col justify-between">
+          <div>
+            <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: ${studio || "—"}</h3>
+
+            <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> ${owner || "—"}</p>
+            <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> ${tenant || "N/A"}</p>
+
+            <p class="text-primary-200 text-sm mb-1">
+              <strong class="text-primary-50">Rents:</strong>
+              Owner: ${moneyAED(ownerRent)}, Tenant: ${moneyAED(tenantRent)}
+            </p>
+
+            <p class="text-primary-200 text-sm mb-3">
+              <strong class="text-primary-50">Expected Profit:</strong>
+              <span class="${expectedProfit >= 0 ? "text-status-profit" : "text-status-loss"}">
+                ${moneyAED(expectedProfit)}
+              </span>
+              <span class="status-label ${profitPill.cls} ml-2">${profitPill.text}</span>
+            </p>
+
+            <p class="text-primary-200 text-sm mb-3">
+              <strong class="text-primary-50">Contract:</strong>
+              ${contractText}
+              ${daysPill.extra ? `<span class="status-label ${daysPill.cls} ml-2">${daysPill.extra}</span>` : ""}
+            </p>
+
+            <p class="text-primary-200 text-sm mb-4">
+              <strong class="text-primary-50">Move-in Ready:</strong> ${readyPill}
+            </p>
+          </div>
+
+          <a href="${docs && docs !== "#" ? docs : "#"}"
+             target="_blank"
+             class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4 ${docs && docs !== "#" ? "" : "opacity-60 pointer-events-none"}">
+            View Documents
+          </a>
+        </div>
+      `;
+    }
+
+    function renderProperties(properties) {
+      const grid = document.getElementById("propertiesGrid");
+      grid.innerHTML = properties.map(makePropertyCard).join("");
+    }
+
+    function profitCellClass(n) {
+      const v = parseNumber(n);
+      return v >= 0 ? "text-status-profit" : "text-status-loss";
+    }
+
+    function renderRentRecords(records) {
+      const tbody = document.getElementById("rentTbody");
+      tbody.innerHTML = records.map(r => `
+        <tr>
+          <td>${safeText(r.ID)}</td>
+          <td>${safeText(r.StudioId)}</td>
+          <td>${r.PaymentDateISO ? new Date(r.PaymentDateISO).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : safeText(r.PaymentDate)}</td>
+          <td>${moneyAED(parseNumber(r.Amount))}</td>
+          <td>${safeText(r.Ownership)}</td>
+          <td>${safeText(r.MonthYear)}</td>
+          <td>${moneyAED(parseNumber(r.Maintenance))}</td>
+          <td class="${profitCellClass(r.Profit)}">${moneyAED(parseNumber(r.Profit))}</td>
+        </tr>
+      `).join("");
+    }
+
+    function applyFilters() {
+      const q = (searchInput.value || "").toLowerCase().trim();
+      const status = statusFilter.value;
+
+      let props = [...STATE.properties];
+
+      if (q) {
+        props = props.filter(p => {
+          const hay = [
+            p.StudioId, p.StudioID, p.OwnerName, p.Owner, p.TenantName, p.Tenant
+          ].map(safeText).join(" ").toLowerCase();
+          return hay.includes(q);
+        });
+      }
+
+      if (status) {
+        props = props.filter(p => {
+          const readyRaw = safeText(p.MoveInReady || p.ReadyToMove || "").toLowerCase();
+          const isReady = ["yes","true","1","ready"].includes(readyRaw);
+          return status === "Ready" ? isReady : !isReady;
+        });
+      }
+
+      // re-render property cards only
+      renderProperties(props);
+    }
+
+    function renderSkeleton() {
+      const kpiGrid = document.getElementById("kpiGrid");
+      const propertiesGrid = document.getElementById("propertiesGrid");
+      const rentTbody = document.getElementById("rentTbody");
+
+      kpiGrid.innerHTML = new Array(8).fill(0).map(() => `
+        <div class="glass-card p-6 skeleton">
+          <div class="h-4 w-32 bg-white/10 rounded mb-3"></div>
+          <div class="h-9 w-44 bg-white/10 rounded"></div>
+        </div>
+      `).join("");
+
+      propertiesGrid.innerHTML = new Array(6).fill(0).map(() => `
+        <div class="glass-card p-6 skeleton">
+          <div class="h-6 w-56 bg-white/10 rounded mb-4"></div>
+          <div class="h-4 w-48 bg-white/10 rounded mb-2"></div>
+          <div class="h-4 w-40 bg-white/10 rounded mb-2"></div>
+          <div class="h-4 w-64 bg-white/10 rounded mb-2"></div>
+          <div class="h-4 w-52 bg-white/10 rounded mb-2"></div>
+          <div class="h-10 w-full bg-white/10 rounded mt-6"></div>
+        </div>
+      `).join("");
+
+      rentTbody.innerHTML = new Array(6).fill(0).map(() => `
+        <tr class="skeleton">
+          <td><div class="h-4 w-10 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-24 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-24 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-24 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-20 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-20 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-20 bg-white/10 rounded"></div></td>
+          <td><div class="h-4 w-20 bg-white/10 rounded"></div></td>
+        </tr>
+      `).join("");
+    }
+
+    async function loadData() {
+      setError("");
+      if (!CONFIG.API_URL || CONFIG.API_URL.includes("PASTE_")) {
+        setError("Configuration required: paste your Apps Script Web App URL into CONFIG.API_URL in index.html.");
+        return;
+      }
+
+      renderSkeleton();
+
+      try {
+        const res = await fetch(CONFIG.API_URL, { method: "GET" });
+        if (!res.ok) throw new Error(`API error: HTTP ${res.status}`);
+        const payload = await res.json();
+
+        if (!payload || !payload.ok) {
+          throw new Error(payload && payload.error ? payload.error : "Unknown API error.");
+        }
+
+        STATE.properties = Array.isArray(payload.properties) ? payload.properties : [];
+        STATE.rentRecords = Array.isArray(payload.rentRecords) ? payload.rentRecords : [];
+        STATE.sheetUrl = payload.sheetUrl || "";
+        STATE.lastUpdatedIso = payload.lastUpdatedIso || "";
+
+        if (STATE.sheetUrl) openSheetBtn.href = STATE.sheetUrl;
+
+        // Sort rent records by PaymentDateISO desc then ID desc
+        STATE.rentRecords.sort((a,b) => {
+          const da = a.PaymentDateISO || "";
+          const db = b.PaymentDateISO || "";
+          if (da !== db) return db.localeCompare(da);
+          return parseNumber(b.ID) - parseNumber(a.ID);
+        });
+
+        const kpis = computeKPIs(STATE.properties, STATE.rentRecords);
+
+        renderKPIs(kpis);
+        renderProperties(STATE.properties);
+        renderRentRecords(STATE.rentRecords.slice(0, 20)); // show latest 20
+
+        lastUpdated.textContent = STATE.lastUpdatedIso
+          ? `Last updated: ${new Date(STATE.lastUpdatedIso).toLocaleString("en-GB")}`
+          : "";
+
+        applyFilters();
+      } catch (err) {
+        setError(err && err.message ? err.message : "Failed to load data.");
+      }
+    }
+
+    refreshBtn.addEventListener("click", loadData);
+    searchInput.addEventListener("input", applyFilters);
+    statusFilter.addEventListener("change", applyFilters);
+
+    loadData();
+  </script>
 </body>
 </html>
