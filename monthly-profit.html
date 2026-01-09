@@ -1,244 +1,514 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monthly Profit - Opal Property Management</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart. js"></script>
-    <style>
-        : root {
-            --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-            --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-            --opal-cyan: #00bcd4;
-            --text-primary: #263238;
-            --text-secondary: #546e7a;
-            --bg-primary: #ffffff;
-            --bg-secondary:  #f5f7fa;
-            --status-active: #4caf50;
-            --status-expiring: #ff9800;
-            --status-expired: #f44336;
-            --navy:  #1a237e;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background:  var(--bg-secondary); color: var(--text-primary); min-height: 100vh; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Profit • Sabir Amin Real Estate Company LLC</title>
 
-        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-primary); border-right: 1px solid rgba(0,0,0,0.06); padding: 24px 16px; z-index: 1000; }
-        .logo { display: flex; align-items: center; gap: 12px; padding: 0 12px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 24px; }
-        .logo-icon { width: 42px; height: 42px; background: var(--opal-accent); border-radius: 12px; display: flex; align-items: center; justify-content:  center; color: white; font-size: 20px; }
-        .logo-text { font-size: 24px; font-weight: 700; background: var(--opal-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-section { margin-bottom: 24px; }
-        .nav-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); padding:  0 12px; margin-bottom: 8px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition:  all 0.2s; margin-bottom: 4px; }
-        .nav-link:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .nav-link. active { background: var(--opal-gradient); color: var(--navy); }
-        .nav-link i { width: 20px; text-align: center; }
-        .nav-badge { margin-left: auto; background: var(--status-expired); color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
-        .main-content { margin-left: 260px; padding: 24px 32px; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .page-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-        .page-title p { color: var(--text-secondary); font-size: 14px; }
-        .header-actions { display: flex; gap: 12px; }
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
-        .btn-primary { background: var(--opal-accent); color: white; }
-        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 1px solid rgba(0,0,0,0.1); }
-        .filter-select { padding: 10px 14px; border:  1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-primary); }
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-        .profit-hero { background: var(--opal-gradient); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
-        .profit-hero-item { text-align: center; }
-        .profit-hero-value { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
-        .profit-hero-value.income { color: var(--status-active); }
-        .profit-hero-value.expense { color: var(--status-expired); }
-        .profit-hero-value.profit { color: var(--navy); }
-        .profit-hero-value.margin { color: var(--opal-cyan); }
-        .profit-hero-label { font-size: 13px; color: var(--text-secondary); }
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
-        .chart-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom:  20px; }
-        .chart-title { font-size: 16px; font-weight: 600; }
-
-        .table-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
-        .table-header { padding: 20px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: var(--bg-secondary); padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
-        td { padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
-        tr:hover { background:  rgba(0,0,0,0.01); }
-        .profit-positive { color: var(--status-active); font-weight: 600; }
-        .profit-negative { color: var(--status-expired); font-weight: 600; }
-    </style>
+  <!-- Shared UI Styles -->
+  <link rel="stylesheet" href="app.css" />
 </head>
-<body>
 
-<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
-  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
-    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
-    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
-  </div>
-</div>
-<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+<body data-page="monthly-profit">
+  <div class="backdrop" id="backdrop"></div>
 
-    <nav class="sidebar">
-        <div class="logo">
-            <div class="logo-icon"><i class="fas fa-gem"></i></div>
-            <span class="logo-text">Opal</span>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Main</div>
-            <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
-            <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
-            <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i>Rent Records<span class="nav-badge">3</span></a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Finance</div>
-            <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
-            <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
-            <a href="monthly-profit.html" class="nav-link active"><i class="fas fa-chart-line"></i>Monthly Profit</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">Reports</div>
-            <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
-        </div>
-        <div class="nav-section">
-            <div class="nav-section-title">System</div>
-            <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
-        </div>
-    </nav>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-gem"></i></div>
+      <div class="logo-text">
+        <div class="brand-name">Sabir Amin</div>
+        <div class="brand-sub">Real Estate Company LLC</div>
+      </div>
+    </div>
 
-    <main class="main-content">
-        <header class="page-header">
-            <div class="page-title">
-                <h1>MonthlyProfits</h1>
-                <p>Detailed profit analysis per property and overall portfolio</p>
-            </div>
-            <div class="header-actions">
-                <select class="filter-select">
-                    <option>January 2026</option>
-                    <option>December 2025</option>
-                    <option>November 2025</option>
-                </select>
-                <button class="btn btn-secondary"><i class="fas fa-download"></i> Export</button>
-            </div>
-        </header>
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
+      <a href="rent-records.html" class="nav-link">
+        <i class="fas fa-file-invoice-dollar"></i>Rent Records
+        <span class="nav-badge" id="rentBadge">0</span>
+      </a>
+    </div>
 
-        <!-- Profit Hero -->
-        <div class="profit-hero">
-            <div class="profit-hero-item">
-                <div class="profit-hero-value income">42,500 QAR</div>
-                <div class="profit-hero-label">Total Income</div>
-            </div>
-            <div class="profit-hero-item">
-                <div class="profit-hero-value expense">29,600 QAR</div>
-                <div class="profit-hero-label">Total Expenses</div>
-            </div>
-            <div class="profit-hero-item">
-                <div class="profit-hero-value profit">12,900 QAR</div>
-                <div class="profit-hero-label">Net Profit</div>
-            </div>
-            <div class="profit-hero-item">
-                <div class="profit-hero-value margin">30. 4%</div>
-                <div class="profit-hero-label">Profit Margin</div>
-            </div>
+    <div class="nav-section">
+      <div class="nav-section-title">Finance</div>
+      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+      <a href="monthly-profit.html" class="nav-link active"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="topbar">
+      <div class="page-title">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
+          <h1>Monthly Profit</h1>
+        </div>
+        <p>
+          Portfolio profit analysis by month, owner, and property.
+          <span id="nowMeta" style="font-weight:900;"></span>
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill" title="Theme">
+          <i class="fas fa-moon" style="color:var(--opal-lilac);"></i>
+          <span>Theme: <strong id="themeLabel">Light</strong></span>
         </div>
 
-        <!-- Charts Row -->
-        <div class="charts-row">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">12-Month Profit Trend</h3>
-                </div>
-                <canvas id="trendChart" height="120"></canvas>
+        <select class="select" id="monthSelect" title="Select month">
+          <option value="">Loading months…</option>
+        </select>
+
+        <button class="btn btn-secondary btn-icon" id="themeBtn" title="Toggle dark mode">
+          <i class="fas fa-circle-half-stroke"></i>
+        </button>
+
+        <a class="btn btn-secondary" id="exportBtn" href="#" title="Export CSV (demo)">
+          <i class="fas fa-file-export"></i> Export
+        </a>
+      </div>
+    </header>
+
+    <!-- Loading / Error -->
+    <div id="ppLoading" class="overlay-loading" style="display:none;">
+      <div class="overlay-card">
+        <i class="fas fa-spinner fa-spin" style="color:var(--opal-cyan);"></i>
+        <span>Loading live data…</span>
+      </div>
+    </div>
+
+    <div id="ppError" class="inline-error" style="display:none;"></div>
+
+    <!-- Hero KPIs -->
+    <section class="card" aria-label="Monthly profit overview">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-sack-dollar"></i> Snapshot</div>
+          <div class="card-sub">Selected month summary (calculated from your sheets)</div>
+        </div>
+        <span class="pill" title="Data source">
+          <i class="fas fa-database" style="color:var(--opal-cyan);"></i>
+          <span>Source: <strong id="dataSourceLabel">Google Sheet</strong></span>
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="kpi-grid" style="margin:0;">
+          <div class="kpi-card card" style="grid-column: span 3;">
+            <div class="kpi-row">
+              <div>
+                <div class="kpi-label">Total Income</div>
+                <div class="kpi-value" id="mpIncome">—</div>
+                <div class="kpi-sub" id="mpIncomeSub">—</div>
+              </div>
+              <div class="kpi-icon"><i class="fas fa-arrow-trend-up"></i></div>
             </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Profit by Owner</h3>
-                </div>
-                <canvas id="ownerChart" height="200"></canvas>
+            <div class="kpi-chip up"><i class="fas fa-circle-check"></i> Collected</div>
+          </div>
+
+          <div class="kpi-card card" style="grid-column: span 3;">
+            <div class="kpi-row">
+              <div>
+                <div class="kpi-label">Total Expenses</div>
+                <div class="kpi-value" id="mpExpenses">—</div>
+                <div class="kpi-sub" id="mpExpensesSub">—</div>
+              </div>
+              <div class="kpi-icon"><i class="fas fa-arrow-trend-down"></i></div>
             </div>
+            <div class="kpi-chip down"><i class="fas fa-receipt"></i> Costs</div>
+          </div>
+
+          <div class="kpi-card card" style="grid-column: span 3;">
+            <div class="kpi-row">
+              <div>
+                <div class="kpi-label">Net Profit</div>
+                <div class="kpi-value" id="mpNet">—</div>
+                <div class="kpi-sub" id="mpNetSub">—</div>
+              </div>
+              <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+            </div>
+            <div class="kpi-chip info"><i class="fas fa-wave-square"></i> Net</div>
+          </div>
+
+          <div class="kpi-card card" style="grid-column: span 3;">
+            <div class="kpi-row">
+              <div>
+                <div class="kpi-label">Profit Margin</div>
+                <div class="kpi-value" id="mpMargin">—</div>
+                <div class="kpi-sub">Net / Income</div>
+              </div>
+              <div class="kpi-icon"><i class="fas fa-percent"></i></div>
+            </div>
+            <div class="kpi-chip warn"><i class="fas fa-gauge-high"></i> Margin</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts-grid" aria-label="Monthly profit charts" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-chart-line"></i> Profit Trend</div>
+            <div class="card-sub">Last 12 months (auto from your monthly aggregation)</div>
+          </div>
+          <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh">
+            <i class="fas fa-rotate"></i>
+          </button>
+        </div>
+        <div class="card-body" style="height:260px;">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-chart-pie"></i> Profit by Owner</div>
+            <div class="card-sub">Selected month</div>
+          </div>
+        </div>
+        <div class="card-body" style="height:260px;">
+          <canvas id="ownerChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="card" aria-label="Profit breakdown" style="margin-top:16px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-table"></i> Profit Breakdown</div>
+          <div class="card-sub">Per property (income, expenses, net, margin)</div>
         </div>
 
-        <!-- Profit Table by Property -->
-        <div class="table-card">
-            <div class="table-header">
-                <h3 style="font-size: 16px; font-weight: 600;">Profit Breakdown by Property - January 2026</h3>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Unit</th>
-                            <th>Owner</th>
-                            <th>Tenant</th>
-                            <th>Rent In (Income)</th>
-                            <th>Rent Out (Expense)</th>
-                            <th>Other Expenses</th>
-                            <th>Net Profit</th>
-                            <th>Margin</th>
-                        </tr>
-                    </thead>
-                    <tbody id="monthlyProfitTbody"></tbody>
-                </table>
-            </div>
-        </div>
-    </main>
+        <span class="pill" title="Visible rows">
+          <i class="fas fa-eye" style="color:var(--opal-cyan);"></i>
+          <span>Rows: <strong id="mpRows">0</strong></span>
+        </span>
+      </div>
 
-    <script>
-        // Trend Chart
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
-        new Chart(trendCtx, {
-            type: 'line',
-            data: {
-                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
-                datasets:  [{
-                    label: 'Net Profit',
-                    data:  [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900],
-                    borderColor: '#4dd0e1',
-                    backgroundColor: 'rgba(77, 208, 225, 0.1)',
-                    borderWidth:  3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales:  {
-                    y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.04)' } },
-                    x: { grid:  { display: false } }
-                }
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Unit</th>
+                <th>Owner</th>
+                <th>Tenant</th>
+                <th>Income</th>
+                <th>Expenses</th>
+                <th>Other</th>
+                <th>Net</th>
+                <th>Margin</th>
+              </tr>
+            </thead>
+            <tbody id="monthlyProfitTbody">
+              <tr>
+                <td colspan="8" style="padding:18px 14px;color:var(--text-secondary);font-weight:900;">
+                  Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Shared App Logic -->
+  <script src="app.js"></script>
+
+  <!-- Page Logic -->
+  <script>
+    /************************************************************
+     * Monthly Profit Page
+     * Requirements:
+     * - Keep same UI
+     * - Load data from Google Sheet (multiple sheets) via app.js data layer
+     *
+     * Expectations from app.js:
+     * - window.PropertyPilot.initCommonUI() handles sidebar/theme/time
+     * - window.PropertyPilot.getMonthlyProfitModel() returns:
+     *     {
+     *        months: [{ key:'2026-01', label:'Jan 2026' }, ...],
+     *        currency: 'QAR',
+     *        trend: [{ key:'2025-02', label:'Feb', net: 9500 }, ...],
+     *        current: {
+     *           key:'2026-01',
+     *           totals: { income: 42500, expenses: 29600, other: 0, net: 12900, margin: 0.304 },
+     *           byOwner: [{ owner:'Shumon', net: 8800 }, ...],
+     *           rows: [{ unit, owner, tenant, income, expenses, other, net, margin }]
+     *        }
+     *     }
+     * - window.PropertyPilot.setLoading(isLoading, errorText?)
+     ************************************************************/
+
+    let trendChart, ownerChart;
+
+    function money(n, cur){
+      const v = Number(n || 0);
+      return v.toLocaleString(undefined, { maximumFractionDigits: 0 }) + " " + (cur || "");
+    }
+    function pct(n){
+      const v = Number(n || 0) * 100;
+      return v.toFixed(1) + "%";
+    }
+
+    function getGridColor(){
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      return isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
+    }
+    function getTickColor(){
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      return isDark ? "rgba(230,233,239,0.80)" : "rgba(84,110,122,0.90)";
+    }
+
+    function destroyCharts(){
+      if(trendChart){ trendChart.destroy(); trendChart = null; }
+      if(ownerChart){ ownerChart.destroy(); ownerChart = null; }
+    }
+
+    function renderCharts(model){
+      destroyCharts();
+
+      // Trend
+      const tctx = document.getElementById("trendChart").getContext("2d");
+      trendChart = new Chart(tctx, {
+        type: "line",
+        data: {
+          labels: (model.trend || []).map(x => x.label),
+          datasets: [{
+            label: "Net Profit",
+            data: (model.trend || []).map(x => x.net),
+            borderColor: "#4dd0e1",
+            backgroundColor: "rgba(77, 208, 225, 0.12)",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.42,
+            pointRadius: 3.8,
+            pointHoverRadius: 6,
+            pointBackgroundColor: "#4dd0e1"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: { label: (ctx) => ` ${ctx.parsed.y.toLocaleString()}` }
             }
-        });
+          },
+          scales: {
+            y: { grid: { color: getGridColor() }, ticks: { color: getTickColor() } },
+            x: { grid: { display: false }, ticks: { color: getTickColor() } }
+          }
+        }
+      });
 
-        // Owner Chart
-        const ownerCtx = document.getElementById('ownerChart').getContext('2d');
-        new Chart(ownerCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Shumon', 'Saif Uddin R', 'Shaiful Islam', 'Thomas Rea', 'sadiq'],
-                datasets: [{
-                    data: [8800, 1500, 900, 1100, -600],
-                    backgroundColor: ['#4dd0e1', '#7c4dff', '#69f0ae', '#ff9800', '#f44336'],
-                    borderWidth:  0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend:  { position: 'bottom', labels: { boxWidth: 12, padding: 8 } } },
-                cutout: '60%'
+      // Owner
+      const octx = document.getElementById("ownerChart").getContext("2d");
+      const byOwner = model.current?.byOwner || [];
+      ownerChart = new Chart(octx, {
+        type: "doughnut",
+        data: {
+          labels: byOwner.map(x => x.owner),
+          datasets: [{
+            data: byOwner.map(x => x.net),
+            // Keep same palette vibe (Chart.js will render as-is)
+            backgroundColor: ["#4dd0e1","#9575cd","#69f0ae","#ef6c00","#c62828","#1a237e","#00bcd4"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: getTickColor(), boxWidth: 14, font: { weight: "700" } }
             }
-        });
-    </script>
+          },
+          cutout: "68%"
+        }
+      });
+    }
 
-<script src="app-config.js"></script>
-<script src="app-data.js"></script>
-<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('monthly-profit'));</script>
+    function fillMonthSelect(months, currentKey){
+      const sel = document.getElementById("monthSelect");
+      sel.innerHTML = "";
+      months.forEach(m => {
+        const opt = document.createElement("option");
+        opt.value = m.key;
+        opt.textContent = m.label;
+        if(m.key === currentKey) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
 
+    function renderTable(rows, currency){
+      const tb = document.getElementById("monthlyProfitTbody");
+      tb.innerHTML = "";
+      (rows || []).forEach(r => {
+        const tr = document.createElement("tr");
+        const netClass = (Number(r.net || 0) >= 0) ? "money pos" : "money neg";
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(r.unit || "")}</strong></td>
+          <td>${escapeHtml(r.owner || "—")}</td>
+          <td>${escapeHtml(r.tenant || "—")}</td>
+          <td>${money(r.income, currency)}</td>
+          <td>${money(r.expenses, currency)}</td>
+          <td>${money(r.other, currency)}</td>
+          <td><span class="${netClass}">${money(r.net, currency)}</span></td>
+          <td>${(r.margin == null) ? "—" : pct(r.margin)}</td>
+        `;
+        tb.appendChild(tr);
+      });
+      document.getElementById("mpRows").textContent = String((rows || []).length);
+    }
+
+    function renderKPIs(totals, currency){
+      document.getElementById("mpIncome").textContent = money(totals.income, currency);
+      document.getElementById("mpExpenses").textContent = money(totals.expenses, currency);
+      document.getElementById("mpNet").textContent = money(totals.net, currency);
+      document.getElementById("mpMargin").textContent = (totals.margin == null) ? "—" : pct(totals.margin);
+
+      document.getElementById("mpIncomeSub").textContent = "Income";
+      document.getElementById("mpExpensesSub").textContent = "Expenses";
+      document.getElementById("mpNetSub").textContent = "Net";
+    }
+
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function loadAndRender(selectedKey){
+      try{
+        if(window.PropertyPilot?.setLoading) window.PropertyPilot.setLoading(true);
+
+        const model = await window.PropertyPilot.getMonthlyProfitModel({ monthKey: selectedKey });
+
+        fillMonthSelect(model.months || [], model.current?.key || "");
+        renderKPIs(model.current?.totals || { income:0, expenses:0, net:0, margin:0 }, model.currency || "");
+        renderTable(model.current?.rows || [], model.currency || "");
+        renderCharts(model);
+
+        if(window.PropertyPilot?.setLoading) window.PropertyPilot.setLoading(false);
+      } catch (err){
+        if(window.PropertyPilot?.setLoading) window.PropertyPilot.setLoading(false, (err && err.message) ? err.message : "Failed to load data.");
+        console.error(err);
+      }
+    }
+
+    // Init
+    window.addEventListener("DOMContentLoaded", async () => {
+      // Common UI (sidebar/theme/time/nav active) from app.js
+      window.PropertyPilot?.initCommonUI?.();
+
+      // initial load
+      await loadAndRender("");
+
+      // month change
+      document.getElementById("monthSelect").addEventListener("change", async (e) => {
+        await loadAndRender(e.target.value);
+      });
+
+      // refresh charts
+      document.getElementById("refreshChartsBtn").addEventListener("click", async () => {
+        const current = document.getElementById("monthSelect").value;
+        await loadAndRender(current);
+      });
+
+      // export demo
+      document.getElementById("exportBtn").addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("Export: connect this to a CSV/PDF export in your Apps Script.");
+      });
+    });
+  </script>
+
+  <!-- Small helpers for select styling on this page (optional; move to app.css if you prefer) -->
+  <style>
+    .select{
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-weight: 900;
+      box-shadow: var(--shadow-sm);
+      outline: none;
+      min-width: 200px;
+    }
+    .select:focus{ box-shadow: 0 0 0 4px var(--focus); border-color: rgba(0,188,212,0.55); }
+
+    .overlay-loading{
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
+      z-index: 9999;
+    }
+    .overlay-card{
+      background: var(--bg-primary);
+      padding: 16px 18px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Inter, sans-serif;
+      color: var(--text-primary);
+      font-weight: 900;
+      border: 1px solid var(--border-soft);
+    }
+    .inline-error{
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(198,40,40,0.30);
+      background: rgba(198,40,40,0.08);
+      color: #b71c1c;
+      font-family: Inter, sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+    }
+  </style>
 </body>
 </html>
