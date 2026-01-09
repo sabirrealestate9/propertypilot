@@ -91,6 +91,15 @@
     </style>
 </head>
 <body>
+
+<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  </div>
+</div>
+<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+
     <nav class="sidebar">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-gem"></i></div>
@@ -192,248 +201,7 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">M</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Mushtaq</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">564761500</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 1</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,100 QAR</strong></td>
-                            <td>02/01/2026</td>
-                            <td>Cheque</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>On time</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">H</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Hamid</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">559028434</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 3</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,200 QAR</strong></td>
-                            <td>01/01/2026</td>
-                            <td>Cheque</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>-</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">P</div>
-                                    <div>
-                                        <div style="font-weight: 500;">prajith kinathen</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">586981734</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 4</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,400 QAR</strong></td>
-                            <td>03/01/2026</td>
-                            <td>Cash</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>2 days late</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">K</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Kamran Ahmed</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">565474848</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 5</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,400 QAR</strong></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge pending">Pending</span></td>
-                            <td>Due in 5 days</td>
-                            <td>
-                                <button class="action-btn primary"><i class="fas fa-check"></i> Mark Paid</button>
-                            </td>
-                        </tr>
-                        <tr style="background: rgba(244, 67, 54, 0.02);">
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">A</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Ahsan Ali</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">569558183</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 10</td>
-                            <td>01/12/2025</td>
-                            <td><strong>3,200 QAR</strong></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge overdue">Overdue</span></td>
-                            <td style="color: var(--status-expired);">39 days overdue</td>
-                            <td>
-                                <button class="action-btn primary"><i class="fas fa-check"></i> Mark Paid</button>
-                                <button class="action-btn"><i class="fas fa-bell"></i></button>
-                            </td>
-                        </tr>
-                        <tr style="background: rgba(244, 67, 54, 0.02);">
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">D</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Dinesh</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">564095337</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 12</td>
-                            <td>01/12/2025</td>
-                            <td><strong>2,900 QAR</strong></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge overdue">Overdue</span></td>
-                            <td style="color: var(--status-expired);">39 days overdue</td>
-                            <td>
-                                <button class="action-btn primary"><i class="fas fa-check"></i> Mark Paid</button>
-                                <button class="action-btn"><i class="fas fa-bell"></i></button>
-                            </td>
-                        </tr>
-                        <tr style="background: rgba(244, 67, 54, 0.02);">
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">R</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Richard</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">586813666</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 14</td>
-                            <td>01/12/2025</td>
-                            <td><strong>2,000 QAR</strong></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge overdue">Overdue</span></td>
-                            <td style="color: var(--status-expired);">39 days overdue</td>
-                            <td>
-                                <button class="action-btn primary"><i class="fas fa-check"></i> Mark Paid</button>
-                                <button class="action-btn"><i class="fas fa-bell"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">G</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Gulam Mohamed</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">526886254</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 7</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,400 QAR</strong></td>
-                            <td>31/12/2025</td>
-                            <td>Cash</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>Paid early</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">A</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Ali Raza Muhami</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">545629129</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 8</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,300 QAR</strong></td>
-                            <td>01/01/2026</td>
-                            <td>Cheque</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>-</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">J</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Jawwad Ali</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">502596577</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 11</td>
-                            <td>01/01/2026</td>
-                            <td><strong>3,500 QAR</strong></td>
-                            <td>02/01/2026</td>
-                            <td>Cheque</td>
-                            <td><span class="status-badge paid">Paid</span></td>
-                            <td>-</td>
-                            <td>
-                                <button class="action-btn"><i class="fas fa-receipt"></i></button>
-                                <button class="action-btn"><i class="fas fa-eye"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div class="tenant-info">
-                                    <div class="tenant-avatar">A</div>
-                                    <div>
-                                        <div style="font-weight: 500;">Abin Balachandr</div>
-                                        <div style="font-size: 11px; color: var(--text-secondary);">564038027</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>S_No 15</td>
-                            <td>08/01/2026</td>
-                            <td><strong>3,400 QAR</strong></td>
-                            <td>-</td>
-                            <td>-</td>
-                            <td><span class="status-badge pending">Pending</span></td>
-                            <td>Due tomorrow</td>
-                            <td>
-                                <button class="action-btn primary"><i class="fas fa-check"></i> Mark Paid</button>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="rentRecordsTbody"></tbody>
                 </table>
             </div>
             <div class="pagination">
@@ -446,5 +214,10 @@
             </div>
         </div>
     </main>
+
+<script src="app-config.js"></script>
+<script src="app-data.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('rent-records'));</script>
+
 </body>
 </html>
