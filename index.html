@@ -1,1 +1,909 @@
-<replace_with_code_of_refactored_index>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EstateFlow Pro - Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%236EE7B7' d='M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5z'/%3E%3C/svg%3E" type="image/svg+xml">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --color-primary-100: 220 20% 12%;
+      --color-primary-200: 220 18% 18%;
+      --color-primary-300: 220 15% 25%;
+      --color-primary-400: 220 12% 35%;
+      --color-accent-teal: 160 80% 60%;
+      --color-accent-gold: 40 85% 60%;
+      --color-accent-sapphire: 220 70% 60%;
+      --color-accent-emerald: 120 70% 50%;
+      --color-accent-red: 0 70% 60%;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: hsl(var(--color-primary-400));
+      background-color: hsl(var(--color-primary-100));
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Outfit', sans-serif;
+      color: hsl(220 10% 90%);
+    }
+
+    .header-gradient {
+      background: linear-gradient(90deg, hsl(var(--color-primary-200)) 0%, hsl(var(--color-primary-100)) 100%);
+    }
+
+    .card-glass {
+      background-color: hsla(var(--color-primary-200), 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid hsla(var(--color-primary-300), 0.3);
+      box-shadow: 0 4px 30px hsla(0, 0%, 0%, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-glass:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 40px hsla(0, 0%, 0%, 0.3);
+    }
+
+    .text-accent-teal { color: hsl(var(--color-accent-teal)); }
+    .text-accent-gold { color: hsl(var(--color-accent-gold)); }
+    .text-accent-sapphire { color: hsl(var(--color-accent-sapphire)); }
+    .text-accent-emerald { color: hsl(var(--color-accent-emerald)); }
+    .text-accent-red { color: hsl(var(--color-accent-red)); }
+
+    .profit-positive { color: hsl(var(--color-accent-emerald)); }
+    .profit-negative { color: hsl(var(--color-accent-red)); }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      white-space: nowrap;
+    }
+
+    .badge-ready {
+      background: rgba(34,197,94,.15);
+      color: rgba(34,197,94,1);
+      border: 1px solid rgba(34,197,94,.25);
+    }
+
+    .badge-notready {
+      background: rgba(239,68,68,.15);
+      color: rgba(239,68,68,1);
+      border: 1px solid rgba(239,68,68,.25);
+    }
+
+    .badge-neutral {
+      background: rgba(99,102,241,.15);
+      color: rgba(99,102,241,1);
+      border: 1px solid rgba(99,102,241,.25);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, hsl(var(--color-accent-teal)), hsl(var(--color-accent-sapphire)));
+      box-shadow: 0 12px 30px rgba(45, 212, 191, 0.18);
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 40px rgba(99, 102, 241, 0.22);
+    }
+
+    .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.55rem 1.1rem;
+      border-radius: 0.75rem;
+      font-weight: 600;
+      color: hsl(220 10% 90%);
+      border: 1px solid hsla(var(--color-primary-300), 0.6);
+      background: hsla(var(--color-primary-200), 0.35);
+      transition: background .18s ease, transform .18s ease;
+    }
+
+    .btn-outline:hover {
+      background: hsla(var(--color-primary-200), 0.6);
+      transform: translateY(-1px);
+    }
+
+    .table-wrap::-webkit-scrollbar { height: 10px; }
+    .table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 9999px; }
+    .table-wrap::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+    .muted { color: hsl(220 10% 70%); }
+
+    .skeleton { position: relative; overflow: hidden; }
+    .skeleton::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+      animation: shimmer 1.1s infinite;
+    }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+    .error-box {
+      border: 1px solid rgba(239,68,68,.35);
+      background: rgba(239,68,68,.12);
+      color: rgba(254,202,202,1);
+      border-radius: 1rem;
+      padding: 0.9rem 1rem;
+    }
+
+    .mini-bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .mini-bar > div {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(45,212,191,.85), rgba(99,102,241,.85));
+      width: 0%;
+    }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              100: 'hsl(var(--color-primary-100))',
+              200: 'hsl(var(--color-primary-200))',
+              300: 'hsl(var(--color-primary-300))',
+              400: 'hsl(var(--color-primary-400))',
+            },
+            accent: {
+              teal: 'hsl(var(--color-accent-teal))',
+              gold: 'hsl(var(--color-accent-gold))',
+              sapphire: 'hsl(var(--color-accent-sapphire))',
+              emerald: 'hsl(var(--color-accent-emerald))',
+              red: 'hsl(var(--color-accent-red))',
+            }
+          },
+          fontFamily: {
+            display: ['Outfit', 'sans-serif'],
+            body: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+
+<body class="min-h-screen text-primary-400">
+<header class="header-gradient shadow-xl py-4 sticky top-0 z-50">
+  <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
+    <div class="flex items-center mb-4 md:mb-0">
+      <svg class="h-8 w-8 text-accent-teal mr-3 transform rotate-45" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+      </svg>
+      <h1 class="text-3xl font-display font-semibold text-white tracking-tight">
+        EstateFlow <span class="text-accent-teal">Pro</span>
+      </h1>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <a id="openSheetBtn" class="btn-outline" href="#" target="_blank" rel="noopener">Open Sheet</a>
+      <button id="refreshBtn" class="btn-primary" type="button">Refresh</button>
+    </div>
+  </div>
+</header>
+
+<main class="container mx-auto px-6 py-12">
+
+  <!-- Status / Error -->
+  <div class="mb-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <p class="muted text-sm">Data source: Google Sheets via Apps Script API</p>
+        <p id="lastUpdated" class="muted text-xs mt-1"></p>
+      </div>
+
+      <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full md:w-auto">
+        <input id="searchInput" type="text"
+               class="w-full md:w-80 px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent-teal text-white placeholder:text-white/40"
+               placeholder="Search Studio / Owner / Tenant..." />
+        <select id="readyFilter"
+                class="w-full md:w-52 px-4 py-2 rounded-xl bg-white/5 border border-white/10 outline-none focus:border-accent-teal text-white">
+          <option value="">All Units</option>
+          <option value="ready">Move-in Ready</option>
+          <option value="notready">Not Ready</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="errorBox" class="mt-4 hidden error-box"></div>
+  </div>
+
+  <!-- KPI -->
+  <section class="mb-16">
+    <h2 class="text-4xl font-display font-bold text-white mb-10 text-center md:text-left">Portfolio Overview</h2>
+    <div id="kpiGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-8">
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+      <div class="card-glass p-8 rounded-2xl skeleton h-40"></div>
+    </div>
+  </section>
+
+  <!-- Monthly Profit (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Monthly Profit Breakdown</h2>
+    <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">Month</th>
+          <th class="py-3 px-4">Profit (Company)</th>
+          <th class="py-3 px-4">Profit (Personnel)</th>
+          <th class="py-3 px-4">Visual</th>
+        </tr>
+        </thead>
+        <tbody id="monthlyProfitsTbody">
+        <tr><td class="py-4 px-4 muted" colspan="4">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Property Portfolio -->
+  <section class="mb-16">
+    <h2 class="text-4xl font-display font-bold text-white mb-10 text-center md:text-left">Property Portfolio</h2>
+    <div id="propertiesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div class="card-glass p-6 rounded-2xl skeleton h-72"></div>
+      <div class="card-glass p-6 rounded-2xl skeleton h-72"></div>
+      <div class="card-glass p-6 rounded-2xl skeleton h-72"></div>
+    </div>
+  </section>
+
+  <!-- Pending Actions (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Pending Actions</h2>
+    <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">ID</th>
+          <th class="py-3 px-4">Description</th>
+          <th class="py-3 px-4">Due Date</th>
+          <th class="py-3 px-4">Status</th>
+        </tr>
+        </thead>
+        <tbody id="pendingActionsTbody">
+        <tr><td class="py-4 px-4 muted" colspan="4">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Recurring Expenses (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Recurring Expenses</h2>
+    <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">Account</th>
+          <th class="py-3 px-4">Type</th>
+          <th class="py-3 px-4">Frequency</th>
+          <th class="py-3 px-4">Expense Date</th>
+          <th class="py-3 px-4">Amount</th>
+        </tr>
+        </thead>
+        <tbody id="recurringExpensesTbody">
+        <tr><td class="py-4 px-4 muted" colspan="5">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Rent Records (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Recent Rent Collection Records</h2>
+    <div class="card-glass p-4 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">ID</th>
+          <th class="py-3 px-4">Studio</th>
+          <th class="py-3 px-4">Payment Date</th>
+          <th class="py-3 px-4">Amount</th>
+          <th class="py-3 px-4">Ownership</th>
+          <th class="py-3 px-4">Month/Year</th>
+          <th class="py-3 px-4">Maintenance</th>
+          <th class="py-3 px-4">Profit</th>
+        </tr>
+        </thead>
+        <tbody id="rentTbody">
+        <tr><td class="py-4 px-4 muted" colspan="8">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Monthly Finance Summary (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Monthly Finance Summary</h2>
+    <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">Month</th>
+          <th class="py-3 px-4">Year</th>
+          <th class="py-3 px-4">Total Income</th>
+          <th class="py-3 px-4">Total Expenses</th>
+          <th class="py-3 px-4">Profit</th>
+          <th class="py-3 px-4">Created On</th>
+        </tr>
+        </thead>
+        <tbody id="monthlyFinanceSummaryTbody">
+        <tr><td class="py-4 px-4 muted" colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Account Balances (LIVE) -->
+  <section class="mb-16">
+    <h2 class="text-3xl font-display font-bold text-white mb-6">General Account Balances</h2>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+        <h3 class="text-xl font-display font-semibold text-white mb-4">Company Accounts</h3>
+        <table class="w-full text-left table-auto">
+          <thead>
+          <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+            <th class="py-3 px-4">Account</th>
+            <th class="py-3 px-4">Budget</th>
+            <th class="py-3 px-4">Current Balance</th>
+          </tr>
+          </thead>
+          <tbody id="companyAccountsTbody">
+          <tr><td class="py-4 px-4 muted" colspan="3">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+        <h3 class="text-xl font-display font-semibold text-white mb-4">Personnel Accounts</h3>
+        <table class="w-full text-left table-auto">
+          <thead>
+          <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+            <th class="py-3 px-4">Name</th>
+            <th class="py-3 px-4">Budget</th>
+            <th class="py-3 px-4">Current Balance</th>
+          </tr>
+          </thead>
+          <tbody id="personnelAccountsTbody">
+          <tr><td class="py-4 px-4 muted" colspan="3">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Transactions (LIVE) -->
+  <section>
+    <h2 class="text-3xl font-display font-bold text-white mb-6">Recent Transactions</h2>
+    <div class="card-glass p-6 rounded-2xl overflow-x-auto table-wrap">
+      <table class="w-full text-left table-auto">
+        <thead>
+        <tr class="text-sm text-primary-300 uppercase tracking-wider border-b border-primary-300/40">
+          <th class="py-3 px-4">Date</th>
+          <th class="py-3 px-4">Account</th>
+          <th class="py-3 px-4">Type</th>
+          <th class="py-3 px-4">Transaction</th>
+          <th class="py-3 px-4">Amount</th>
+          <th class="py-3 px-4">Description</th>
+        </tr>
+        </thead>
+        <tbody id="transactionsTbody">
+        <tr><td class="py-4 px-4 muted" colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // =========================
+  // CONFIG
+  // =========================
+  const CONFIG = {
+    API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
+    RECENT_RENT_ROWS: 25,
+    RECENT_TX_ROWS: 30
+  };
+
+  // =========================
+  // DOM
+  // =========================
+  const kpiGrid = document.getElementById("kpiGrid");
+  const propertiesGrid = document.getElementById("propertiesGrid");
+  const rentTbody = document.getElementById("rentTbody");
+  const monthlyProfitsTbody = document.getElementById("monthlyProfitsTbody");
+  const recurringExpensesTbody = document.getElementById("recurringExpensesTbody");
+  const monthlyFinanceSummaryTbody = document.getElementById("monthlyFinanceSummaryTbody");
+  const pendingActionsTbody = document.getElementById("pendingActionsTbody");
+  const companyAccountsTbody = document.getElementById("companyAccountsTbody");
+  const personnelAccountsTbody = document.getElementById("personnelAccountsTbody");
+  const transactionsTbody = document.getElementById("transactionsTbody");
+
+  const errorBox = document.getElementById("errorBox");
+  const lastUpdated = document.getElementById("lastUpdated");
+  const openSheetBtn = document.getElementById("openSheetBtn");
+  const refreshBtn = document.getElementById("refreshBtn");
+  const searchInput = document.getElementById("searchInput");
+  const readyFilter = document.getElementById("readyFilter");
+
+  // =========================
+  // STATE
+  // =========================
+  let STATE = {
+    properties: [],
+    rentRecords: [],
+    monthlyProfits: [],
+    recurringExpenses: [],
+    monthlyFinanceSummary: [],
+    pendingActions: [],
+    personnelAccounts: [],
+    companyAccounts: [],
+    transactions: [],
+    sheetUrl: "",
+    lastUpdatedIso: ""
+  };
+
+  // =========================
+  // HELPERS
+  // =========================
+  function setError(message) {
+    if (!message) {
+      errorBox.classList.add("hidden");
+      errorBox.textContent = "";
+      return;
+    }
+    errorBox.classList.remove("hidden");
+    errorBox.textContent = message;
+  }
+
+  function safeText(v) {
+    if (v === null || v === undefined) return "";
+    return String(v).trim();
+  }
+
+  function toNumber(v) {
+    if (v === null || v === undefined || v === "") return 0;
+    if (typeof v === "number") return v;
+    const s = String(v).replace(/AED/gi, "").replace(/,/g, "").trim();
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function moneyAED(value) {
+    const n = toNumber(value);
+    return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED" }).format(n);
+  }
+
+  function toDateLabel(isoOrText) {
+    const s = safeText(isoOrText);
+    if (!s) return "—";
+    const d = new Date(s);
+    if (Number.isNaN(d.getTime())) return s;
+    return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  }
+
+  function profitClass(amount) {
+    return toNumber(amount) >= 0 ? "profit-positive" : "profit-negative";
+  }
+
+  function readyStatus(p) {
+    const v = (safeText(p.MoveInReady || p.ReadyToMove)).toLowerCase();
+    const isReady = ["yes", "true", "1", "ready"].includes(v);
+    return isReady ? "ready" : "notready";
+  }
+
+  // =========================
+  // KPIs
+  // =========================
+  function computeExpectedMonthly(properties) {
+    const tenant = properties.reduce((sum, p) => sum + toNumber(p.TenantMonthlyRent ?? p.TenantRent ?? p.TenantRentMonthly), 0);
+    const owner = properties.reduce((sum, p) => sum + toNumber(p.OwnerMonthlyRent ?? p.OwnerRent ?? p.OwnerRentMonthly), 0);
+    return { tenant, owner, profit: tenant - owner };
+  }
+
+  function computeRentTotals(rentRecords) {
+    const income = rentRecords.reduce((sum, r) => sum + toNumber(r.Amount), 0);
+    const maint = rentRecords.reduce((sum, r) => sum + toNumber(r.Maintenance), 0);
+    const profit = rentRecords.reduce((sum, r) => sum + toNumber(r.Profit), 0);
+    return { income, maint, profit };
+  }
+
+  function latestMonthlySummary(monthlyFinanceSummary) {
+    const sorted = [...monthlyFinanceSummary].sort((a, b) => {
+      const ya = toNumber(a.Year), yb = toNumber(b.Year);
+      if (ya !== yb) return yb - ya;
+      const ma = toNumber(a.Month), mb = toNumber(b.Month);
+      if (ma !== mb) return mb - ma;
+      const da = safeText(a.CreatedOnISO || "");
+      const db = safeText(b.CreatedOnISO || "");
+      return db.localeCompare(da);
+    });
+    return sorted[0] || null;
+  }
+
+  function renderKpis() {
+    const expected = computeExpectedMonthly(STATE.properties);
+    const totals = computeRentTotals(STATE.rentRecords);
+    const latest = latestMonthlySummary(STATE.monthlyFinanceSummary);
+
+    const cards = [
+      { title: "Units Managed", value: String(STATE.properties.length), accent: "text-accent-teal" },
+      { title: "Expected Tenant Rent (Monthly)", value: moneyAED(expected.tenant), accent: "text-accent-gold" },
+      { title: "Expected Owner Rent (Monthly)", value: moneyAED(expected.owner), accent: "text-accent-red" },
+      { title: "Expected Monthly Profit", value: moneyAED(expected.profit), accent: expected.profit >= 0 ? "text-accent-emerald" : "text-accent-red" },
+      { title: "Total Profit (Rent Records)", value: moneyAED(totals.profit), accent: totals.profit >= 0 ? "text-accent-emerald" : "text-accent-red" },
+      { title: latest ? `Finance Summary (${latest.Month}/${latest.Year}) Profit` : "Finance Summary Profit", value: latest ? moneyAED(latest.Profit) : "—", accent: latest && latest.Profit >= 0 ? "text-accent-emerald" : "text-accent-red" }
+    ];
+
+    kpiGrid.innerHTML = cards.map(c => `
+      <div class="card-glass p-8 rounded-2xl flex flex-col justify-between">
+        <p class="text-white text-lg font-body mb-2">${c.title}</p>
+        <h3 class="text-4xl md:text-5xl font-display font-bold ${c.accent}">${c.value}</h3>
+        <p class="text-sm mt-4 text-primary-300">Live</p>
+      </div>
+    `).join("");
+  }
+
+  // =========================
+  // RENDER SECTIONS
+  // =========================
+  function renderProperties() {
+    const q = (searchInput.value || "").toLowerCase().trim();
+    const rf = readyFilter.value;
+
+    let items = [...STATE.properties];
+
+    if (q) {
+      items = items.filter(p => {
+        const hay = [p.StudioId, p.Flat, p.Location, p.OwnerName, p.TenantName, p.OwnerContact, p.TenantContact]
+          .map(safeText).join(" ").toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    if (rf) items = items.filter(p => readyStatus(p) === rf);
+
+    if (!items.length) {
+      propertiesGrid.innerHTML = `
+        <div class="card-glass p-6 rounded-2xl md:col-span-2 lg:col-span-3">
+          <p class="muted">No properties match your filters.</p>
+        </div>`;
+      return;
+    }
+
+    propertiesGrid.innerHTML = items.map(p => {
+      const studio = safeText(p.StudioId || p.Flat || p.RecordId || "—");
+      const owner = safeText(p.OwnerName || "—");
+      const tenant = safeText(p.TenantName || "—");
+      const loc = safeText(p.Location || "");
+      const status = safeText(p.Status || "");
+      const propertyType = safeText(p.Property || "");
+      const daysLeft = Number.isFinite(toNumber(p.DaysLeft)) ? toNumber(p.DaysLeft) : null;
+
+      const ownerRent = toNumber(p.OwnerMonthlyRent ?? p.OwnerRent);
+      const tenantRent = toNumber(p.TenantMonthlyRent ?? p.TenantRent);
+      const expectedProfit = tenantRent - ownerRent;
+
+      const start = toDateLabel(p.ContractStartISO);
+      const end = toDateLabel(p.ContractEndISO);
+
+      const ready = readyStatus(p);
+      const badge = ready === "ready"
+        ? `<span class="status-badge badge-ready">● Ready</span>`
+        : `<span class="status-badge badge-notready">● Not Ready</span>`;
+
+      const drive = safeText(p.DriveFolderLink || "");
+      const driveDisabled = drive ? "" : "opacity-50 pointer-events-none";
+
+      return `
+        <div class="card-glass p-6 rounded-2xl flex flex-col">
+          <h3 class="text-2xl font-display font-semibold text-white mb-3">
+            Studio ID: <span class="text-accent-teal">${studio}</span>
+          </h3>
+
+          <div class="flex justify-between items-center mb-4 gap-3">
+            ${badge}
+            <span class="text-xl font-bold ${expectedProfit >= 0 ? "text-accent-emerald" : "text-accent-red"}">
+              ${moneyAED(expectedProfit)}
+              <span class="text-sm text-white">Expected Profit</span>
+            </span>
+          </div>
+
+          <div class="text-sm space-y-1 mb-4">
+            ${loc ? `<p class="text-primary-300">Location: <span class="text-white">${loc}</span></p>` : ""}
+            ${propertyType ? `<p class="text-primary-300">Property: <span class="text-white">${propertyType}</span></p>` : ""}
+            ${status ? `<p class="text-primary-300">Status: <span class="text-white">${status}</span></p>` : ""}
+            <p class="text-primary-300">Owner: <span class="text-white">${owner}</span></p>
+            <p class="text-primary-300">Tenant: <span class="text-white">${tenant}</span></p>
+            <p class="text-primary-300">Rents: <span class="text-white">Owner ${moneyAED(ownerRent)} | Tenant ${moneyAED(tenantRent)}</span></p>
+            <p class="text-primary-300">Contract: <span class="text-white">${start} to ${end}</span></p>
+            ${daysLeft !== null ? `<p class="text-primary-300">Days Left: <span class="text-accent-gold">${daysLeft}</span></p>` : ""}
+          </div>
+
+          <a href="${drive || "#"}" target="_blank" rel="noopener" class="btn-primary mt-auto ${driveDisabled}">
+            View Drive Folder
+          </a>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderRentRecords() {
+    const rr = [...STATE.rentRecords].sort((a, b) => {
+      const da = safeText(a.PaymentDateISO || "");
+      const db = safeText(b.PaymentDateISO || "");
+      if (da !== db) return db.localeCompare(da);
+      return toNumber(b.ID) - toNumber(a.ID);
+    }).slice(0, CONFIG.RECENT_RENT_ROWS);
+
+    if (!rr.length) {
+      rentTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="8">No rent records found.</td></tr>`;
+      return;
+    }
+
+    rentTbody.innerHTML = rr.map(r => `
+      <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+        <td class="py-4 px-4 text-white">${safeText(r.ID)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.StudioId)}</td>
+        <td class="py-4 px-4 text-white">${toDateLabel(r.PaymentDateISO)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(r.Amount)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.Ownership)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.MonthYear || `${r.Month}-${r.Year}`)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(r.Maintenance)}</td>
+        <td class="py-4 px-4 ${profitClass(r.Profit)}">${moneyAED(r.Profit)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderMonthlyProfits() {
+    const rows = [...STATE.monthlyProfits].sort((a, b) => {
+      // keep sheet order by S_No if present; else month string
+      const sa = toNumber(a.S_No), sb = toNumber(b.S_No);
+      if (sa !== sb) return sa - sb;
+      return safeText(a.Month).localeCompare(safeText(b.Month));
+    });
+
+    if (!rows.length) {
+      monthlyProfitsTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="4">No monthly profits found.</td></tr>`;
+      return;
+    }
+
+    const maxAbs = Math.max(...rows.map(x => Math.abs(toNumber(x.ProfitCompany) + toNumber(x.ProfitPersonnel))), 1);
+
+    monthlyProfitsTbody.innerHTML = rows.map(r => {
+      const total = toNumber(r.ProfitCompany) + toNumber(r.ProfitPersonnel);
+      const pct = Math.min(100, Math.round((Math.abs(total) / maxAbs) * 100));
+      return `
+        <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+          <td class="py-4 px-4 text-white">${safeText(r.Month)}</td>
+          <td class="py-4 px-4 ${profitClass(r.ProfitCompany)}">${moneyAED(r.ProfitCompany)}</td>
+          <td class="py-4 px-4 ${profitClass(r.ProfitPersonnel)}">${moneyAED(r.ProfitPersonnel)}</td>
+          <td class="py-4 px-4">
+            <div class="mini-bar"><div style="width:${pct}%"></div></div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderRecurringExpenses() {
+    const rows = [...STATE.recurringExpenses].sort((a, b) => {
+      const da = safeText(a.ExpenseDateISO || "");
+      const db = safeText(b.ExpenseDateISO || "");
+      return db.localeCompare(da);
+    }).slice(0, 50);
+
+    if (!rows.length) {
+      recurringExpensesTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="5">No recurring expenses found.</td></tr>`;
+      return;
+    }
+
+    recurringExpensesTbody.innerHTML = rows.map(r => `
+      <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+        <td class="py-4 px-4 text-white">${safeText(r.AccountName)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.AccountType)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.Frequency)}</td>
+        <td class="py-4 px-4 text-white">${toDateLabel(r.ExpenseDateISO)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(r.Amount)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderMonthlyFinanceSummary() {
+    const rows = [...STATE.monthlyFinanceSummary].sort((a, b) => {
+      const ya = toNumber(a.Year), yb = toNumber(b.Year);
+      if (ya !== yb) return yb - ya;
+      const ma = toNumber(a.Month), mb = toNumber(b.Month);
+      if (ma !== mb) return mb - ma;
+      return safeText(b.CreatedOnISO || "").localeCompare(safeText(a.CreatedOnISO || ""));
+    }).slice(0, 24);
+
+    if (!rows.length) {
+      monthlyFinanceSummaryTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="6">No monthly finance summary found.</td></tr>`;
+      return;
+    }
+
+    monthlyFinanceSummaryTbody.innerHTML = rows.map(r => `
+      <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+        <td class="py-4 px-4 text-white">${safeText(r.Month)}</td>
+        <td class="py-4 px-4 text-white">${safeText(r.Year)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(r.TotalIncome)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(r.TotalExpenses)}</td>
+        <td class="py-4 px-4 ${profitClass(r.Profit)}">${moneyAED(r.Profit)}</td>
+        <td class="py-4 px-4 text-white">${toDateLabel(r.CreatedOnISO)}</td>
+      </tr>
+    `).join("");
+  }
+
+  function renderPendingActions() {
+    const rows = [...STATE.pendingActions].sort((a, b) => {
+      const ca = a.IsCompleted ? 1 : 0;
+      const cb = b.IsCompleted ? 1 : 0;
+      if (ca !== cb) return ca - cb; // incomplete first
+      return safeText(a.DueDateISO || "").localeCompare(safeText(b.DueDateISO || ""));
+    }).slice(0, 50);
+
+    if (!rows.length) {
+      pendingActionsTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="4">No pending actions found.</td></tr>`;
+      return;
+    }
+
+    pendingActionsTbody.innerHTML = rows.map(r => {
+      const badge = r.IsCompleted
+        ? `<span class="status-badge badge-ready">● Completed</span>`
+        : `<span class="status-badge badge-notready">● Pending</span>`;
+      return `
+        <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+          <td class="py-4 px-4 text-white">${safeText(r.Id)}</td>
+          <td class="py-4 px-4 text-white">${safeText(r.Description)}</td>
+          <td class="py-4 px-4 text-white">${toDateLabel(r.DueDateISO)}</td>
+          <td class="py-4 px-4">${badge}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  function renderAccounts() {
+    const company = [...STATE.companyAccounts].sort((a, b) => safeText(a.Name).localeCompare(safeText(b.Name)));
+    const personnel = [...STATE.personnelAccounts].sort((a, b) => safeText(a.Name).localeCompare(safeText(b.Name)));
+
+    companyAccountsTbody.innerHTML = company.length
+      ? company.map(a => `
+        <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+          <td class="py-4 px-4 text-white">${safeText(a.Name)}</td>
+          <td class="py-4 px-4 text-white">${moneyAED(a.Budget)}</td>
+          <td class="py-4 px-4 text-white">${moneyAED(a.CurrentBalance)}</td>
+        </tr>
+      `).join("")
+      : `<tr><td class="py-4 px-4 muted" colspan="3">No company accounts found.</td></tr>`;
+
+    personnelAccountsTbody.innerHTML = personnel.length
+      ? personnel.map(a => `
+        <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+          <td class="py-4 px-4 text-white">${safeText(a.Name)}</td>
+          <td class="py-4 px-4 text-white">${moneyAED(a.Budget)}</td>
+          <td class="py-4 px-4 text-white">${moneyAED(a.CurrentBalance)}</td>
+        </tr>
+      `).join("")
+      : `<tr><td class="py-4 px-4 muted" colspan="3">No personnel accounts found.</td></tr>`;
+  }
+
+  function renderTransactions() {
+    const rows = [...STATE.transactions].sort((a, b) => {
+      const da = safeText(a.TransactionDateISO || "");
+      const db = safeText(b.TransactionDateISO || "");
+      return db.localeCompare(da);
+    }).slice(0, CONFIG.RECENT_TX_ROWS);
+
+    if (!rows.length) {
+      transactionsTbody.innerHTML = `<tr><td class="py-4 px-4 muted" colspan="6">No transactions found.</td></tr>`;
+      return;
+    }
+
+    transactionsTbody.innerHTML = rows.map(t => `
+      <tr class="border-b border-primary-300/30 hover:bg-primary-300/10 transition-colors duration-200">
+        <td class="py-4 px-4 text-white">${toDateLabel(t.TransactionDateISO)}</td>
+        <td class="py-4 px-4 text-white">${safeText(t.AccountName)}</td>
+        <td class="py-4 px-4 text-white">${safeText(t.AccountType)}</td>
+        <td class="py-4 px-4 text-white">${safeText(t.TransactionType)}</td>
+        <td class="py-4 px-4 text-white">${moneyAED(t.Amount)}</td>
+        <td class="py-4 px-4 text-white">${safeText(t.Description)}</td>
+      </tr>
+    `).join("");
+  }
+
+  // =========================
+  // LOAD DATA
+  // =========================
+  async function loadData() {
+    setError("");
+
+    try {
+      const res = await fetch(CONFIG.API_URL, { method: "GET" });
+      if (!res.ok) throw new Error(`API error: HTTP ${res.status}`);
+
+      const payload = await res.json();
+      if (!payload || !payload.ok) throw new Error(payload && payload.error ? payload.error : "Unknown API error");
+
+      STATE.properties = Array.isArray(payload.properties) ? payload.properties : [];
+      STATE.rentRecords = Array.isArray(payload.rentRecords) ? payload.rentRecords : [];
+      STATE.monthlyProfits = Array.isArray(payload.monthlyProfits) ? payload.monthlyProfits : [];
+      STATE.recurringExpenses = Array.isArray(payload.recurringExpenses) ? payload.recurringExpenses : [];
+      STATE.monthlyFinanceSummary = Array.isArray(payload.monthlyFinanceSummary) ? payload.monthlyFinanceSummary : [];
+      STATE.pendingActions = Array.isArray(payload.pendingActions) ? payload.pendingActions : [];
+      STATE.personnelAccounts = Array.isArray(payload.personnelAccounts) ? payload.personnelAccounts : [];
+      STATE.companyAccounts = Array.isArray(payload.companyAccounts) ? payload.companyAccounts : [];
+      STATE.transactions = Array.isArray(payload.transactions) ? payload.transactions : [];
+
+      STATE.sheetUrl = safeText(payload.sheetUrl || "");
+      STATE.lastUpdatedIso = safeText(payload.lastUpdatedIso || "");
+
+      if (STATE.sheetUrl) openSheetBtn.href = STATE.sheetUrl;
+
+      lastUpdated.textContent = STATE.lastUpdatedIso
+        ? `Last updated: ${new Date(STATE.lastUpdatedIso).toLocaleString("en-GB")}`
+        : "";
+
+      renderKpis();
+      renderMonthlyProfits();
+      renderProperties();
+      renderPendingActions();
+      renderRecurringExpenses();
+      renderRentRecords();
+      renderMonthlyFinanceSummary();
+      renderAccounts();
+      renderTransactions();
+
+    } catch (err) {
+      setError(err && err.message ? err.message : "Failed to load data.");
+    }
+  }
+
+  // =========================
+  // EVENTS
+  // =========================
+  refreshBtn.addEventListener("click", loadData);
+  searchInput.addEventListener("input", renderProperties);
+  readyFilter.addEventListener("change", renderProperties);
+
+  // Initial load
+  loadData();
+</script>
+
+</body>
+</html>
