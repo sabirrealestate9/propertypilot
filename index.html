@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Portfolio Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, theme('colors.primary.900') 0%, theme('colors.primary.800') 100%);
+            min-height: 100vh;
+            color: theme('colors.primary.50');
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Glassmorphism effect */
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.08); /* Lighter for contrast on dark background */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 1.5rem; /* More rounded */
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.35);
+        }
+
+        /* Gradient for buttons/accents */
+        .btn-gradient {
+            background: linear-gradient(45deg, theme('colors.accentA.500'), theme('colors.accentA.600'));
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            background: linear-gradient(45deg, theme('colors.accentA.600'), theme('colors.accentA.700'));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(theme('colors.accentA.500'), 0.4);
+        }
+
+        .text-gradient {
+            background: linear-gradient(45deg, theme('colors.accentB.400'), theme('colors.accentB.500'));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Status indicators */
+        .status-positive {
+            color: theme('colors.status.profit');
+            background-color: rgba(theme('colors.status.profit'), 0.15);
+        }
+        .status-negative {
+            color: theme('colors.status.loss');
+            background-color: rgba(theme('colors.status.loss'), 0.15);
+        }
+        .status-info {
+            color: theme('colors.status.info');
+            background-color: rgba(theme('colors.status.info'), 0.15);
+        }
+        .status-alert {
+            color: theme('colors.status.alert');
+            background-color: rgba(theme('colors.status.alert'), 0.15);
+        }
+        .status-ready {
+            color: theme('colors.status.profit');
+            background-color: rgba(theme('colors.status.profit'), 0.15);
+        }
+        .status-not-ready {
+            color: theme('colors.status.alert');
+            background-color: rgba(theme('colors.status.alert'), 0.15);
+        }
+        .status-label {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* Table styling */
+        .data-table th, .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .data-table th {
+            font-weight: 600;
+            color: theme('colors.primary.200');
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        .data-table tbody tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        .data-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#F5F7FA',    // Soft off-white
+                            100: '#E1E5EC',
+                            200: '#C7D0DB',
+                            300: '#A4B4C4',
+                            400: '#7E93A9',
+                            500: '#5F738A',   // Sophisticated Gray
+                            600: '#4B5E70',   // Darker Gray
+                            700: '#3A4A5A',
+                            800: '#2A3642',
+                            900: '#1C242C',   // Charcoal
+                        },
+                        accentA: { // Teal
+                            50: '#E0F7FA',
+                            100: '#B2EBF2',
+                            200: '#80DEEA',
+                            300: '#4DD0E1',
+                            400: '#26C6DA',
+                            500: '#00BCD4',
+                            600: '#00ACC1',
+                            700: '#0097A7',
+                            800: '#00838F',
+                            900: '#006064',
+                        },
+                        accentB: { // Soft Gold
+                            50: '#FFFDE7',
+                            100: '#FFF9C4',
+                            200: '#FFF59D',
+                            300: '#FFF176',
+                            400: '#FFEE58',
+                            500: '#FFEB3B',
+                            600: '#FDD835',
+                            700: '#FBC02D',
+                            800: '#F9A825',
+                            900: '#F57F17',
+                        },
+                        status: {
+                            profit: '#34D399', // Emerald Green (positive)
+                            loss: '#EF4444',   // Red (alerts/negative)
+                            info: '#60A5FA',   // Muted Sapphire (info)
+                            alert: '#FBBF24',  // Amber (warnings)
+                        },
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="p-4 sm:p-8">
+    <div class="max-w-7xl mx-auto py-8">
+        <!-- Header -->
+        <header class="mb-12">
+            <h1 class="text-5xl md:text-6xl font-display font-bold text-gradient mb-2 text-center">Real Estate Portfolio Overview</h1>
+            <p class="text-primary-200 text-lg md:text-xl text-center">Comprehensive insights into your property management.</p>
+        </header>
+
+        <!-- Summary Cards Section -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Key Performance Indicators</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Total Studios Managed -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Total Studios Managed</p>
+                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">15</p>
+                    </div>
+                    <span class="status-label status-info">Info</span>
+                </div>
+
+                <!-- Expected Monthly Tenant Rent -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Expected Monthly Tenant Rent</p>
+                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 42,200.00</p>
+                    </div>
+                    <span class="status-label status-info">Info</span>
+                </div>
+
+                <!-- Expected Monthly Owner Rent -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Expected Monthly Owner Rent</p>
+                        <p class="text-3xl font-display font-bold text-status-loss mt-1">AED 35,600.00</p>
+                    </div>
+                    <span class="status-label status-loss">Loss</span>
+                </div>
+
+                <!-- Expected Monthly Profit -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Expected Monthly Profit</p>
+                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 6,600.00</p>
+                    </div>
+                    <span class="status-label status-profit">Profit</span>
+                </div>
+
+                <!-- Total Profit (All Rent Records) -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Total Profit (All Rent Records)</p>
+                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 12,050.00</p>
+                    </div>
+                    <span class="status-label status-profit">Profit</span>
+                </div>
+
+                <!-- Average Days Left on Contract -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Average Days Left on Contract</p>
+                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">123.9 Days</p>
+                    </div>
+                    <span class="status-label status-info">Info</span>
+                </div>
+
+                <!-- Overall June 2025 Income -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Overall June 2025 Income</p>
+                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 40,650.00</p>
+                    </div>
+                    <span class="status-label status-info">Info</span>
+                </div>
+
+                <!-- Overall June 2025 Expenses -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Overall June 2025 Expenses</p>
+                        <p class="text-3xl font-display font-bold text-primary-50 mt-1">AED 37,950.00</p>
+                    </div>
+                    <span class="status-label status-info">Info</span>
+                </div>
+
+                <!-- Overall June 2025 Profit -->
+                <div class="glass-card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-primary-300 text-sm">Overall June 2025 Profit</p>
+                        <p class="text-3xl font-display font-bold text-status-profit mt-1">AED 2,700.00</p>
+                    </div>
+                    <span class="status-label status-profit">Profit</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Property Details Summary -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Property Details Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Property Card 1 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 1 (220 v321 r2)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Mushtaq (564761500)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,400.00, Tenant: AED 3,100.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 1,400.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Nov 2025 to 30 Jan 2026 (<span class="text-status-alert">80 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 2 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 2 (z33 v1 r6)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (545213199)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,650.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 700.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 11 Nov 2025 to 10 May 2026 (<span class="text-status-info">125 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 3 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 3 (27 v4)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real (569980373)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (559628434)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,600.00, Tenant: AED 3,200.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Nov 2025 to 31 Dec 2026 (<span class="text-status-alert">0 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 4 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 4 (z16)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shaiful Islam (559963312)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> prajith kinafteri (586861734)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,300.00, Tenant: AED 3,200.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 900.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 10 Dec 2025 to 09 Feb 2026 (<span class="text-status-info">315 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 5 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 5 (220 v76 rF1)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Kamran Ahmed (565479448)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Nov 2025 to 24 May 2026 (<span class="text-status-info">139 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 6 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 6 (z17 v2 r3)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Real B (570082)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Methew (551743616)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,500.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 500.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 08 Sep 2025 to 08 Oct 2026 (<span class="text-status-info">276 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 7 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 7 (27 v4 r2)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real Estat (568570003)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Gulam Mohamed (526886254)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 700.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Nov 2025 to 24 Jan 2026 (<span class="text-status-alert">19 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 8 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 8 (z20 v313 r4)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> N/A (545262129)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,150.00, Tenant: AED 3,300.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 2,100.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 03 Jan 2026 to 02 Mar 2026 (<span class="text-status-alert">0 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 9 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 9 (26 v70 r4)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> harikrishna (522749009)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,600.00, Tenant: AED 3,200.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 1,600.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 03 Jan 2026 to 02 Mar 2026 (<span class="text-status-info">56 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 10 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 10 (z26)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Thomas (505325654)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Ahsan Ali (569558183)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,250.00, Tenant: AED 3,200.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 30 Nov 2025 to 28 Feb 2026 (<span class="text-status-info">54 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 11 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 11 (27 v3 r2)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Magic Real Estat (568570003)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Jawwad Ali (502506577)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,500.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 01 Dec 2025 to 01 Jan 2026 (<span class="text-status-alert">26 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 12 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 12 (z12)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Saif Uddin Real E (585570082)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Dinesh (564095337)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,000.00, Tenant: AED 2,550.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 550.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 25 Aug 2024 to 24 Apr 2026 (<span class="text-status-info">109 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 13 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 13 (233 v1 r5)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumom (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Jude Merwin (585282980)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,100.00, Tenant: AED 2,900.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</span> 22 May 2025 to 21 May 2026 (<span class="text-status-info">136 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 14 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 14 (21 va2 r6)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> sadiq (01987065)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Richard (566813666)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,100.00, Tenant: AED 2,600.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 0.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 12 Jun 2025 to 11 Jun 2026 (<span class="text-status-info">157 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+
+                <!-- Property Card 15 -->
+                <div class="glass-card p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-xl font-display font-semibold text-accentA-400 mb-2">Studio ID: 15 (219 c68 v3 r6)</h3>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Owner:</strong> Shumon (521738932)</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Tenant:</strong> Abin Balachandra (564038927)</p>
+                        <p class="text-primary-200 text-sm mb-1"><strong class="text-primary-50">Rents:</strong> Owner: AED 2,700.00, Tenant: AED 3,400.00</p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Expected Profit:</strong> <span class="text-status-profit">AED 3,600.00</span></p>
+                        <p class="text-primary-200 text-sm mb-3"><strong class="text-primary-50">Contract:</strong> 08 Jan 2026 to 07 Jan 2027 (<span class="text-status-info">367 days left</span>)</p>
+                        <p class="text-primary-200 text-sm mb-4"><strong class="text-primary-50">Move-in Ready:</strong> <span class="status-label status-not-ready">No</span></p>
+                    </div>
+                    <a href="#" target="_blank" class="btn-gradient text-white font-semibold py-2 px-4 rounded-lg text-center mt-4">View Documents</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Rent Collection Records -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Recent Rent Collection Records</h2>
+            <div class="glass-card p-4 overflow-x-auto">
+                <table class="w-full data-table text-primary-100">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Studio ID</th>
+                            <th>Payment Date</th>
+                            <th>Amount</th>
+                            <th>Ownership</th>
+                            <th>Month/Year</th>
+                            <th>Maintenance</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>328</td>
+                            <td>z20 v321 r2</td>
+                            <td>09 Jan 2026</td>
+                            <td>AED 3,100.00</td>
+                            <td>Personnel</td>
+                            <td>1/2026</td>
+                            <td>AED 200.00</td>
+                            <td class="text-status-profit">AED 500.00</td>
+                        </tr>
+                        <tr>
+                            <td>327</td>
+                            <td>z20 v313 r4</td>
+                            <td>07 Jan 2026</td>
+                            <td>AED 3,300.00</td>
+                            <td>Personnel</td>
+                            <td>1/2026</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 1,150.00</td>
+                        </tr>
+                        <tr>
+                            <td>326</td>
+                            <td>z6 v70 r4</td>
+                            <td>07 Jan 2026</td>
+                            <td>AED 3,200.00</td>
+                            <td>Personnel</td>
+                            <td>1/2026</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 600.00</td>
+                        </tr>
+                        <tr>
+                            <td>325</td>
+                            <td>z26</td>
+                            <td>31 Dec 2025</td>
+                            <td>AED 3,200.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 950.00</td>
+                        </tr>
+                        <tr>
+                            <td>324</td>
+                            <td>z7 v3 r2</td>
+                            <td>03 Jan 2026</td>
+                            <td>AED 3,500.00</td>
+                            <td>Personnel</td>
+                            <td>1/2026</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 800.00</td>
+                        </tr>
+                        <tr>
+                            <td>323</td>
+                            <td>z20 v313 r4</td>
+                            <td>31 Dec 2025</td>
+                            <td>AED 416.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-loss">AED -1,734.00</td>
+                        </tr>
+                        <tr>
+                            <td>322</td>
+                            <td>z7 v3 r2</td>
+                            <td>31 Dec 2025</td>
+                            <td>AED 3,500.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 800.00</td>
+                        </tr>
+                        <tr>
+                            <td>321</td>
+                            <td>z33 v1 r5</td>
+                            <td>31 Dec 2025</td>
+                            <td>AED 2,900.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 800.00</td>
+                        </tr>
+                        <tr>
+                            <td>320</td>
+                            <td>z7 v4 r2</td>
+                            <td>29 Dec 2025</td>
+                            <td>AED 3,400.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 700.00</td>
+                        </tr>
+                        <tr>
+                            <td>319</td>
+                            <td>z12</td>
+                            <td>29 Dec 2025</td>
+                            <td>AED 2,550.00</td>
+                            <td>Personnel</td>
+                            <td>12/2025</td>
+                            <td>AED 0.00</td>
+                            <td class="text-status-profit">AED 550.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Financial Insights & Recurring Expenses -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-display font-semibold text-primary-50 mb-8 px-4 md:px-0">Financial Insights & Recurring Expenses</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Monthly Profit Summary -->
+                <div class="lg:col-span-2 glass-card p-6 overflow-x-auto">
+                    <h3 class="text-xl font-display font-semibold text-accentB-400 mb-4">Monthly Profit Summary (Personnel)</h3>
+                    <table class="w-full data-table text-primary-100">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Company Profit</th>
+                                <th>Personnel Profit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>January</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>February</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>March</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>April</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>May</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>June</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>July</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>August</td><td>AED 2,000.00</td><td>AED 3,650.00</td></tr>
+                            <tr><td>September</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>October</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>November</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                            <tr><td>December</td><td>AED 0.00</td><td>AED 0.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Alerts and Overall Performance -->
+                <div class="lg:col-span-1 flex flex-col gap-6">
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-display font-semibold text-status-alert mb-4">Recurring Expense Alert</h3>
+                        <p class="text-primary-50 text-lg">AED 210.00 for Sabir on a <span class="font-bold">Monthly</span> basis.</p>
+                        <p class="text-primary-300 text-sm mt-2">Action Required: Verify and manage this recurring expense.</p>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-display font-semibold text-accentB-400 mb-4">Overall Financial Performance</h3>
+                        <p class="text-primary-50 text-lg mb-2"><strong class="text-primary-200">Total Income:</strong> AED 295,494.00</p>
+                        <p class="text-primary-50 text-lg mb-2"><strong class="text-primary-200">Total Maintenance Cost:</strong> AED 710.00</p>
+                        <p class="text-primary-50 text-xl font-bold"><strong class="text-primary-200">Aggregated Profit:</strong> <span class="text-status-profit">AED 12,050.00</span></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
