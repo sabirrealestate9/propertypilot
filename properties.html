@@ -1,1169 +1,1518 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Opal Property Management - Manage all your studios and apartments in one place">
-    <title>Properties - Opal Property Management</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-            --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-            --opal-cyan: #00bcd4;
-            --opal-lilac: #9575cd;
-            --opal-mint: #69f0ae;
-            --navy: #1a237e;
-            --charcoal: #37474f;
-            --text-primary: #263238;
-            --text-secondary: #546e7a;
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f7fa;
-            --status-active: #4caf50;
-            --status-expiring: #ff9800;
-            --status-expired: #f44336;
-            --status-draft: #2196f3;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Properties • Opal Property Management</title>
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); min-height: 100vh; }
+  <!-- Fonts (FIXED: removed accidental space in URL) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-        /* Sidebar */
-        .sidebar {
-            position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
-            background: var(--bg-primary); border-right: 1px solid rgba(0,0,0,0.06);
-            padding: 24px 16px; z-index: 1000; overflow-y: auto;
-            transition: transform 0.3s ease;
-        }
-        .logo { display: flex; align-items: center; gap: 12px; padding: 0 12px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 24px; }
-        .logo-icon { width: 42px; height: 42px; background: var(--opal-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3); }
-        .logo-text { font-size: 24px; font-weight: 700; background: var(--opal-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .nav-section { margin-bottom: 24px; }
-        .nav-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); padding: 0 12px; margin-bottom: 8px; letter-spacing: 0.5px; }
-        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s ease; margin-bottom: 4px; }
-        .nav-link:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .nav-link:focus { outline: 2px solid var(--opal-cyan); outline-offset: 2px; }
-        .nav-link.active { background: var(--opal-gradient); color: var(--navy); box-shadow: var(--shadow-sm); }
-        .nav-link i { width: 20px; text-align: center; }
-        .nav-badge { margin-left: auto; background: var(--status-expired); color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-        /* Mobile Menu Toggle */
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 16px;
-            left: 16px;
-            z-index: 1001;
-            width: 44px;
-            height: 44px;
-            border: none;
-            background: var(--bg-primary);
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-md);
-            cursor: pointer;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: var(--text-primary);
-        }
+  <style>
+    :root{
+      --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
+      --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
+      --opal-cyan: #00bcd4;
+      --opal-lilac: #9575cd;
+      --opal-mint: #69f0ae;
 
-        /* Main Content */
-        .main-content { margin-left: 260px; padding: 24px 32px; min-height: 100vh; transition: margin-left 0.3s ease; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
-        .page-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
-        .page-title p { color: var(--text-secondary); font-size: 14px; }
-        .header-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-        .search-box { display: flex; align-items: center; background: var(--bg-primary); border: 1px solid rgba(0,0,0,0.08); border-radius: var(--radius-md); padding: 10px 16px; gap: 10px; min-width: 280px; transition: all 0.2s ease; }
-        .search-box:focus-within { border-color: var(--opal-cyan); box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1); }
-        .search-box input { border: none; outline: none; font-size: 14px; width: 100%; background: transparent; }
-        .search-box i { color: var(--text-secondary); }
-        
-        /* Buttons */
-        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s ease; text-decoration: none; }
-        .btn:focus { outline: 2px solid var(--opal-cyan); outline-offset: 2px; }
-        .btn-primary { background: var(--opal-accent); color: white; box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(77, 208, 225, 0.4); }
-        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 1px solid rgba(0,0,0,0.1); }
-        .btn-secondary:hover { background: var(--bg-secondary); border-color: rgba(0,0,0,0.15); }
-        .btn-icon { padding: 10px; }
-        .btn-export { background: rgba(76, 175, 80, 0.1); color: var(--status-active); border: 1px solid rgba(76, 175, 80, 0.2); }
-        .btn-export:hover { background: rgba(76, 175, 80, 0.15); }
+      --navy: #1a237e;
+      --charcoal: #37474f;
+      --text-primary: #263238;
+      --text-secondary: #546e7a;
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
 
-        /* Stats Summary */
-        .stats-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 24px; }
-        .stat-item { background: var(--bg-primary); border-radius: var(--radius-md); padding: 16px 20px; box-shadow: var(--shadow-sm); border-left: 4px solid; }
-        .stat-item.total { border-left-color: var(--opal-cyan); }
-        .stat-item.active { border-left-color: var(--status-active); }
-        .stat-item.expiring { border-left-color: var(--status-expiring); }
-        .stat-item.vacant { border-left-color: var(--status-draft); }
-        .stat-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
-        .stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+      --status-active: #2e7d32;
+      --status-expiring: #ef6c00;
+      --status-expired: #c62828;
+      --status-vacant: #1565c0;
 
-        /* Filters */
-        .filters-bar { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; }
-        .filter-group { display: flex; align-items: center; gap: 8px; }
-        .filter-group label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
-        .filter-select { padding: 8px 12px; border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-primary); cursor: pointer; transition: all 0.2s ease; }
-        .filter-select:hover { border-color: rgba(0,0,0,0.2); }
-        .filter-select:focus { outline: none; border-color: var(--opal-cyan); box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1); }
-        .view-toggle { display: flex; background: var(--bg-primary); border-radius: var(--radius-sm); border: 1px solid rgba(0,0,0,0.1); overflow: hidden; margin-left: auto; }
-        .view-toggle button { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: var(--text-secondary); transition: all 0.2s; }
-        .view-toggle button:hover { background: var(--bg-secondary); }
-        .view-toggle button.active { background: var(--opal-gradient); color: var(--navy); }
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
 
-        /* Table */
-        .table-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
-        .table-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid rgba(0,0,0,0.06); }
-        .table-header h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); }
-        .table-actions { display: flex; gap: 8px; }
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-        th { background: var(--bg-secondary); padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; user-select: none; }
-        th.sortable { cursor: pointer; }
-        th.sortable:hover { background: rgba(0,0,0,0.04); }
-        th .sort-icon { margin-left: 4px; opacity: 0.5; }
-        td { padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; vertical-align: middle; }
-        tbody tr { cursor: pointer; transition: background 0.15s ease; }
-        tbody tr:hover { background: rgba(0, 188, 212, 0.04); }
-        tbody tr:focus-within { outline: 2px solid var(--opal-cyan); outline-offset: -2px; }
+      --border: rgba(0,0,0,0.08);
+      --border-soft: rgba(0,0,0,0.06);
+      --focus: rgba(0, 188, 212, 0.28);
+    }
 
-        /* Unit Info */
-        .unit-info { display: flex; align-items: center; gap: 12px; }
-        .unit-avatar { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--opal-gradient); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--navy); font-size: 14px; flex-shrink: 0; }
-        .unit-details { min-width: 0; }
-        .unit-name { font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .unit-location { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
 
-        /* Status Badges */
-        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; white-space: nowrap; }
-        .status-badge.active { background: rgba(76, 175, 80, 0.1); color: var(--status-active); }
-        .status-badge.expiring { background: rgba(255, 152, 0, 0.1); color: var(--status-expiring); }
-        .status-badge.expired { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-        .status-badge.vacant { background: rgba(33, 150, 243, 0.1); color: var(--status-draft); }
-        .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    /* Layout */
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 268px;
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-soft);
+      padding: 22px 14px;
+      overflow-y: auto;
+      z-index: 50;
+    }
 
-        /* Days Badge */
-        .days-badge { padding: 4px 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; display: inline-block; }
-        .days-badge.danger { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-        .days-badge.warning { background: rgba(255, 152, 0, 0.1); color: var(--status-expiring); }
-        .days-badge.safe { background: rgba(76, 175, 80, 0.1); color: var(--status-active); }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 10px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 18px;
+    }
+    .logo-icon {
+      width: 42px; height: 42px;
+      background: var(--opal-accent);
+      border-radius: 14px;
+      display: grid; place-items: center;
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(124,77,255,0.18);
+      flex: 0 0 auto;
+    }
+    .logo-text {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      background: var(--opal-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-        /* Profit Value */
-        .profit-value { font-weight: 600; }
-        .profit-value.positive { color: var(--status-active); }
-        .profit-value.negative { color: var(--status-expired); }
+    .nav-section { margin: 14px 0 18px; }
+    .nav-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: 0 10px;
+      margin: 12px 0 8px;
+      letter-spacing: 0.6px;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      margin-bottom: 6px;
+    }
+    .nav-link i { width: 20px; text-align: center; }
+    .nav-link:hover { background: #f6f8ff; color: var(--text-primary); transform: translateY(-1px); }
+    .nav-link.active {
+      background: var(--opal-gradient);
+      color: var(--navy);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--status-expired);
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
 
-        /* Compliance Bar */
-        .compliance-wrapper { display: flex; align-items: center; gap: 8px; }
-        .compliance-bar { width: 60px; height: 6px; background: rgba(0,0,0,0.08); border-radius: 3px; overflow: hidden; }
-        .compliance-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
-        .compliance-fill.high { background: var(--status-active); }
-        .compliance-fill.medium { background: var(--status-expiring); }
-        .compliance-fill.low { background: var(--status-expired); }
-        .compliance-text { font-size: 11px; color: var(--text-secondary); min-width: 30px; }
+    .main-content {
+      margin-left: 268px;
+      padding: 22px 26px 34px;
+      min-height: 100vh;
+    }
 
-        /* Drive Link */
-        .drive-link { color: var(--opal-cyan); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-size: 12px; transition: all 0.2s ease; }
-        .drive-link:hover { text-decoration: underline; color: var(--navy); }
+    /* Header */
+    .page-header {
+      display: flex;
+      gap: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+    .page-title h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .page-title p { color: var(--text-secondary); font-size: 14px; }
 
-        /* Action Button */
-        .action-btn { width: 32px; height: 32px; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; border-radius: var(--radius-sm); transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; }
-        .action-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
-        .action-btn:focus { outline: 2px solid var(--opal-cyan); outline-offset: 2px; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-        /* Pagination */
-        .pagination { display: flex; justify-content: space-between; align-items: center; padding: 16px 24px; border-top: 1px solid rgba(0,0,0,0.06); flex-wrap: wrap; gap: 12px; }
-        .pagination-info { font-size: 13px; color: var(--text-secondary); }
-        .pagination-controls { display: flex; gap: 4px; }
-        .pagination-btn { width: 36px; height: 36px; border: 1px solid rgba(0,0,0,0.1); background: var(--bg-primary); border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; }
-        .pagination-btn:hover:not(:disabled) { background: var(--bg-secondary); border-color: rgba(0,0,0,0.2); }
-        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .pagination-btn.active { background: var(--opal-gradient); border-color: transparent; color: var(--navy); font-weight: 600; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      color: var(--text-secondary);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .pill strong { color: var(--text-primary); }
 
-        /* Cards View */
-        .cards-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .cards-grid.active { display: grid; }
-        .table-card.hidden { display: none; }
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+      min-width: 320px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-box i { color: var(--text-secondary); }
+    .search-box input {
+      border: none;
+      outline: none;
+      font-size: 14px;
+      width: 100%;
+      background: transparent;
+      color: var(--text-primary);
+    }
+    .search-box:focus-within {
+      border-color: rgba(0,188,212,0.55);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
 
-        /* Property Card */
-        .property-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
-        .property-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-        .property-card:focus-within { outline: 2px solid var(--opal-cyan); outline-offset: 2px; }
-        .property-card-header { padding: 20px; background: var(--opal-gradient); position: relative; }
-        .property-card-header h3 { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
-        .property-card-header p { font-size: 13px; color: var(--text-secondary); }
-        .property-card-status { position: absolute; top: 16px; right: 16px; }
-        .property-card-body { padding: 20px; }
-        .property-card-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 13px; }
-        .property-card-row span:first-child { color: var(--text-secondary); }
-        .property-card-row span:last-child { font-weight: 500; color: var(--text-primary); }
-        .property-card-footer { padding: 16px 20px; border-top: 1px solid rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary {
+      background: var(--opal-accent);
+      color: white;
+      box-shadow: 0 14px 26px rgba(77, 208, 225, 0.24);
+    }
+    .btn-primary:hover { box-shadow: 0 18px 34px rgba(124, 77, 255, 0.22); }
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:hover { transform: translateY(-1px); }
+    .btn-icon { padding: 10px 12px; }
 
-        /* Empty State */
-        .empty-state { text-align: center; padding: 60px 20px; }
-        .empty-state i { font-size: 48px; color: var(--text-secondary); margin-bottom: 16px; opacity: 0.5; }
-        .empty-state h3 { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
-        .empty-state p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+    /* Filters */
+    .filters-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0 16px;
+    }
+    .filters-left {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-group label { font-size: 13px; color: var(--text-secondary); font-weight: 700; }
+    .filter-select {
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 13px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      outline: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .filter-select:focus { box-shadow: 0 0 0 4px var(--focus); border-color: rgba(0,188,212,0.55); }
 
-        /* Responsive Design */
-        @media (max-width: 1024px) {
-            .sidebar { transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
-            .mobile-menu-toggle { display: flex; }
-            .main-content { margin-left: 0; padding: 24px 16px; padding-top: 70px; }
-            .stats-summary { grid-template-columns: repeat(2, 1fr); }
-        }
+    .view-toggle {
+      display: inline-flex;
+      background: var(--bg-primary);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .view-toggle button {
+      padding: 9px 12px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: background 0.15s ease, color 0.15s ease;
+      min-width: 44px;
+    }
+    .view-toggle button.active {
+      background: var(--opal-gradient);
+      color: var(--navy);
+      font-weight: 800;
+    }
 
-        @media (max-width: 768px) {
-            .page-header { flex-direction: column; align-items: flex-start; }
-            .header-actions { width: 100%; }
-            .search-box { flex: 1; min-width: unset; }
-            .filters-bar { flex-direction: column; align-items: stretch; }
-            .filter-group { width: 100%; }
-            .filter-select { flex: 1; }
-            .view-toggle { margin-left: 0; justify-content: center; }
-            .stats-summary { grid-template-columns: 1fr 1fr; }
-            .cards-grid { grid-template-columns: 1fr; }
-        }
+    /* Table */
+    .table-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      border: 1px solid var(--border-soft);
+    }
+    .table-toolbar{
+      padding: 12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-soft);
+      background: linear-gradient(180deg, rgba(245,247,250,0.55), rgba(245,247,250,0));
+    }
+    .table-toolbar .muted { color: var(--text-secondary); font-size: 12px; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 1280px; }
+    th {
+      background: var(--bg-secondary);
+      padding: 13px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.55px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    tr:hover { background: rgba(0,0,0,0.015); }
+    tr { cursor: pointer; }
 
-        @media (max-width: 480px) {
-            .stats-summary { grid-template-columns: 1fr; }
-            .header-actions { flex-direction: column; }
-            .search-box { min-width: 100%; }
-        }
+    .unit-info { display: flex; align-items: center; gap: 10px; }
+    .unit-avatar {
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      background: var(--opal-gradient);
+      display: grid; place-items: center;
+      font-weight: 900;
+      color: var(--navy);
+      font-size: 13px;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    .unit-name { font-weight: 800; color: var(--text-primary); }
+    .unit-location { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
 
-        /* Overlay for mobile menu */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-        }
-        .sidebar-overlay.active { display: block; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+      border: 1px solid rgba(0,0,0,0.06);
+      white-space: nowrap;
+    }
+    .status-badge::before{
+      content:'';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .status-badge.active { background: rgba(46,125,50,0.10); color: var(--status-active); }
+    .status-badge.expiring { background: rgba(239,108,0,0.10); color: var(--status-expiring); }
+    .status-badge.expired { background: rgba(198,40,40,0.10); color: var(--status-expired); }
+    .status-badge.vacant { background: rgba(21,101,192,0.10); color: var(--status-vacant); }
 
-        /* Print Styles */
-        @media print {
-            .sidebar, .mobile-menu-toggle, .header-actions, .filters-bar, .pagination, .action-btn { display: none !important; }
-            .main-content { margin-left: 0 !important; padding: 0 !important; }
-            .table-card { box-shadow: none !important; }
-        }
-    </style>
+    .days-badge {
+      padding: 6px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 900;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 54px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .days-badge.danger { background: rgba(198,40,40,0.10); color: var(--status-expired); }
+    .days-badge.warning { background: rgba(239,108,0,0.10); color: var(--status-expiring); }
+    .days-badge.safe { background: rgba(46,125,50,0.10); color: var(--status-active); }
+
+    .profit-value { font-weight: 900; }
+    .profit-value.positive { color: var(--status-active); }
+    .profit-value.negative { color: var(--status-expired); }
+
+    .compliance {
+      display:flex; align-items:center; gap:10px;
+      min-width: 130px;
+    }
+    .compliance-bar {
+      width: 88px; height: 8px;
+      background: rgba(0,0,0,0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .compliance-fill { height: 100%; border-radius: 999px; width: 0%; transition: width 0.25s ease; }
+    .compliance-fill.high { background: var(--status-active); }
+    .compliance-fill.medium { background: var(--status-expiring); }
+    .compliance-fill.low { background: var(--status-expired); }
+    .compliance-label { font-size: 12px; font-weight: 800; color: var(--text-secondary); }
+
+    .drive-link {
+      color: var(--opal-cyan);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .drive-link:hover { text-decoration: underline; }
+
+    .action-btn {
+      width: 34px; height: 34px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-radius: 12px;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .action-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border-soft);
+      background: rgba(245,247,250,0.55);
+      gap: 12px;
+    }
+    .pagination-info { font-size: 13px; color: var(--text-secondary); font-weight: 700; }
+    .pagination-controls { display: flex; gap: 6px; align-items:center; }
+    .pagination-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--border);
+      background: var(--bg-primary);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 13px;
+      display: grid; place-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .pagination-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .pagination-btn.active {
+      background: var(--opal-gradient);
+      border-color: transparent;
+      color: var(--navy);
+      font-weight: 900;
+    }
+
+    /* Cards View */
+    .cards-grid { display: none; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 18px; }
+    .cards-grid.active { display: grid; }
+    .table-card.hidden { display: none; }
+
+    .property-card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+      border: 1px solid var(--border-soft);
+    }
+    .property-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .property-card-header {
+      padding: 16px 16px 14px;
+      background: var(--opal-gradient);
+      position: relative;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .property-card-header h3 {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--navy);
+      margin-bottom: 4px;
+      letter-spacing: -0.2px;
+    }
+    .property-card-header p { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+    .property-card-status { position: absolute; top: 14px; right: 14px; }
+    .property-card-body { padding: 14px 16px 14px; }
+    .property-card-row {
+      display: flex; justify-content: space-between; gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .property-card-row span:first-child { color: var(--text-secondary); font-weight: 700; }
+    .property-card-row span:last-child { font-weight: 800; color: var(--text-primary); text-align:right; }
+    .property-card-footer {
+      padding: 12px 16px;
+      border-top: 1px solid rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Modal */
+    .modal-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(12, 18, 38, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      z-index: 80;
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal{
+      width: min(880px, 100%);
+      background: var(--bg-primary);
+      border-radius: 18px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.26);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.30);
+    }
+    .modal-header{
+      padding: 14px 16px;
+      background: var(--opal-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .modal-title{
+      display:flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .modal-title h3{
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--navy);
+      letter-spacing: -0.2px;
+    }
+    .modal-title p{ font-size: 13px; color: var(--text-secondary); font-weight: 700; }
+    .modal-close{
+      width: 38px; height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.10);
+      background: rgba(255,255,255,0.65);
+      cursor: pointer;
+      display: grid; place-items:center;
+    }
+    .modal-body{
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .kv{
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .kv label{
+      display:block;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .kv div{
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-primary);
+      word-break: break-word;
+    }
+    .modal-actions{
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-soft);
+      display:flex;
+      gap: 10px;
+      justify-content: flex-end;
+      background: rgba(245,247,250,0.55);
+    }
+
+    /* Loading + Error */
+    #ppLoading {
+      position: fixed; inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(245,247,250,0.85);
+      z-index: 9999;
+      padding: 18px;
+    }
+    .loading-card{
+      background: white;
+      padding: 14px 16px;
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-family: Inter, sans-serif;
+    }
+    #ppError {
+      display: none;
+      margin: 12px 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(198,40,40,0.35);
+      background: rgba(198,40,40,0.08);
+      color: #b71c1c;
+      font-family: Inter, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: pre-wrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px){
+      .search-box{ min-width: 260px; }
+      .modal-body{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 860px){
+      .sidebar{ position: static; width: auto; height:auto; border-right: none; border-bottom: 1px solid var(--border-soft); }
+      .main-content{ margin-left: 0; padding: 18px; }
+      .page-header{ flex-direction: column; align-items: stretch; }
+      .header-actions{ justify-content: flex-start; }
+      .search-box{ width: 100%; min-width: unset; }
+      .filters-bar{ grid-template-columns: 1fr; }
+      .filters-bar .view-toggle{ justify-self: start; }
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- Loading State -->
-<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;" role="alert" aria-live="polite">
-    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
-        <i class="fas fa-spinner fa-spin" style="color:#00bcd4;" aria-hidden="true"></i>
-        <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  <!-- Loading -->
+  <div id="ppLoading">
+    <div class="loading-card">
+      <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+      <span style="font-size:14px;color:#37474f;font-weight:800;">Loading live data…</span>
     </div>
-</div>
+  </div>
 
-<!-- Error State -->
-<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;" role="alert"></div>
+  <!-- Error -->
+  <div id="ppError"></div>
 
-<!-- Mobile Menu Toggle -->
-<button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" aria-expanded="false">
-    <i class="fas fa-bars" aria-hidden="true"></i>
-</button>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- Sidebar Navigation -->
-<nav class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+  <!-- Sidebar -->
+  <nav class="sidebar">
     <div class="logo">
-        <div class="logo-icon"><i class="fas fa-gem" aria-hidden="true"></i></div>
-        <span class="logo-text">Opal</span>
+      <div class="logo-icon"><i class="fas fa-gem"></i></div>
+      <span class="logo-text">Opal</span>
     </div>
-    <div class="nav-section">
-        <div class="nav-section-title">Main</div>
-        <a href="index.html" class="nav-link"><i class="fas fa-th-large" aria-hidden="true"></i>Dashboard</a>
-        <a href="properties.html" class="nav-link active" aria-current="page"><i class="fas fa-building" aria-hidden="true"></i>Properties</a>
-        <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>Rent Records<span class="nav-badge" aria-label="3 pending items">3</span></a>
-    </div>
-    <div class="nav-section">
-        <div class="nav-section-title">Finance</div>
-        <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt" aria-hidden="true"></i>Transactions</a>
-        <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo" aria-hidden="true"></i>Recurring Expenses</a>
-        <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line" aria-hidden="true"></i>Monthly Profit</a>
-    </div>
-    <div class="nav-section">
-        <div class="nav-section-title">Reports</div>
-        <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar" aria-hidden="true"></i>Reports</a>
-    </div>
-    <div class="nav-section">
-        <div class="nav-section-title">System</div>
-        <a href="settings.html" class="nav-link"><i class="fas fa-cog" aria-hidden="true"></i>Settings</a>
-    </div>
-</nav>
 
-<!-- Main Content -->
-<main class="main-content" role="main">
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="properties.html" class="nav-link active"><i class="fas fa-building"></i>Properties</a>
+      <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i>Rent Records</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Finance</div>
+      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
     <header class="page-header">
-        <div class="page-title">
-            <h1>Properties</h1>
-            <p>Manage all your studios and apartments in one place</p>
+      <div class="page-title">
+        <h1>Properties</h1>
+        <p>Manage all studios and apartments in one place with live Google Sheets data.</p>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill" title="Data source">
+          <i class="fa-brands fa-google-drive" style="color:#1a73e8;"></i>
+          <span>Source: <strong>Google Sheet</strong></span>
         </div>
-        <div class="header-actions">
-            <div class="search-box">
-                <i class="fas fa-search" aria-hidden="true"></i>
-                <input type="text" id="searchInput" placeholder="Search properties..." aria-label="Search properties">
-            </div>
-            <button class="btn btn-export" id="exportBtn" aria-label="Export properties to CSV">
-                <i class="fas fa-download" aria-hidden="true"></i>
-                Export
-            </button>
-            <button class="btn btn-primary" id="addPropertyBtn" aria-label="Add new property">
-                <i class="fas fa-plus" aria-hidden="true"></i>
-                Add Property
-            </button>
+
+        <div class="search-box" title="Search by owner, tenant, location, unit">
+          <i class="fas fa-search"></i>
+          <input id="searchInput" type="text" placeholder="Search unit / owner / tenant / location…" />
         </div>
+
+        <button class="btn btn-secondary btn-icon" id="refreshBtn" title="Refresh data">
+          <i class="fas fa-rotate"></i>
+        </button>
+
+        <a class="btn btn-primary" id="openSheetBtn" href="#" target="_blank" rel="noopener">
+          <i class="fas fa-arrow-up-right-from-square"></i>
+          Open Sheet
+        </a>
+      </div>
     </header>
 
-    <!-- Stats Summary -->
-    <div class="stats-summary" id="statsSummary">
-        <div class="stat-item total">
-            <div class="stat-value" id="totalUnits">15</div>
-            <div class="stat-label">Total Units</div>
-        </div>
-        <div class="stat-item active">
-            <div class="stat-value" id="activeUnits">10</div>
-            <div class="stat-label">Active</div>
-        </div>
-        <div class="stat-item expiring">
-            <div class="stat-value" id="expiringUnits">3</div>
-            <div class="stat-label">Expiring Soon</div>
-        </div>
-        <div class="stat-item vacant">
-            <div class="stat-value" id="vacantUnits">2</div>
-            <div class="stat-label">Vacant</div>
-        </div>
-    </div>
-
     <!-- Filters -->
-    <div class="filters-bar" role="search">
+    <div class="filters-bar">
+      <div class="filters-left">
         <div class="filter-group">
-            <label for="statusFilter">Status:</label>
-            <select class="filter-select" id="statusFilter" aria-label="Filter by status">
-                <option value="">All Status</option>
-                <option value="active">Active</option>
-                <option value="expiring">Expiring Soon</option>
-                <option value="expired">Expired</option>
-                <option value="vacant">Vacant</option>
-            </select>
+          <label>Status:</label>
+          <select class="filter-select" id="statusFilter">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="expiring">Expiring Soon</option>
+            <option value="expired">Expired</option>
+            <option value="vacant">Vacant</option>
+          </select>
         </div>
+
         <div class="filter-group">
-            <label for="ownerFilter">Owner:</label>
-            <select class="filter-select" id="ownerFilter" aria-label="Filter by owner">
-                <option value="">All Owners</option>
-                <option value="Shumon">Shumon</option>
-                <option value="Shaiful Islam">Shaiful Islam</option>
-                <option value="Saif Uddin R">Saif Uddin R</option>
-            </select>
+          <label>Owner:</label>
+          <select class="filter-select" id="ownerFilter">
+            <option value="">All</option>
+          </select>
         </div>
+
         <div class="filter-group">
-            <label for="typeFilter">Type:</label>
-            <select class="filter-select" id="typeFilter" aria-label="Filter by property type">
-                <option value="">All Types</option>
-                <option value="Studio">Studio</option>
-                <option value="Magic Real E">Magic Real E</option>
-            </select>
+          <label>Type:</label>
+          <select class="filter-select" id="typeFilter">
+            <option value="">All</option>
+          </select>
         </div>
+
         <div class="filter-group">
-            <label for="readyFilter">Ready to Move:</label>
-            <select class="filter-select" id="readyFilter" aria-label="Filter by ready to move status">
-                <option value="">All</option>
-                <option value="yes">Yes</option>
-                <option value="no">No</option>
-            </select>
+          <label>Ready to Move:</label>
+          <select class="filter-select" id="readyFilter">
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
         </div>
-        <div class="view-toggle" role="group" aria-label="View options">
-            <button class="active" id="tableViewBtn" onclick="showTable()" aria-pressed="true" aria-label="Table view">
-                <i class="fas fa-list" aria-hidden="true"></i>
-            </button>
-            <button id="cardsViewBtn" onclick="showCards()" aria-pressed="false" aria-label="Card view">
-                <i class="fas fa-th-large" aria-hidden="true"></i>
-            </button>
+
+        <div class="filter-group">
+          <label>Sort:</label>
+          <select class="filter-select" id="sortSelect">
+            <option value="daysAsc">Days Left (Asc)</option>
+            <option value="daysDesc">Days Left (Desc)</option>
+            <option value="profitDesc">Profit (Desc)</option>
+            <option value="profitAsc">Profit (Asc)</option>
+            <option value="tenantAZ">Tenant (A→Z)</option>
+            <option value="ownerAZ">Owner (A→Z)</option>
+          </select>
         </div>
+      </div>
+
+      <div class="view-toggle" aria-label="Toggle view">
+        <button class="active" id="btnTable" type="button" title="Table view"><i class="fas fa-list"></i></button>
+        <button id="btnCards" type="button" title="Card view"><i class="fas fa-th-large"></i></button>
+      </div>
     </div>
 
     <!-- Table View -->
     <div class="table-card" id="tableView">
-        <div class="table-header">
-            <h3><i class="fas fa-building" aria-hidden="true"></i> Property List</h3>
-            <div class="table-actions">
-                <button class="btn btn-secondary btn-icon" id="refreshBtn" aria-label="Refresh data">
-                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                </button>
-            </div>
+      <div class="table-toolbar">
+        <div class="muted" id="resultsMeta">Loading…</div>
+        <div class="muted" id="lastUpdatedMeta"></div>
+      </div>
+
+      <div class="table-container">
+        <table aria-label="Properties table">
+          <thead>
+            <tr>
+              <th>Unit</th>
+              <th>Type</th>
+              <th>Owner</th>
+              <th>Tenant</th>
+              <th>Owner Contract</th>
+              <th>Tenant Contract</th>
+              <th>Days Left</th>
+              <th>Rent In</th>
+              <th>Rent Out</th>
+              <th>Profit</th>
+              <th>Docs</th>
+              <th>Drive</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="propertiesTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">—</div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" id="prevPageBtn" title="Previous"><i class="fas fa-chevron-left"></i></button>
+          <button class="pagination-btn active" id="pageBtn">1</button>
+          <button class="pagination-btn" id="nextPageBtn" title="Next"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <div class="table-container">
-            <table role="grid" aria-label="Properties table">
-                <thead>
-                    <tr>
-                        <th class="sortable" data-sort="unit" scope="col">Unit <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th class="sortable" data-sort="type" scope="col">Type <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th class="sortable" data-sort="owner" scope="col">Owner <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th scope="col">Tenant</th>
-                        <th scope="col">Owner Contract</th>
-                        <th scope="col">Tenant Contract</th>
-                        <th class="sortable" data-sort="daysLeft" scope="col">Days Left <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th scope="col">Rent In</th>
-                        <th scope="col">Rent Out</th>
-                        <th class="sortable" data-sort="profit" scope="col">Profit <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th scope="col">Compliance</th>
-                        <th scope="col">Drive</th>
-                        <th class="sortable" data-sort="status" scope="col">Status <i class="fas fa-sort sort-icon" aria-hidden="true"></i></th>
-                        <th scope="col"><span class="sr-only">Actions</span></th>
-                    </tr>
-                </thead>
-                <tbody id="propertiesTbody">
-                    <!-- Property rows will be dynamically inserted here -->
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S1</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 1</div>
-                                    <div class="unit-location">z20 v321 r2</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>Mushtaq</td>
-                        <td>01/01/2024</td>
-                        <td>15/03/2024</td>
-                        <td><span class="days-badge warning">25</span></td>
-                        <td>2,400 QAR</td>
-                        <td>3,100 QAR</td>
-                        <td><span class="profit-value positive">1,400 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill medium" style="width: 70%"></div></div>
-                                <span class="compliance-text">70%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge expiring">Expiring</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S2</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 2</div>
-                                    <div class="unit-location">z15 v12 r8</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>—</td>
-                        <td>01/06/2024</td>
-                        <td>—</td>
-                        <td><span class="days-badge safe">175</span></td>
-                        <td>2,000 QAR</td>
-                        <td>2,650 QAR</td>
-                        <td><span class="profit-value positive">700 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 100%"></div></div>
-                                <span class="compliance-text">100%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge vacant">Vacant</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S3</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 3</div>
-                                    <div class="unit-location">z7 v4 r4</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Magic Real E</td>
-                        <td>Shumon</td>
-                        <td>Hamid</td>
-                        <td>01/01/2024</td>
-                        <td>01/02/2024</td>
-                        <td><span class="days-badge safe">315</span></td>
-                        <td>2,300 QAR</td>
-                        <td>3,200 QAR</td>
-                        <td><span class="profit-value positive">1,200 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 95%"></div></div>
-                                <span class="compliance-text">95%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S4</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 4</div>
-                                    <div class="unit-location">z16</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shaiful Islam</td>
-                        <td>Prajith Kinathen</td>
-                        <td>15/02/2024</td>
-                        <td>01/04/2024</td>
-                        <td><span class="days-badge safe">279</span></td>
-                        <td>2,700 QAR</td>
-                        <td>3,400 QAR</td>
-                        <td><span class="profit-value positive">900 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 100%"></div></div>
-                                <span class="compliance-text">100%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S5</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 5</div>
-                                    <div class="unit-location">z18 c21 v5</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>Kamran Ahmed</td>
-                        <td>01/03/2024</td>
-                        <td>01/05/2024</td>
-                        <td><span class="days-badge safe">139</span></td>
-                        <td>2,700 QAR</td>
-                        <td>3,400 QAR</td>
-                        <td><span class="profit-value positive">500 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 85%"></div></div>
-                                <span class="compliance-text">85%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S6</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 6</div>
-                                    <div class="unit-location">z22 v8 r1</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Saif Uddin R</td>
-                        <td>Ahmed Khan</td>
-                        <td>01/04/2024</td>
-                        <td>15/04/2024</td>
-                        <td><span class="days-badge danger">5</span></td>
-                        <td>2,500 QAR</td>
-                        <td>3,200 QAR</td>
-                        <td><span class="profit-value positive">800 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill low" style="width: 45%"></div></div>
-                                <span class="compliance-text">45%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge expired">Expired</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S7</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 7</div>
-                                    <div class="unit-location">z7 v4 r2</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Magic Real E</td>
-                        <td>Shumon</td>
-                        <td>Gulam Mohamed</td>
-                        <td>01/02/2024</td>
-                        <td>20/02/2024</td>
-                        <td><span class="days-badge warning">19</span></td>
-                        <td>2,700 QAR</td>
-                        <td>3,400 QAR</td>
-                        <td><span class="profit-value positive">700 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill medium" style="width: 65%"></div></div>
-                                <span class="compliance-text">65%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge expiring">Expiring</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S8</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 8</div>
-                                    <div class="unit-location">z14 v2 r3</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>—</td>
-                        <td>01/05/2024</td>
-                        <td>—</td>
-                        <td><span class="days-badge safe">200</span></td>
-                        <td>2,200 QAR</td>
-                        <td>2,800 QAR</td>
-                        <td><span class="profit-value positive">600 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 90%"></div></div>
-                                <span class="compliance-text">90%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge vacant">Vacant</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S9</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 9</div>
-                                    <div class="unit-location">z10 v6 r4</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Magic Real E</td>
-                        <td>Shaiful Islam</td>
-                        <td>Ravi Kumar</td>
-                        <td>15/01/2024</td>
-                        <td>01/03/2024</td>
-                        <td><span class="days-badge safe">245</span></td>
-                        <td>2,600 QAR</td>
-                        <td>3,300 QAR</td>
-                        <td><span class="profit-value positive">1,100 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 100%"></div></div>
-                                <span class="compliance-text">100%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S10</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 10</div>
-                                    <div class="unit-location">z8 v3 r5</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>Mohammed Ali</td>
-                        <td>01/01/2024</td>
-                        <td>15/01/2024</td>
-                        <td><span class="days-badge safe">350</span></td>
-                        <td>2,400 QAR</td>
-                        <td>3,100 QAR</td>
-                        <td><span class="profit-value positive">950 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 88%"></div></div>
-                                <span class="compliance-text">88%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S11</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 11</div>
-                                    <div class="unit-location">z25 v10 r2</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Saif Uddin R</td>
-                        <td>Ibrahim Hassan</td>
-                        <td>01/02/2024</td>
-                        <td>15/02/2024</td>
-                        <td><span class="days-badge safe">290</span></td>
-                        <td>2,800 QAR</td>
-                        <td>3,500 QAR</td>
-                        <td><span class="profit-value positive">1,000 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 92%"></div></div>
-                                <span class="compliance-text">92%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S12</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 12</div>
-                                    <div class="unit-location">z19 v7 r1</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Magic Real E</td>
-                        <td>Shumon</td>
-                        <td>Faisal Rahman</td>
-                        <td>15/03/2024</td>
-                        <td>01/04/2024</td>
-                        <td><span class="days-badge warning">45</span></td>
-                        <td>2,500 QAR</td>
-                        <td>3,200 QAR</td>
-                        <td><span class="profit-value positive">850 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill medium" style="width: 75%"></div></div>
-                                <span class="compliance-text">75%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge expiring">Expiring</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S13</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 13</div>
-                                    <div class="unit-location">z12 v4 r6</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shaiful Islam</td>
-                        <td>Tariq Mahmood</td>
-                        <td>01/04/2024</td>
-                        <td>15/04/2024</td>
-                        <td><span class="days-badge safe">180</span></td>
-                        <td>2,300 QAR</td>
-                        <td>2,900 QAR</td>
-                        <td><span class="profit-value positive">750 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 82%"></div></div>
-                                <span class="compliance-text">82%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S14</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 14</div>
-                                    <div class="unit-location">z30 v15 r3</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>Wasim Akram</td>
-                        <td>15/05/2024</td>
-                        <td>01/06/2024</td>
-                        <td><span class="days-badge safe">220</span></td>
-                        <td>2,600 QAR</td>
-                        <td>3,300 QAR</td>
-                        <td><span class="profit-value positive">1,050 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 97%"></div></div>
-                                <span class="compliance-text">97%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                    <tr onclick="window.location='property-detail.html'" tabindex="0" role="row">
-                        <td>
-                            <div class="unit-info">
-                                <div class="unit-avatar">S15</div>
-                                <div class="unit-details">
-                                    <div class="unit-name">S_No 15</div>
-                                    <div class="unit-location">z18 c66 v3 r6</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Studio</td>
-                        <td>Shumon</td>
-                        <td>Abin Balachandr</td>
-                        <td>01/06/2024</td>
-                        <td>15/06/2024</td>
-                        <td><span class="days-badge safe">367</span></td>
-                        <td>2,700 QAR</td>
-                        <td>3,400 QAR</td>
-                        <td><span class="profit-value positive">3,000 QAR</span></td>
-                        <td>
-                            <div class="compliance-wrapper">
-                                <div class="compliance-bar"><div class="compliance-fill high" style="width: 100%"></div></div>
-                                <span class="compliance-text">100%</span>
-                            </div>
-                        </td>
-                        <td><a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Docs</a></td>
-                        <td><span class="status-badge active">Active</span></td>
-                        <td><button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination">
-            <div class="pagination-info" id="paginationInfo">Showing 1-15 of 15 properties</div>
-            <div class="pagination-controls">
-                <button class="pagination-btn" id="prevPageBtn" disabled aria-label="Previous page"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
-                <button class="pagination-btn active" aria-current="page">1</button>
-                <button class="pagination-btn" id="nextPageBtn" disabled aria-label="Next page"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Cards View -->
-    <div class="cards-grid" id="cardsView">
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 1">
-            <div class="property-card-header">
-                <h3>S_No 1 - Studio</h3>
-                <p>z20 v321 r2 • Shumon</p>
-                <div class="property-card-status">
-                    <span class="status-badge expiring">Expiring</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>Mushtaq</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge warning">25</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,400 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>3,100 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">1,400 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
+    <div class="cards-grid" id="cardsView"></div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div class="modal-backdrop" id="detailBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <h3 id="modalTitle">Property</h3>
+          <p id="modalSub">—</p>
         </div>
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 2">
-            <div class="property-card-header">
-                <h3>S_No 2 - Studio</h3>
-                <p>z15 v12 r8 • Shumon</p>
-                <div class="property-card-status">
-                    <span class="status-badge vacant">Vacant</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>—</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge safe">175</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,000 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>2,650 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">700 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 3">
-            <div class="property-card-header">
-                <h3>S_No 3 - Magic Real E</h3>
-                <p>z7 v4 r4 • Shumon</p>
-                <div class="property-card-status">
-                    <span class="status-badge active">Active</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>Hamid</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge safe">315</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,300 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>3,200 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">1,200 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 4">
-            <div class="property-card-header">
-                <h3>S_No 4 - Studio</h3>
-                <p>z16 • Shaiful Islam</p>
-                <div class="property-card-status">
-                    <span class="status-badge active">Active</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>Prajith Kinathen</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge safe">279</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,700 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>3,400 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">900 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 7">
-            <div class="property-card-header">
-                <h3>S_No 7 - Magic Real E</h3>
-                <p>z7 v4 r2 • Shumon</p>
-                <div class="property-card-status">
-                    <span class="status-badge expiring">Expiring</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>Gulam Mohamed</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge warning">19</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,700 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>3,400 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">700 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
-        <div class="property-card" onclick="window.location='property-detail.html'" tabindex="0" role="article" aria-label="Property S_No 15">
-            <div class="property-card-header">
-                <h3>S_No 15 - Studio</h3>
-                <p>z18 c66 v3 r6 • Shumon</p>
-                <div class="property-card-status">
-                    <span class="status-badge active">Active</span>
-                </div>
-            </div>
-            <div class="property-card-body">
-                <div class="property-card-row"><span>Tenant</span><span>Abin Balachandr</span></div>
-                <div class="property-card-row"><span>Days Left</span><span class="days-badge safe">367</span></div>
-                <div class="property-card-row"><span>Rent In</span><span>2,700 QAR</span></div>
-                <div class="property-card-row"><span>Rent Out</span><span>3,400 QAR</span></div>
-                <div class="property-card-row"><span>Profit</span><span class="profit-value positive">3,000 QAR</span></div>
-            </div>
-            <div class="property-card-footer">
-                <a href="#" class="drive-link" onclick="event.stopPropagation()"><i class="fab fa-google-drive" aria-hidden="true"></i> Documents</a>
-                <button class="action-btn" aria-label="View property details"><i class="fas fa-arrow-right" aria-hidden="true"></i></button>
-            </div>
-        </div>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close">
+          <i class="fas fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" id="modalBody"></div>
+
+      <div class="modal-actions">
+        <a class="btn btn-secondary" id="modalMapBtn" href="#" target="_blank" rel="noopener">
+          <i class="fas fa-map-location-dot"></i> Map
+        </a>
+        <a class="btn btn-secondary" id="modalDriveBtn" href="#" target="_blank" rel="noopener">
+          <i class="fa-brands fa-google-drive"></i> Drive
+        </a>
+        <button class="btn btn-primary" id="modalCloseBtn2" type="button">
+          <i class="fas fa-check"></i> Close
+        </button>
+      </div>
     </div>
-</main>
+  </div>
 
-<script>
-    // View Toggle Functions
-    function showTable() {
-        document.getElementById('tableView').classList.remove('hidden');
-        document.getElementById('cardsView').classList.remove('active');
-        document.getElementById('tableViewBtn').classList.add('active');
-        document.getElementById('cardsViewBtn').classList.remove('active');
-        document.getElementById('tableViewBtn').setAttribute('aria-pressed', 'true');
-        document.getElementById('cardsViewBtn').setAttribute('aria-pressed', 'false');
+  <script>
+    /******************************************************************
+     * CONFIG (IMPORTANT)
+     ******************************************************************/
+    const CONFIG = {
+      // Your Apps Script Web App URL (exec)
+      API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
+      CURRENCY: "AED",
+      PAGE_SIZE: 12,
+      EXPIRING_THRESHOLD_DAYS: 30
+    };
+
+    /******************************************************************
+     * DOM
+     ******************************************************************/
+    const elLoading = document.getElementById("ppLoading");
+    const elError = document.getElementById("ppError");
+
+    const openSheetBtn = document.getElementById("openSheetBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const ownerFilter = document.getElementById("ownerFilter");
+    const typeFilter = document.getElementById("typeFilter");
+    const readyFilter = document.getElementById("readyFilter");
+    const sortSelect = document.getElementById("sortSelect");
+
+    const btnTable = document.getElementById("btnTable");
+    const btnCards = document.getElementById("btnCards");
+    const tableView = document.getElementById("tableView");
+    const cardsView = document.getElementById("cardsView");
+
+    const tbody = document.getElementById("propertiesTbody");
+    const resultsMeta = document.getElementById("resultsMeta");
+    const lastUpdatedMeta = document.getElementById("lastUpdatedMeta");
+
+    const paginationInfo = document.getElementById("paginationInfo");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const pageBtn = document.getElementById("pageBtn");
+
+    const detailBackdrop = document.getElementById("detailBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSub = document.getElementById("modalSub");
+    const modalBody = document.getElementById("modalBody");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const modalCloseBtn2 = document.getElementById("modalCloseBtn2");
+    const modalDriveBtn = document.getElementById("modalDriveBtn");
+    const modalMapBtn = document.getElementById("modalMapBtn");
+
+    /******************************************************************
+     * STATE
+     ******************************************************************/
+    const STATE = {
+      raw: [],
+      filtered: [],
+      view: "table",      // table | cards
+      page: 1,
+      sheetUrl: "",
+      lastUpdatedIso: ""
+    };
+
+    /******************************************************************
+     * UTILITIES
+     ******************************************************************/
+    function showLoading(on){
+      elLoading.style.display = on ? "flex" : "none";
     }
 
-    function showCards() {
-        document.getElementById('tableView').classList.add('hidden');
-        document.getElementById('cardsView').classList.add('active');
-        document.getElementById('tableViewBtn').classList.remove('active');
-        document.getElementById('cardsViewBtn').classList.add('active');
-        document.getElementById('tableViewBtn').setAttribute('aria-pressed', 'false');
-        document.getElementById('cardsViewBtn').setAttribute('aria-pressed', 'true');
+    function showError(message){
+      if(!message){
+        elError.style.display = "none";
+        elError.textContent = "";
+        return;
+      }
+      elError.style.display = "block";
+      elError.textContent = message;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    // Mobile Menu Functions
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarOverlay = document.getElementById('sidebarOverlay');
-
-    function toggleMobileMenu() {
-        const isOpen = sidebar.classList.toggle('open');
-        sidebarOverlay.classList.toggle('active');
-        mobileMenuToggle.setAttribute('aria-expanded', isOpen);
-        mobileMenuToggle.innerHTML = isOpen 
-            ? '<i class="fas fa-times" aria-hidden="true"></i>' 
-            : '<i class="fas fa-bars" aria-hidden="true"></i>';
+    function safeText(v){
+      if(v === null || v === undefined) return "";
+      return String(v).trim();
     }
 
-    mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-    sidebarOverlay.addEventListener('click', toggleMobileMenu);
+    function toNumber(v){
+      if(v === null || v === undefined || v === "") return 0;
+      if(typeof v === "number") return v;
+      const s = String(v).replace(/AED|QAR|USD|,/gi,"").trim();
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    }
 
-    // Search Functionality
-    const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', function(e) {
-        const searchTerm = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#propertiesTbody tr');
-        let visibleCount = 0;
-        
-        rows.forEach(row => {
-            const text = row.textContent.toLowerCase();
-            const isVisible = text.includes(searchTerm);
-            row.style.display = isVisible ? '' : 'none';
-            if (isVisible) visibleCount++;
+    function money(v){
+      const n = toNumber(v);
+      try {
+        return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(n);
+      } catch {
+        return `${n.toFixed(0)} ${CONFIG.CURRENCY}`;
+      }
+    }
+
+    function fmtDateISO(iso){
+      const s = safeText(iso);
+      if(!s) return "—";
+      const d = new Date(s);
+      if(Number.isNaN(d.getTime())) return s;
+      return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+    }
+
+    function initialsFromUnit(unit){
+      const u = safeText(unit).replace(/[^a-z0-9]/gi," ").trim();
+      if(!u) return "OP";
+      const parts = u.split(/\s+/).slice(0,2);
+      return parts.map(p => p[0].toUpperCase()).join("");
+    }
+
+    // Status logic:
+    // - vacant if no tenant name
+    // - expired if daysLeft <= 0
+    // - expiring if daysLeft <= threshold
+    // - else active
+    function computeStatus(p){
+      const tenant = safeText(p.TenantName || p.Tenant || "");
+      const days = toNumber(p.DaysLeft);
+      if(!tenant) return "vacant";
+      if(days <= 0) return "expired";
+      if(days <= CONFIG.EXPIRING_THRESHOLD_DAYS) return "expiring";
+      return "active";
+    }
+
+    function statusLabel(st){
+      if(st === "active") return "Active";
+      if(st === "expiring") return "Expiring";
+      if(st === "expired") return "Expired";
+      if(st === "vacant") return "Vacant";
+      return "—";
+    }
+
+    function daysBadgeClass(days){
+      const d = toNumber(days);
+      if(d <= 0) return "danger";
+      if(d <= CONFIG.EXPIRING_THRESHOLD_DAYS) return "warning";
+      return "safe";
+    }
+
+    // "Docs compliance" heuristic:
+    // You can change this formula later based on your real checklist columns.
+    // - DriveFolderLink present => +50
+    // - Coordinates present => +15
+    // - GoogleMap present => +15
+    // - OwnerContract present => +10
+    // - SecurityCheque present => +10
+    function computeCompliance(p){
+      let score = 0;
+      if(safeText(p.DriveFolderLink)) score += 50;
+      if(safeText(p.Coordinates)) score += 15;
+      if(safeText(p.GoogleMap)) score += 15;
+      if(safeText(p.OwnerContract)) score += 10;
+      if(safeText(p.SecurityCheque)) score += 10;
+      if(score > 100) score = 100;
+
+      let level = "low";
+      if(score >= 80) level = "high";
+      else if(score >= 50) level = "medium";
+
+      return { score, level };
+    }
+
+    function normalizeFromApi(row){
+      // Matches your "Table" tab columns from screenshot:
+      // S_No, Month, Flat, OwnerName, OwnerContact, TenantName, TenantContact,
+      // GoogleMap, Location, OwnerRent, TenantRent, SecurityCheque,
+      // TContractFrom, TContractTo, DaysLeft, Status, Property, OwnerContract,
+      // Maintenance, Coordinates, ReadyToMove, DriveFolderLink
+      const ownerRent = toNumber(row.OwnerRent);
+      const tenantRent = toNumber(row.TenantRent);
+      const profit = tenantRent - ownerRent;
+
+      const unitId = safeText(row.Flat || row.S_No || "—");
+
+      return {
+        // identity
+        S_No: safeText(row.S_No),
+        UnitId: unitId,
+
+        // basic fields
+        Month: safeText(row.Month),
+        Flat: safeText(row.Flat),
+        Type: safeText(row.Property || row.Flat || "—"),     // fallback if you later add separate type column
+        Property: safeText(row.Property),
+
+        OwnerName: safeText(row.OwnerName),
+        OwnerContact: safeText(row.OwnerContact),
+
+        TenantName: safeText(row.TenantName),
+        TenantContact: safeText(row.TenantContact),
+
+        Location: safeText(row.Location),
+        GoogleMap: safeText(row.GoogleMap),
+        Coordinates: safeText(row.Coordinates),
+
+        OwnerRent: ownerRent,
+        TenantRent: tenantRent,
+        Profit: profit,
+
+        SecurityCheque: safeText(row.SecurityCheque),
+        OwnerContract: safeText(row.OwnerContract),
+
+        TContractFrom: safeText(row.TContractFrom),
+        TContractTo: safeText(row.TContractTo),
+        DaysLeft: toNumber(row.DaysLeft),
+
+        StatusRaw: safeText(row.Status),
+        ReadyToMove: safeText(row.ReadyToMove),
+
+        Maintenance: toNumber(row.Maintenance),
+
+        DriveFolderLink: safeText(row.DriveFolderLink)
+      };
+    }
+
+    /******************************************************************
+     * API
+     ******************************************************************/
+    async function fetchData(){
+      showError("");
+      showLoading(true);
+
+      try{
+        const res = await fetch(CONFIG.API_URL, { method: "GET" });
+        const txt = await res.text();
+
+        let payload;
+        try { payload = JSON.parse(txt); }
+        catch { throw new Error("API did not return JSON.\nFirst 250 chars:\n" + txt.slice(0,250)); }
+
+        if(!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + txt.slice(0,250));
+        if(!payload.ok) throw new Error(payload.error || "API returned ok=false");
+
+        // IMPORTANT: our API returns "properties" array built from Table tab.
+        const arr = Array.isArray(payload.properties) ? payload.properties : [];
+        STATE.raw = arr.map(normalizeFromApi);
+
+        STATE.sheetUrl = safeText(payload.sheetUrl || "");
+        STATE.lastUpdatedIso = safeText(payload.lastUpdatedIso || "");
+
+        if(STATE.sheetUrl) openSheetBtn.href = STATE.sheetUrl;
+
+        hydrateFilterOptions();
+        applyFiltersAndRender(true);
+
+      } catch(err){
+        showError((err && err.message) ? err.message : "Failed to load data.");
+        // still render empty state
+        STATE.raw = [];
+        applyFiltersAndRender(true);
+      } finally{
+        showLoading(false);
+      }
+    }
+
+    /******************************************************************
+     * FILTERS / SORT / PAGINATION
+     ******************************************************************/
+    function hydrateFilterOptions(){
+      // Owners
+      const owners = Array.from(new Set(STATE.raw.map(x => x.OwnerName).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+      ownerFilter.innerHTML = `<option value="">All</option>` + owners.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+
+      // Type: prefer Property column, fallback to Flat/type mapping
+      const types = Array.from(new Set(STATE.raw.map(x => x.Property || x.Flat).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+      typeFilter.innerHTML = `<option value="">All</option>` + types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+    }
+
+    function applyFiltersAndRender(resetPage){
+      if(resetPage) STATE.page = 1;
+
+      const q = safeText(searchInput.value).toLowerCase();
+      const st = safeText(statusFilter.value);
+      const ow = safeText(ownerFilter.value);
+      const tp = safeText(typeFilter.value);
+      const rd = safeText(readyFilter.value).toLowerCase();
+      const sort = safeText(sortSelect.value);
+
+      let items = [...STATE.raw];
+
+      if(q){
+        items = items.filter(p => {
+          const hay = [
+            p.UnitId, p.Flat, p.Location, p.OwnerName, p.OwnerContact,
+            p.TenantName, p.TenantContact, p.Property, p.StatusRaw
+          ].map(safeText).join(" ").toLowerCase();
+          return hay.includes(q);
         });
-        
-        document.getElementById('paginationInfo').textContent = 
-            `Showing ${visibleCount} of 15 properties`;
-    });
+      }
 
-    // Filter Functionality
-    const filters = ['statusFilter', 'ownerFilter', 'typeFilter', 'readyFilter'];
-    filters.forEach(filterId => {
-        const filterElement = document.getElementById(filterId);
-        if (filterElement) {
-            filterElement.addEventListener('change', applyFilters);
-        }
-    });
+      if(ow) items = items.filter(p => p.OwnerName === ow);
+      if(tp) items = items.filter(p => (p.Property || p.Flat) === tp);
 
-    function applyFilters() {
-        const status = document.getElementById('statusFilter').value.toLowerCase();
-        const owner = document.getElementById('ownerFilter').value;
-        const type = document.getElementById('typeFilter').value;
-        const rows = document.querySelectorAll('#propertiesTbody tr');
-        let visibleCount = 0;
-        
-        rows.forEach(row => {
-            const cells = row.querySelectorAll('td');
-            const rowStatus = row.querySelector('.status-badge')?.textContent.toLowerCase() || '';
-            const rowOwner = cells[2]?.textContent || '';
-            const rowType = cells[1]?.textContent || '';
-            
-            let showRow = true;
-            
-            if (status && !rowStatus.includes(status)) showRow = false;
-            if (owner && rowOwner !== owner) showRow = false;
-            if (type && rowType !== type) showRow = false;
-            
-            row.style.display = showRow ? '' : 'none';
-            if (showRow) visibleCount++;
+      if(rd){
+        items = items.filter(p => {
+          const v = safeText(p.ReadyToMove).toLowerCase();
+          const isYes = ["yes","true","1","ready"].includes(v);
+          return rd === "yes" ? isYes : !isYes;
         });
-        
-        document.getElementById('paginationInfo').textContent = 
-            `Showing ${visibleCount} of 15 properties`;
+      }
+
+      if(st){
+        items = items.filter(p => computeStatus(p) === st);
+      }
+
+      // Sorting
+      items.sort((a,b)=>{
+        if(sort === "daysAsc") return toNumber(a.DaysLeft) - toNumber(b.DaysLeft);
+        if(sort === "daysDesc") return toNumber(b.DaysLeft) - toNumber(a.DaysLeft);
+        if(sort === "profitDesc") return toNumber(b.Profit) - toNumber(a.Profit);
+        if(sort === "profitAsc") return toNumber(a.Profit) - toNumber(b.Profit);
+        if(sort === "tenantAZ") return safeText(a.TenantName).localeCompare(safeText(b.TenantName));
+        if(sort === "ownerAZ") return safeText(a.OwnerName).localeCompare(safeText(b.OwnerName));
+        return 0;
+      });
+
+      STATE.filtered = items;
+
+      render();
     }
 
-    // Export Functionality
-    document.getElementById('exportBtn').addEventListener('click', function() {
-        const table = document.querySelector('table');
-        const rows = table.querySelectorAll('tr');
-        let csv = [];
-        
-        rows.forEach(row => {
-            const cols = row.querySelectorAll('th, td');
-            const rowData = [];
-            cols.forEach(col => {
-                let text = col.textContent.trim().replace(/,/g, ';');
-                rowData.push('"' + text + '"');
-            });
-            csv.push(rowData.join(','));
-        });
-        
-        const csvContent = csv.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'properties_export_' + new Date().toISOString().slice(0,10) + '.csv';
-        link.click();
-    });
+    function getPaged(){
+      const total = STATE.filtered.length;
+      const pages = Math.max(1, Math.ceil(total / CONFIG.PAGE_SIZE));
+      if(STATE.page > pages) STATE.page = pages;
 
-    // Keyboard Navigation for Table Rows
-    document.querySelectorAll('#propertiesTbody tr').forEach(row => {
-        row.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                window.location = 'property-detail.html';
+      const start = (STATE.page - 1) * CONFIG.PAGE_SIZE;
+      const end = start + CONFIG.PAGE_SIZE;
+      const slice = STATE.filtered.slice(start, end);
+
+      return { total, pages, start, end, slice };
+    }
+
+    /******************************************************************
+     * RENDER
+     ******************************************************************/
+    function render(){
+      const { total, pages, start, end, slice } = getPaged();
+
+      // Meta
+      const showingFrom = total ? (start + 1) : 0;
+      const showingTo = Math.min(end, total);
+
+      resultsMeta.textContent = `Showing ${showingFrom}-${showingTo} of ${total} properties`;
+      lastUpdatedMeta.textContent = STATE.lastUpdatedIso ? `Last updated: ${new Date(STATE.lastUpdatedIso).toLocaleString("en-GB")}` : "";
+
+      paginationInfo.textContent = `Page ${STATE.page} of ${pages}`;
+      pageBtn.textContent = String(STATE.page);
+
+      prevPageBtn.disabled = (STATE.page <= 1);
+      nextPageBtn.disabled = (STATE.page >= pages);
+
+      // Table
+      tbody.innerHTML = slice.length ? slice.map(rowToTr).join("") : emptyTableRow();
+
+      // Cards
+      cardsView.innerHTML = slice.length ? slice.map(rowToCard).join("") : emptyCards();
+
+      // View
+      if(STATE.view === "table"){
+        tableView.classList.remove("hidden");
+        cardsView.classList.remove("active");
+        btnTable.classList.add("active");
+        btnCards.classList.remove("active");
+      } else {
+        tableView.classList.add("hidden");
+        cardsView.classList.add("active");
+        btnCards.classList.add("active");
+        btnTable.classList.remove("active");
+      }
+
+      // Row click handlers (delegation)
+      wireRowClicks();
+    }
+
+    function emptyTableRow(){
+      return `
+        <tr>
+          <td colspan="14" style="padding:18px 14px;color:var(--text-secondary);font-weight:800;">
+            No matching properties found. Adjust your filters or search text.
+          </td>
+        </tr>
+      `;
+    }
+
+    function emptyCards(){
+      return `
+        <div class="property-card" style="grid-column: 1/-1; cursor:default;">
+          <div class="property-card-header">
+            <h3>No results</h3>
+            <p>Try different filters or a broader search.</p>
+          </div>
+          <div class="property-card-body">
+            <div class="property-card-row"><span>Tip</span><span>Search by Owner, Tenant, or Location</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function rowToTr(p){
+      const unit = escapeHtml(p.UnitId);
+      const loc = escapeHtml(p.Location || "—");
+      const owner = escapeHtml(p.OwnerName || "—");
+      const tenant = escapeHtml(p.TenantName || "—");
+
+      const ownerContract = escapeHtml(p.OwnerContract || "—");
+      const tFrom = fmtDateISO(p.TContractFrom);
+      const tTo = fmtDateISO(p.TContractTo);
+      const tenantContract = `${tFrom} → ${tTo}`;
+
+      const days = toNumber(p.DaysLeft);
+      const daysClass = daysBadgeClass(days);
+
+      const status = computeStatus(p);
+      const compliance = computeCompliance(p);
+
+      const profit = toNumber(p.Profit);
+      const profitClass = profit >= 0 ? "positive" : "negative";
+
+      const driveLink = p.DriveFolderLink
+        ? `<a class="drive-link" href="${escapeAttr(p.DriveFolderLink)}" target="_blank" rel="noopener"><i class="fab fa-google-drive"></i> Open</a>`
+        : `<span style="color:var(--text-secondary);font-weight:800;font-size:12px;">—</span>`;
+
+      return `
+        <tr data-unit="${escapeAttr(p.UnitId)}" data-sno="${escapeAttr(p.S_No)}">
+          <td>
+            <div class="unit-info">
+              <div class="unit-avatar">${escapeHtml(initialsFromUnit(p.UnitId))}</div>
+              <div>
+                <div class="unit-name">${unit}</div>
+                <div class="unit-location">${loc}</div>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(p.Property || p.Flat || "—")}</td>
+          <td>
+            <div style="font-weight:900;">${owner}</div>
+            <div style="color:var(--text-secondary);font-size:12px;font-weight:700;">${escapeHtml(p.OwnerContact || "")}</div>
+          </td>
+          <td>
+            <div style="font-weight:900;">${tenant}</div>
+            <div style="color:var(--text-secondary);font-size:12px;font-weight:700;">${escapeHtml(p.TenantContact || "")}</div>
+          </td>
+          <td>${ownerContract}</td>
+          <td>${escapeHtml(tenantContract)}</td>
+          <td><span class="days-badge ${daysClass}">${days}</span></td>
+          <td>${money(p.OwnerRent)}</td>
+          <td>${money(p.TenantRent)}</td>
+          <td><span class="profit-value ${profitClass}">${money(profit)}</span></td>
+          <td>
+            <div class="compliance">
+              <div class="compliance-bar">
+                <div class="compliance-fill ${compliance.level}" style="width:${compliance.score}%"></div>
+              </div>
+              <div class="compliance-label">${compliance.score}%</div>
+            </div>
+          </td>
+          <td>${driveLink}</td>
+          <td><span class="status-badge ${status}">${statusLabel(status)}</span></td>
+          <td style="text-align:right;">
+            <button class="action-btn" title="View details" data-action="details">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function rowToCard(p){
+      const status = computeStatus(p);
+      const days = toNumber(p.DaysLeft);
+      const daysClass = daysBadgeClass(days);
+      const profit = toNumber(p.Profit);
+      const profitClass = profit >= 0 ? "positive" : "negative";
+
+      return `
+        <div class="property-card" data-unit="${escapeAttr(p.UnitId)}" data-sno="${escapeAttr(p.S_No)}">
+          <div class="property-card-header">
+            <h3>${escapeHtml(p.UnitId)} • ${escapeHtml(p.Property || p.Flat || "—")}</h3>
+            <p>${escapeHtml(p.Location || "—")} • ${escapeHtml(p.OwnerName || "—")}</p>
+            <div class="property-card-status">
+              <span class="status-badge ${status}">${statusLabel(status)}</span>
+            </div>
+          </div>
+          <div class="property-card-body">
+            <div class="property-card-row"><span>Tenant</span><span>${escapeHtml(p.TenantName || "—")}</span></div>
+            <div class="property-card-row"><span>Days Left</span><span class="days-badge ${daysClass}">${days}</span></div>
+            <div class="property-card-row"><span>Rent In</span><span>${money(p.OwnerRent)}</span></div>
+            <div class="property-card-row"><span>Rent Out</span><span>${money(p.TenantRent)}</span></div>
+            <div class="property-card-row"><span>Profit</span><span class="profit-value ${profitClass}">${money(profit)}</span></div>
+          </div>
+          <div class="property-card-footer">
+            ${
+              p.DriveFolderLink
+                ? `<a href="${escapeAttr(p.DriveFolderLink)}" target="_blank" rel="noopener" class="drive-link"><i class="fab fa-google-drive"></i> Documents</a>`
+                : `<span style="color:var(--text-secondary);font-weight:800;font-size:12px;">No Drive link</span>`
             }
+            <button class="action-btn" title="Details" data-action="details"><i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+      `;
+    }
+
+    function wireRowClicks(){
+      // Table row click
+      tbody.querySelectorAll("tr").forEach(tr => {
+        tr.addEventListener("click", (e)=>{
+          const action = e.target && e.target.closest ? e.target.closest("[data-action]") : null;
+          // Ignore direct drive link clicks
+          const a = e.target && e.target.closest ? e.target.closest("a") : null;
+          if(a) return;
+
+          const unit = tr.getAttribute("data-unit");
+          const sno = tr.getAttribute("data-sno");
+          openDetail(unit, sno);
         });
-    });
+      });
 
-    // Keyboard Navigation for Property Cards
-    document.querySelectorAll('.property-card').forEach(card => {
-        card.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                window.location = 'property-detail.html';
-            }
+      // Card click
+      cardsView.querySelectorAll(".property-card").forEach(card=>{
+        card.addEventListener("click", (e)=>{
+          const a = e.target && e.target.closest ? e.target.closest("a") : null;
+          if(a) return;
+
+          const unit = card.getAttribute("data-unit");
+          const sno = card.getAttribute("data-sno");
+          openDetail(unit, sno);
         });
-    });
+      });
+    }
 
-    // Refresh Button
-    document.getElementById('refreshBtn').addEventListener('click', function() {
-        const icon = this.querySelector('i');
-        icon.classList.add('fa-spin');
-        setTimeout(() => {
-            icon.classList.remove('fa-spin');
-        }, 1000);
-    });
+    /******************************************************************
+     * DETAIL MODAL
+     ******************************************************************/
+    function openDetail(unit, sno){
+      const p = STATE.raw.find(x => x.UnitId === unit && safeText(x.S_No) === safeText(sno))
+            || STATE.raw.find(x => x.UnitId === unit)
+            || null;
+      if(!p) return;
 
-    // Add Property Button (placeholder)
-    document.getElementById('addPropertyBtn').addEventListener('click', function() {
-        alert('Add Property functionality would open a modal or navigate to a form.');
-    });
-</script>
+      const status = computeStatus(p);
+      const profit = toNumber(p.Profit);
 
-<!-- External Scripts (if available) -->
-<script src="app-config.js" onerror="console.log('app-config.js not found - using default configuration')"></script>
-<script src="app-data.js" onerror="console.log('app-data.js not found - using static data')"></script>
-<script>
-    // Initialize page if PropertyPilot is available
-    window.addEventListener('DOMContentLoaded', () => {
-        if (window.PropertyPilot && typeof window.PropertyPilot.initPage === 'function') {
-            window.PropertyPilot.initPage('properties');
-        }
+      modalTitle.textContent = `${p.UnitId} • ${p.Property || p.Flat || "—"}`;
+      modalSub.textContent = `${statusLabel(status)} • Profit: ${money(profit)}`;
+
+      const mapLink = p.GoogleMap || (p.Coordinates ? `https://www.google.com/maps?q=${encodeURIComponent(p.Coordinates)}` : "#");
+      modalMapBtn.href = mapLink || "#";
+      modalMapBtn.style.pointerEvents = mapLink && mapLink !== "#" ? "auto" : "none";
+      modalMapBtn.style.opacity = mapLink && mapLink !== "#" ? "1" : "0.5";
+
+      modalDriveBtn.href = p.DriveFolderLink || "#";
+      modalDriveBtn.style.pointerEvents = p.DriveFolderLink ? "auto" : "none";
+      modalDriveBtn.style.opacity = p.DriveFolderLink ? "1" : "0.5";
+
+      const rows = [
+        ["Owner", `${p.OwnerName || "—"} ${p.OwnerContact ? "• " + p.OwnerContact : ""}`],
+        ["Tenant", `${p.TenantName || "—"} ${p.TenantContact ? "• " + p.TenantContact : ""}`],
+        ["Location", p.Location || "—"],
+        ["Coordinates", p.Coordinates || "—"],
+        ["Ready to Move", p.ReadyToMove || "—"],
+        ["Owner Rent", money(p.OwnerRent)],
+        ["Tenant Rent", money(p.TenantRent)],
+        ["Profit", money(p.Profit)],
+        ["Security Cheque", p.SecurityCheque || "—"],
+        ["Owner Contract", p.OwnerContract || "—"],
+        ["Tenant Contract From", fmtDateISO(p.TContractFrom)],
+        ["Tenant Contract To", fmtDateISO(p.TContractTo)],
+        ["Days Left", String(toNumber(p.DaysLeft))],
+        ["Status (Sheet)", p.StatusRaw || "—"]
+      ];
+
+      modalBody.innerHTML = rows.map(([k,v]) => `
+        <div class="kv">
+          <label>${escapeHtml(k)}</label>
+          <div>${escapeHtml(v)}</div>
+        </div>
+      `).join("");
+
+      detailBackdrop.classList.add("active");
+      detailBackdrop.setAttribute("aria-hidden","false");
+    }
+
+    function closeDetail(){
+      detailBackdrop.classList.remove("active");
+      detailBackdrop.setAttribute("aria-hidden","true");
+    }
+
+    /******************************************************************
+     * VIEW TOGGLE
+     ******************************************************************/
+    function setView(view){
+      STATE.view = view;
+      render();
+    }
+
+    /******************************************************************
+     * PAGINATION
+     ******************************************************************/
+    function nextPage(){
+      const pages = Math.max(1, Math.ceil(STATE.filtered.length / CONFIG.PAGE_SIZE));
+      if(STATE.page < pages){
+        STATE.page++;
+        render();
+      }
+    }
+    function prevPage(){
+      if(STATE.page > 1){
+        STATE.page--;
+        render();
+      }
+    }
+
+    /******************************************************************
+     * HTML Escaping
+     ******************************************************************/
+    function escapeHtml(str){
+      return safeText(str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+    function escapeAttr(str){
+      return escapeHtml(str).replace(/`/g,"&#096;");
+    }
+
+    /******************************************************************
+     * EVENTS
+     ******************************************************************/
+    document.addEventListener("DOMContentLoaded", () => {
+      // default
+      setView("table");
+
+      refreshBtn.addEventListener("click", () => fetchData());
+
+      searchInput.addEventListener("input", () => applyFiltersAndRender(true));
+      statusFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      ownerFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      typeFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      readyFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      sortSelect.addEventListener("change", () => applyFiltersAndRender(true));
+
+      btnTable.addEventListener("click", () => setView("table"));
+      btnCards.addEventListener("click", () => setView("cards"));
+
+      prevPageBtn.addEventListener("click", prevPage);
+      nextPageBtn.addEventListener("click", nextPage);
+
+      modalCloseBtn.addEventListener("click", closeDetail);
+      modalCloseBtn2.addEventListener("click", closeDetail);
+      detailBackdrop.addEventListener("click", (e)=>{
+        if(e.target === detailBackdrop) closeDetail();
+      });
+      document.addEventListener("keydown", (e)=>{
+        if(e.key === "Escape") closeDetail();
+      });
+
+      // First load
+      fetchData();
     });
-</script>
+  </script>
 
 </body>
 </html>
