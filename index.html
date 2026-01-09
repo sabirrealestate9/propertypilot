@@ -1,898 +1,1280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opal - Real Estate Property Management Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2? family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart. js"></script>
-    <style>
-        : root {
-            --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-            --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-            --opal-cyan: #00bcd4;
-            --opal-lilac: #9575cd;
-            --opal-mint: #69f0ae;
-            --opal-pearl: #fafafa;
-            --navy:  #1a237e;
-            --charcoal: #37474f;
-            --text-primary: #263238;
-            --text-secondary: #546e7a;
-            --bg-primary: #ffffff;
-            --bg-secondary:  #f5f7fa;
-            --status-active: #4caf50;
-            --status-expiring: #ff9800;
-            --status-expired: #f44336;
-            --status-draft: #2196f3;
-            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-            --shadow-md:  0 4px 16px rgba(0,0,0,0.08);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 16px;
-        }
-
-        * {
-            margin:  0;
-            padding: 0;
-            box-sizing:  border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background:  var(--bg-secondary);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top:  0;
-            width: 260px;
-            height: 100vh;
-            background: var(--bg-primary);
-            border-right: 1px solid rgba(0,0,0,0.06);
-            padding: 24px 16px;
-            z-index:  1000;
-            overflow-y:  auto;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 12px 24px;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            margin-bottom: 24px;
-        }
-
-        . logo-icon {
-            width: 42px;
-            height: 42px;
-            background: var(--opal-accent);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3);
-        }
-
-        .logo-text {
-            font-size: 24px;
-            font-weight:  700;
-            background: var(--opal-accent);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-section {
-            margin-bottom: 24px;
-        }
-
-        . nav-section-title {
-            font-size: 11px;
-            font-weight:  600;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            padding:  0 12px;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-radius: var(--radius-sm);
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight:  500;
-            transition: all 0.2s ease;
-            margin-bottom: 4px;
-        }
-
-        .nav-link:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .nav-link. active {
-            background: var(--opal-gradient);
-            color: var(--navy);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .nav-link i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .nav-badge {
-            margin-left: auto;
-            background: var(--status-expired);
-            color: white;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight:  600;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left:  260px;
-            padding:  24px 32px;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-
-        .page-title h1 {
-            font-size: 28px;
-            font-weight:  700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        . page-title p {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .search-box {
-            display: flex;
-            align-items: center;
-            background: var(--bg-primary);
-            border:  1px solid rgba(0,0,0,0.08);
-            border-radius: var(--radius-md);
-            padding: 10px 16px;
-            gap: 10px;
-            min-width: 280px;
-        }
-
-        . search-box input {
-            border: none;
-            outline: none;
-            font-size: 14px;
-            width: 100%;
-            background: transparent;
-        }
-
-        .search-box i {
-            color: var(--text-secondary);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--opal-accent);
-            color: white;
-            box-shadow: 0 4px 12px rgba(77, 208, 225, 0.3);
-        }
-
-        . btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(77, 208, 225, 0.4);
-        }
-
-        .btn-secondary {
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-secondary);
-        }
-
-        /* KPI Cards */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom:  32px;
-        }
-
-        .kpi-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-sm);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .kpi-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--opal-accent);
-        }
-
-        .kpi-card. success::before { background: var(--status-active); }
-        .kpi-card.warning::before { background: var(--status-expiring); }
-        .kpi-card.danger::before { background: var(--status-expired); }
-        .kpi-card.info::before { background: var(--status-draft); }
-
-        .kpi-icon {
-            width: 48px;
-            height: 48px;
-            border-radius:  var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            margin-bottom: 16px;
-        }
-
-        .kpi-card. success .kpi-icon { background: rgba(76, 175, 80, 0.1); color: var(--status-active); }
-        .kpi-card.warning .kpi-icon { background: rgba(255, 152, 0, 0.1); color: var(--status-expiring); }
-        .kpi-card.danger .kpi-icon { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-        .kpi-card.info . kpi-icon { background: rgba(33, 150, 243, 0.1); color: var(--status-draft); }
-
-        .kpi-value {
-            font-size: 32px;
-            font-weight:  700;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        . kpi-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        .kpi-change {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-top: 12px;
-            padding: 4px 8px;
-            border-radius: 4px;
-        }
-
-        .kpi-change. up { background: rgba(76, 175, 80, 0.1); color: var(--status-active); }
-        .kpi-change.down { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-
-        /* Charts Section */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 24px;
-            margin-bottom:  32px;
-        }
-
-        .chart-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        . chart-title {
-            font-size: 16px;
-            font-weight:  600;
-            color: var(--text-primary);
-        }
-
-        .chart-filter {
-            display: flex;
-            gap: 8px;
-        }
-
-        .chart-filter button {
-            padding: 6px 12px;
-            font-size: 12px;
-            border:  1px solid rgba(0,0,0,0.1);
-            background: transparent;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            color: var(--text-secondary);
-            transition: all 0.2s;
-        }
-
-        .chart-filter button. active {
-            background: var(--opal-gradient);
-            border-color: transparent;
-            color: var(--navy);
-        }
-
-        /* Alerts Panel */
-        .alerts-section {
-            margin-bottom: 32px;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight:  600;
-            color: var(--text-primary);
-        }
-
-        .alerts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 16px;
-        }
-
-        . alert-card {
-            background:  var(--bg-primary);
-            border-radius: var(--radius-md);
-            padding:  16px;
-            box-shadow: var(--shadow-sm);
-            border-left: 4px solid;
-            display: flex;
-            gap: 12px;
-        }
-
-        . alert-card.warning { border-left-color: var(--status-expiring); }
-        .alert-card.danger { border-left-color: var(--status-expired); }
-        .alert-card.info { border-left-color: var(--status-draft); }
-
-        .alert-icon {
-            width:  40px;
-            height: 40px;
-            border-radius:  var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-
-        .alert-card.warning .alert-icon { background: rgba(255, 152, 0, 0.1); color: var(--status-expiring); }
-        .alert-card.danger .alert-icon { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-        .alert-card.info .alert-icon { background: rgba(33, 150, 243, 0.1); color: var(--status-draft); }
-
-        .alert-content h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-        }
-
-        . alert-content p {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* Quick Actions */
-        .quick-actions {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            z-index: 1000;
-        }
-
-        .fab {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: var(--opal-accent);
-            color: white;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            box-shadow: var(--shadow-lg);
-            transition: all 0.3s ease;
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 32px rgba(77, 208, 225, 0.4);
-        }
-
-        /* Tables */
-        .table-card {
-            background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .table-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid rgba(0,0,0,0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: var(--bg-secondary);
-            padding: 14px 16px;
-            text-align: left;
-            font-size: 12px;
-            font-weight:  600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            padding: 16px;
-            border-bottom:  1px solid rgba(0,0,0,0.04);
-            font-size: 14px;
-        }
-
-        tr:hover {
-            background: rgba(0,0,0,0.01);
-        }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius:  20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-badge. active { background: rgba(76, 175, 80, 0.1); color: var(--status-active); }
-        .status-badge.expiring { background: rgba(255, 152, 0, 0.1); color: var(--status-expiring); }
-        .status-badge.expired { background: rgba(244, 67, 54, 0.1); color: var(--status-expired); }
-        .status-badge.draft { background: rgba(33, 150, 243, 0.1); color: var(--status-draft); }
-
-        .status-badge:: before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius:  50%;
-            background: currentColor;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .sidebar {
-                transform: translateX(-100%);
-            }
-            . main-content {
-                margin-left: 0;
-            }
-            . charts-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard • Sabir Amin Real Estate Company LLC</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root{
+      /* Brand / Opal-inspired palette */
+      --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
+      --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
+      --opal-cyan: #00bcd4;
+      --opal-lilac: #9575cd;
+      --opal-mint: #69f0ae;
+
+      --navy: #1a237e;
+      --charcoal: #37474f;
+      --text-primary: #263238;
+      --text-secondary: #546e7a;
+
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+
+      --status-active: #2e7d32;
+      --status-expiring: #ef6c00;
+      --status-expired: #c62828;
+      --status-info: #1565c0;
+
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
+      --shadow-lg: 0 18px 48px rgba(0,0,0,0.14);
+
+      --radius-sm: 10px;
+      --radius-md: 14px;
+      --radius-lg: 18px;
+
+      --border: rgba(0,0,0,0.08);
+      --border-soft: rgba(0,0,0,0.06);
+      --focus: rgba(0, 188, 212, 0.28);
+
+      --sidebar-w: 268px;
+    }
+
+    /* Dark mode (optional) */
+    [data-theme="dark"]{
+      --bg-primary: #101322;
+      --bg-secondary: #0b0e19;
+      --text-primary: #e6e9ef;
+      --text-secondary: #a7b0c0;
+      --border: rgba(255,255,255,0.10);
+      --border-soft: rgba(255,255,255,0.08);
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.35);
+      --shadow-md: 0 14px 30px rgba(0,0,0,0.45);
+      --shadow-lg: 0 22px 60px rgba(0,0,0,0.55);
+      --focus: rgba(0,188,212,0.22);
+    }
+
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ===== Layout ===== */
+    .sidebar{
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: var(--sidebar-w);
+      background: var(--bg-primary);
+      border-right: 1px solid var(--border-soft);
+      padding: 22px 14px;
+      overflow-y: auto;
+      z-index: 50;
+    }
+
+    .main-content{
+      margin-left: var(--sidebar-w);
+      padding: 22px 26px 34px;
+      min-height: 100vh;
+    }
+
+    /* ===== Sidebar ===== */
+    .logo{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding: 0 10px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 18px;
+    }
+    .logo-icon{
+      width: 42px; height: 42px;
+      background: var(--opal-accent);
+      border-radius: 14px;
+      display:grid; place-items:center;
+      color:#fff;
+      box-shadow: 0 10px 22px rgba(124,77,255,0.18);
+      flex:0 0 auto;
+    }
+    .logo-text{
+      display:flex;
+      flex-direction:column;
+      line-height: 1.05;
+      gap: 2px;
+      min-width: 0;
+    }
+    .brand-name{
+      font-size: 15px;
+      font-weight: 900;
+      letter-spacing: -0.2px;
+      background: var(--opal-accent);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+    .brand-sub{
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-secondary);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
+    }
+
+    .nav-section{ margin: 14px 0 18px; }
+    .nav-section-title{
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      padding: 0 10px;
+      margin: 12px 0 8px;
+      letter-spacing: 0.6px;
+    }
+    .nav-link{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration:none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+      margin-bottom: 6px;
+    }
+    .nav-link i{ width:20px; text-align:center; }
+    .nav-link:hover{ background: color-mix(in srgb, var(--bg-secondary) 80%, transparent); color: var(--text-primary); transform: translateY(-1px); }
+    .nav-link.active{
+      background: var(--opal-gradient);
+      color: var(--navy);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
+    }
+    .nav-badge{
+      margin-left:auto;
+      background: var(--status-expired);
+      color:#fff;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 900;
+    }
+
+    /* ===== Header ===== */
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .page-title h1{
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.4px;
+      margin-bottom: 6px;
+    }
+    .page-title p{
+      color: var(--text-secondary);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      box-shadow: var(--shadow-sm);
+      color: var(--text-secondary);
+      font-size: 13px;
+      white-space: nowrap;
+      font-weight: 700;
+    }
+    .pill strong{ color: var(--text-primary); }
+
+    .search-box{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 14px;
+      min-width: 320px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-box i{ color: var(--text-secondary); }
+    .search-box input{
+      border:none;
+      outline:none;
+      font-size: 14px;
+      width: 100%;
+      background: transparent;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .search-box:focus-within{
+      border-color: rgba(0,188,212,0.55);
+      box-shadow: 0 0 0 4px var(--focus);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      border:none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      text-decoration:none;
+      user-select:none;
+      white-space: nowrap;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      background: var(--opal-accent);
+      color:#fff;
+      box-shadow: 0 14px 26px rgba(77, 208, 225, 0.24);
+    }
+    .btn-primary:hover{ box-shadow: 0 18px 34px rgba(124, 77, 255, 0.22); }
+    .btn-secondary{
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:hover{ transform: translateY(-1px); }
+    .btn-icon{ padding: 10px 12px; }
+
+    /* ===== Grid sections ===== */
+    .grid{
+      display:grid;
+      gap: 18px;
+    }
+
+    .kpi-grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin: 14px 0 18px;
+    }
+
+    .card{
+      background: var(--bg-primary);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow:hidden;
+    }
+
+    .kpi-card{
+      grid-column: span 3;
+      padding: 16px 16px 14px;
+      position: relative;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent),
+        var(--bg-primary);
+    }
+    .kpi-card::before{
+      content:'';
+      position:absolute;
+      inset:0 0 auto 0;
+      height: 4px;
+      background: var(--opal-accent);
+      opacity: 0.95;
+    }
+
+    .kpi-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-icon{
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      background: var(--opal-gradient);
+      color: var(--navy);
+      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
+    }
+
+    .kpi-label{
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+    .kpi-value{
+      font-size: 26px;
+      font-weight: 1000;
+      letter-spacing: -0.4px;
+      margin-top: 6px;
+    }
+    .kpi-sub{
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .kpi-chip{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
+      background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
+      color: var(--text-secondary);
+      margin-top: 12px;
+    }
+    .kpi-chip.up{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
+    .kpi-chip.down{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
+    .kpi-chip.warn{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
+    .kpi-chip.info{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
+
+    /* Charts */
+    .charts-grid{
+      display:grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .card-header{
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-soft);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 1000;
+      letter-spacing: -0.2px;
+    }
+    .card-title i{ color: var(--opal-cyan); }
+    .card-sub{
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .card-body{ padding: 14px 16px; }
+
+    .segmented{
+      display:inline-flex;
+      background: var(--bg-primary);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow:hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .segmented button{
+      padding: 8px 12px;
+      border:none;
+      background: transparent;
+      cursor:pointer;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--text-secondary);
+    }
+    .segmented button.active{
+      background: var(--opal-gradient);
+      color: var(--navy);
+    }
+
+    /* Alerts + Tasks */
+    .two-col{
+      display:grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .list{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .alert{
+      display:flex;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      background: color-mix(in srgb, var(--bg-secondary) 40%, transparent);
+      box-shadow: var(--shadow-sm);
+    }
+    .alert .ic{
+      width: 42px; height: 42px;
+      border-radius: 14px;
+      display:grid; place-items:center;
+      flex: 0 0 auto;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
+      background: var(--bg-primary);
+    }
+    .alert h4{
+      font-size: 14px;
+      font-weight: 1000;
+      margin-bottom: 2px;
+    }
+    .alert p{
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 700;
+    }
+    .alert.danger .ic{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
+    .alert.warn .ic{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
+    .alert.info .ic{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
+
+    .task{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    .task-left{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .task-dot{
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--opal-cyan);
+      box-shadow: 0 0 0 4px rgba(0,188,212,0.14);
+      flex: 0 0 auto;
+    }
+    .task-title{
+      font-weight: 1000;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 360px;
+    }
+    .task-meta{
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 800;
+      margin-top: 2px;
+    }
+    .task-chip{
+      font-size: 11px;
+      font-weight: 1000;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+    .task-chip.due{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
+    .task-chip.overdue{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
+    .task-chip.ok{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
+
+    /* Table */
+    .table-wrap{ overflow-x: auto; }
+    table{ width: 100%; border-collapse: collapse; min-width: 980px; }
+    th{
+      background: var(--bg-secondary);
+      padding: 13px 14px;
+      text-align:left;
+      font-size: 11px;
+      font-weight: 1000;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.55px;
+      border-bottom: 1px solid var(--border-soft);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    td{
+      padding: 12px 14px;
+      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 55%, transparent);
+      font-size: 13px;
+      font-weight: 700;
+      vertical-align: middle;
+    }
+    tr:hover{ background: color-mix(in srgb, var(--bg-secondary) 35%, transparent); }
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 7px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 1000;
+      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .status-badge::before{ content:''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+    .status-badge.active{ background: rgba(46,125,50,0.10); color: var(--status-active); }
+    .status-badge.expiring{ background: rgba(239,108,0,0.10); color: var(--status-expiring); }
+    .status-badge.expired{ background: rgba(198,40,40,0.10); color: var(--status-expired); }
+    .status-badge.vacant{ background: rgba(21,101,192,0.10); color: var(--status-info); }
+
+    .money.pos{ color: var(--status-active); font-weight: 1000; }
+    .money.neg{ color: var(--status-expired); font-weight: 1000; }
+
+    /* Drawer toggle (mobile) */
+    .hamburger{
+      display:none;
+    }
+
+    /* Quick actions */
+    .quick-actions{
+      position: fixed;
+      bottom: 26px;
+      right: 26px;
+      z-index: 80;
+    }
+    .fab{
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--opal-accent);
+      color:#fff;
+      border:none;
+      font-size: 22px;
+      cursor:pointer;
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .fab:hover{ transform: scale(1.06); box-shadow: 0 26px 60px rgba(124,77,255,0.25); }
+
+    /* Responsive */
+    @media (max-width: 1100px){
+      .charts-grid{ grid-template-columns: 1fr; }
+      .two-col{ grid-template-columns: 1fr; }
+      .kpi-card{ grid-column: span 6; }
+    }
+    @media (max-width: 860px){
+      .sidebar{
+        position: fixed;
+        transform: translateX(-110%);
+        transition: transform 0.22s ease;
+        box-shadow: var(--shadow-lg);
+      }
+      .sidebar.open{ transform: translateX(0); }
+      .main-content{ margin-left: 0; padding: 18px; }
+      .topbar{ flex-direction: column; align-items: stretch; }
+      .header-actions{ justify-content: flex-start; }
+      .search-box{ width: 100%; min-width: unset; }
+      .hamburger{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        width: 44px; height: 44px;
+        border-radius: 14px;
+        border: 1px solid var(--border);
+        background: var(--bg-primary);
+        box-shadow: var(--shadow-sm);
+        cursor:pointer;
+      }
+      .kpi-card{ grid-column: span 12; }
+      .quick-actions{ right: 18px; bottom: 18px; }
+    }
+
+    /* Backdrop for mobile sidebar */
+    .backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(12,18,38,0.45);
+      display: none;
+      z-index: 45;
+    }
+    .backdrop.show{ display:block; }
+  </style>
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <div class="logo">
-            <div class="logo-icon">
-                <i class="fas fa-gem"></i>
-            </div>
-            <span class="logo-text">Opal</span>
-        </div>
+  <div class="backdrop" id="backdrop"></div>
 
-        <div class="nav-section">
-            <div class="nav-section-title">Main</div>
-            <a href="index.html" class="nav-link active">
-                <i class="fas fa-th-large"></i>
-                Dashboard
-            </a>
-            <a href="properties.html" class="nav-link">
-                <i class="fas fa-building"></i>
-                Properties
-            </a>
-            <a href="rent-records.html" class="nav-link">
-                <i class="fas fa-file-invoice-dollar"></i>
-                Rent Records
-                <span class="nav-badge">3</span>
-            </a>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-section-title">Finance</div>
-            <a href="transactions.html" class="nav-link">
-                <i class="fas fa-exchange-alt"></i>
-                Transactions
-            </a>
-            <a href="recurring-expenses.html" class="nav-link">
-                <i class="fas fa-redo"></i>
-                Recurring Expenses
-            </a>
-            <a href="monthly-profit.html" class="nav-link">
-                <i class="fas fa-chart-line"></i>
-                Monthly Profit
-            </a>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-section-title">Reports</div>
-            <a href="reports.html" class="nav-link">
-                <i class="fas fa-chart-bar"></i>
-                Reports
-            </a>
-        </div>
-
-        <div class="nav-section">
-            <div class="nav-section-title">System</div>
-            <a href="settings.html" class="nav-link">
-                <i class="fas fa-cog"></i>
-                Settings
-            </a>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="page-header">
-            <div class="page-title">
-                <h1>Dashboard</h1>
-                <p>Welcome back!  Here's your property portfolio overview.</p>
-            </div>
-            <div class="header-actions">
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search properties, tenants... ">
-                </div>
-                <button class="btn btn-primary">
-                    <i class="fas fa-plus"></i>
-                    Add Property
-                </button>
-            </div>
-        </header>
-
-        <!-- KPI Cards -->
-        <div class="kpi-grid">
-            <div class="kpi-card success">
-                <div class="kpi-icon">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div class="kpi-value">15</div>
-                <div class="kpi-label">Total Units</div>
-                <div class="kpi-change up">
-                    <i class="fas fa-arrow-up"></i> 2 new this month
-                </div>
-            </div>
-            <div class="kpi-card info">
-                <div class="kpi-icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-                <div class="kpi-value">86%</div>
-                <div class="kpi-label">Occupied</div>
-                <div class="kpi-change up">
-                    <i class="fas fa-arrow-up"></i> +5% vs last month
-                </div>
-            </div>
-            <div class="kpi-card success">
-                <div class="kpi-icon">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
-                <div class="kpi-value">12,900</div>
-                <div class="kpi-label">Net Monthly Profit (QAR)</div>
-                <div class="kpi-change up">
-                    <i class="fas fa-arrow-up"></i> +8. 2% growth
-                </div>
-            </div>
-            <div class="kpi-card danger">
-                <div class="kpi-icon">
-                    <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="kpi-value">3</div>
-                <div class="kpi-label">Overdue Payments</div>
-                <div class="kpi-change down">
-                    <i class="fas fa-arrow-down"></i> Action required
-                </div>
-            </div>
-            <div class="kpi-card warning">
-                <div class="kpi-icon">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <div class="kpi-value">5</div>
-                <div class="kpi-label">Contracts Expiring (90 days)</div>
-                <div class="kpi-change">
-                    <i class="fas fa-clock"></i> Review needed
-                </div>
-            </div>
-            <div class="kpi-card info">
-                <div class="kpi-icon">
-                    <i class="fas fa-tools"></i>
-                </div>
-                <div class="kpi-value">2</div>
-                <div class="kpi-label">Maintenance Issues</div>
-                <div class="kpi-change">
-                    <i class="fas fa-wrench"></i> In progress
-                </div>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="charts-grid">
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Monthly Profit Trend</h3>
-                    <div class="chart-filter">
-                        <button>6M</button>
-                        <button class="active">12M</button>
-                        <button>All</button>
-                    </div>
-                </div>
-                <canvas id="profitChart" height="120"></canvas>
-            </div>
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3 class="chart-title">Income vs Expenses</h3>
-                </div>
-                <canvas id="incomeExpenseChart" height="200"></canvas>
-            </div>
-        </div>
-
-        <!-- Alerts Section -->
-        <section class="alerts-section">
-            <div class="section-header">
-                <h2 class="section-title">Alerts & Notifications</h2>
-                <a href="#" class="btn btn-secondary">View All</a>
-            </div>
-            <div class="alerts-grid">
-                <div class="alert-card danger">
-                    <div class="alert-icon">
-                        <i class="fas fa-exclamation-circle"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>3 Overdue Rent Payments</h4>
-                        <p>Ahsan Ali, Dinesh, Richard - Immediate action required</p>
-                    </div>
-                </div>
-                <div class="alert-card warning">
-                    <div class="alert-icon">
-                        <i class="fas fa-calendar-exclamation"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>5 Contracts Expiring Soon</h4>
-                        <p>Owner/Tenant contracts expiring within 90 days</p>
-                    </div>
-                </div>
-                <div class="alert-card info">
-                    <div class="alert-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>2 Missing Documents</h4>
-                        <p>Security deposit receipts pending upload</p>
-                    </div>
-                </div>
-                <div class="alert-card warning">
-                    <div class="alert-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="alert-content">
-                        <h4>Compliance Check Due</h4>
-                        <p>Annual safety inspection for 3 properties</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Properties Table -->
-        <div class="table-card">
-            <div class="table-header">
-                <h3 class="section-title">Recent Properties</h3>
-                <a href="properties.html" class="btn btn-secondary">View All</a>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Unit</th>
-                            <th>Type</th>
-                            <th>Owner</th>
-                            <th>Tenant</th>
-                            <th>Days Left</th>
-                            <th>Rent In</th>
-                            <th>Rent Out</th>
-                            <th>Profit</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>S_No 1</strong></td>
-                            <td>Studio</td>
-                            <td>Shumon</td>
-                            <td>Mushtaq</td>
-                            <td>25</td>
-                            <td>2,400 QAR</td>
-                            <td>3,100 QAR</td>
-                            <td><span style="color: var(--status-active)">1,400 QAR</span></td>
-                            <td><span class="status-badge expiring">Expiring</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 2</strong></td>
-                            <td>Studio</td>
-                            <td>Shumon</td>
-                            <td>-</td>
-                            <td>175</td>
-                            <td>2,000 QAR</td>
-                            <td>2,650 QAR</td>
-                            <td><span style="color: var(--status-active)">700 QAR</span></td>
-                            <td><span class="status-badge draft">Vacant</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 3</strong></td>
-                            <td>Magic Real E</td>
-                            <td>Shumon</td>
-                            <td>Hamid</td>
-                            <td>315</td>
-                            <td>2,300 QAR</td>
-                            <td>3,200 QAR</td>
-                            <td><span style="color: var(--status-active)">1,200 QAR</span></td>
-                            <td><span class="status-badge active">Active</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 4</strong></td>
-                            <td>Studio</td>
-                            <td>Shaiful Islam</td>
-                            <td>prajith kinathen</td>
-                            <td>279</td>
-                            <td>2,700 QAR</td>
-                            <td>3,400 QAR</td>
-                            <td><span style="color: var(--status-active)">900 QAR</span></td>
-                            <td><span class="status-badge active">Active</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 5</strong></td>
-                            <td>Studio</td>
-                            <td>Shumon</td>
-                            <td>Kamran Ahmed</td>
-                            <td>139</td>
-                            <td>2,700 QAR</td>
-                            <td>3,400 QAR</td>
-                            <td><span style="color: var(--status-active)">500 QAR</span></td>
-                            <td><span class="status-badge active">Active</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </main>
-
-    <!-- Quick Actions FAB -->
-    <div class="quick-actions">
-        <button class="fab" title="Quick Add">
-            <i class="fas fa-plus"></i>
-        </button>
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-gem"></i></div>
+      <div class="logo-text">
+        <div class="brand-name">Sabir Amin</div>
+        <div class="brand-sub">Real Estate Company LLC</div>
+      </div>
     </div>
 
-    <script>
-        // Profit Chart
-        const profitCtx = document.getElementById('profitChart').getContext('2d');
-        new Chart(profitCtx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [{
-                    label: 'Net Profit (QAR)',
-                    data: [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900],
-                    borderColor: '#4dd0e1',
-                    backgroundColor: 'rgba(77, 208, 225, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#4dd0e1'
-                }]
-            },
-            options:  {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: { color: 'rgba(0,0,0,0.04)' }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="index.html" class="nav-link active"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
+      <a href="rent-records.html" class="nav-link">
+        <i class="fas fa-file-invoice-dollar"></i>Rent Records
+        <span class="nav-badge" id="rentBadge">3</span>
+      </a>
+    </div>
 
-        // Income vs Expense Chart
-        const ieCtx = document.getElementById('incomeExpenseChart').getContext('2d');
-        new Chart(ieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Income', 'Expenses', 'Profit'],
-                datasets: [{
-                    data: [42500, 29600, 12900],
-                    backgroundColor: ['#4dd0e1', '#9575cd', '#69f0ae'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                },
-                cutout: '65%'
+    <div class="nav-section">
+      <div class="nav-section-title">Finance</div>
+      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Header -->
+    <header class="topbar">
+      <div class="page-title">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
+          <h1>Dashboard</h1>
+        </div>
+        <p>
+          Portfolio overview with key alerts, tasks, and performance trends.
+          <span id="nowMeta" style="font-weight:900;"></span>
+        </p>
+      </div>
+
+      <div class="header-actions">
+        <div class="pill" title="Theme">
+          <i class="fas fa-moon" style="color:var(--opal-lilac);"></i>
+          <span>Theme: <strong id="themeLabel">Light</strong></span>
+        </div>
+
+        <div class="search-box" title="Search properties, tenants, owners">
+          <i class="fas fa-search"></i>
+          <input id="searchInput" type="text" placeholder="Search unit / owner / tenant / location…" />
+        </div>
+
+        <button class="btn btn-secondary btn-icon" id="themeBtn" title="Toggle dark mode">
+          <i class="fas fa-circle-half-stroke"></i>
+        </button>
+
+        <a class="btn btn-secondary" id="exportBtn" href="#" title="Export snapshot (demo)">
+          <i class="fas fa-file-export"></i> Export
+        </a>
+
+        <a class="btn btn-primary" href="properties.html" title="Go to Properties">
+          <i class="fas fa-building"></i> Manage Properties
+        </a>
+      </div>
+    </header>
+
+    <!-- KPIs -->
+    <section class="kpi-grid" aria-label="Key performance indicators">
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Total Units</div>
+            <div class="kpi-value" id="kpiTotalUnits">15</div>
+            <div class="kpi-sub">Studios & Apartments</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-building"></i></div>
+        </div>
+        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> 2 new this month</div>
+      </div>
+
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Occupied</div>
+            <div class="kpi-value" id="kpiOccupied">86%</div>
+            <div class="kpi-sub">Portfolio occupancy</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
+        </div>
+        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> +5% vs last month</div>
+      </div>
+
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Net Monthly Profit</div>
+            <div class="kpi-value" id="kpiProfit">12,900</div>
+            <div class="kpi-sub" id="kpiCurrency">QAR</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-sack-dollar"></i></div>
+        </div>
+        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> +8.2% growth</div>
+      </div>
+
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Overdue Payments</div>
+            <div class="kpi-value" id="kpiOverdue">3</div>
+            <div class="kpi-sub">Requires follow-up</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+        </div>
+        <div class="kpi-chip down"><i class="fas fa-arrow-down"></i> Action required</div>
+      </div>
+
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Contracts Expiring</div>
+            <div class="kpi-value" id="kpiExpiring">5</div>
+            <div class="kpi-sub">Within 90 days</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-calendar-days"></i></div>
+        </div>
+        <div class="kpi-chip warn"><i class="fas fa-clock"></i> Review needed</div>
+      </div>
+
+      <div class="kpi-card card">
+        <div class="kpi-row">
+          <div>
+            <div class="kpi-label">Maintenance</div>
+            <div class="kpi-value" id="kpiMaintenance">2</div>
+            <div class="kpi-sub">Open issues</div>
+          </div>
+          <div class="kpi-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+        </div>
+        <div class="kpi-chip info"><i class="fas fa-wrench"></i> In progress</div>
+      </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="charts-grid" aria-label="Charts section">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-chart-line"></i> Monthly Profit Trend</div>
+            <div class="card-sub">Track profit performance over time</div>
+          </div>
+          <div class="segmented" role="tablist" aria-label="Profit range">
+            <button type="button" id="btn6m">6M</button>
+            <button type="button" id="btn12m" class="active">12M</button>
+            <button type="button" id="btnAll">All</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <canvas id="profitChart" height="110"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-chart-pie"></i> Income vs Expenses</div>
+            <div class="card-sub">Current month snapshot</div>
+          </div>
+          <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh charts (demo)">
+            <i class="fas fa-rotate"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <canvas id="incomeExpenseChart" height="210"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Alerts + Tasks -->
+    <section class="two-col" aria-label="Alerts and tasks">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-bell"></i> Alerts & Notifications</div>
+            <div class="card-sub">Items requiring attention</div>
+          </div>
+          <a class="btn btn-secondary" href="#" title="View all (placeholder)">
+            <i class="fas fa-list"></i> View All
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="list" id="alertsList">
+            <div class="alert danger">
+              <div class="ic"><i class="fas fa-exclamation-circle"></i></div>
+              <div>
+                <h4>3 overdue rent payments</h4>
+                <p>Ahsan Ali, Dinesh, Richard — immediate follow-up recommended</p>
+              </div>
+            </div>
+            <div class="alert warn">
+              <div class="ic"><i class="fas fa-calendar-exclamation"></i></div>
+              <div>
+                <h4>5 contracts expiring soon</h4>
+                <p>Owner/Tenant contracts expiring within 90 days</p>
+              </div>
+            </div>
+            <div class="alert info">
+              <div class="ic"><i class="fas fa-file-lines"></i></div>
+              <div>
+                <h4>2 missing documents</h4>
+                <p>Security deposit receipts pending upload</p>
+              </div>
+            </div>
+            <div class="alert warn">
+              <div class="ic"><i class="fas fa-shield-halved"></i></div>
+              <div>
+                <h4>Compliance check due</h4>
+                <p>Annual inspection for 3 properties — schedule site visits</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title"><i class="fas fa-clipboard-check"></i> Action Center</div>
+            <div class="card-sub">Next steps for this week</div>
+          </div>
+          <button class="btn btn-secondary" id="addTaskBtn" title="Add a task (demo)">
+            <i class="fas fa-plus"></i> Add
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="list" id="taskList">
+            <div class="task">
+              <div class="task-left">
+                <div class="task-dot"></div>
+                <div>
+                  <div class="task-title">Call overdue tenants and agree payment plan</div>
+                  <div class="task-meta">Assigned: Admin • Priority: High</div>
+                </div>
+              </div>
+              <div class="task-chip overdue">Overdue</div>
+            </div>
+            <div class="task">
+              <div class="task-left">
+                <div class="task-dot" style="background:var(--opal-lilac);box-shadow:0 0 0 4px rgba(149,117,205,0.14);"></div>
+                <div>
+                  <div class="task-title">Renew 5 contracts expiring within 90 days</div>
+                  <div class="task-meta">Assigned: Leasing • Priority: Medium</div>
+                </div>
+              </div>
+              <div class="task-chip due">Due Soon</div>
+            </div>
+            <div class="task">
+              <div class="task-left">
+                <div class="task-dot" style="background:var(--opal-mint);box-shadow:0 0 0 4px rgba(105,240,174,0.14);"></div>
+                <div>
+                  <div class="task-title">Upload missing receipts to Drive folders</div>
+                  <div class="task-meta">Assigned: Admin • Priority: Normal</div>
+                </div>
+              </div>
+              <div class="task-chip ok">On Track</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Recent Properties Table -->
+    <section class="card" aria-label="Recent properties">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-table"></i> Recent Properties</div>
+          <div class="card-sub">Quick view of latest units (demo data)</div>
+        </div>
+        <a href="properties.html" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> View All</a>
+      </div>
+
+      <div class="card-body" style="padding:0;">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Unit</th>
+                <th>Type</th>
+                <th>Owner</th>
+                <th>Tenant</th>
+                <th>Days Left</th>
+                <th>Rent In</th>
+                <th>Rent Out</th>
+                <th>Profit</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentTbody">
+              <tr>
+                <td><strong>S_No 1</strong></td>
+                <td>Studio</td>
+                <td>Shumon</td>
+                <td>Mushtaq</td>
+                <td>25</td>
+                <td>2,400 QAR</td>
+                <td>3,100 QAR</td>
+                <td><span class="money pos">700 QAR</span></td>
+                <td><span class="status-badge expiring">Expiring</span></td>
+              </tr>
+              <tr>
+                <td><strong>S_No 2</strong></td>
+                <td>Studio</td>
+                <td>Shumon</td>
+                <td>—</td>
+                <td>175</td>
+                <td>2,000 QAR</td>
+                <td>2,650 QAR</td>
+                <td><span class="money pos">650 QAR</span></td>
+                <td><span class="status-badge vacant">Vacant</span></td>
+              </tr>
+              <tr>
+                <td><strong>S_No 3</strong></td>
+                <td>Apartment</td>
+                <td>Shumon</td>
+                <td>Hamid</td>
+                <td>315</td>
+                <td>2,300 QAR</td>
+                <td>3,200 QAR</td>
+                <td><span class="money pos">900 QAR</span></td>
+                <td><span class="status-badge active">Active</span></td>
+              </tr>
+              <tr>
+                <td><strong>S_No 4</strong></td>
+                <td>Studio</td>
+                <td>Shaiful Islam</td>
+                <td>Prajith</td>
+                <td>0</td>
+                <td>2,700 QAR</td>
+                <td>3,400 QAR</td>
+                <td><span class="money pos">700 QAR</span></td>
+                <td><span class="status-badge expired">Expired</span></td>
+              </tr>
+              <tr>
+                <td><strong>S_No 5</strong></td>
+                <td>Studio</td>
+                <td>Shumon</td>
+                <td>Kamran Ahmed</td>
+                <td>139</td>
+                <td>2,700 QAR</td>
+                <td>3,400 QAR</td>
+                <td><span class="money pos">700 QAR</span></td>
+                <td><span class="status-badge active">Active</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Quick Actions FAB -->
+  <div class="quick-actions">
+    <button class="fab" id="fabBtn" title="Quick Add (demo)">
+      <i class="fas fa-plus"></i>
+    </button>
+  </div>
+
+  <script>
+    /************************************************************
+     * SMALL UX HELPERS (sidebar, theme, live time)
+     ************************************************************/
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("backdrop");
+    const menuBtn = document.getElementById("menuBtn");
+
+    function openSidebar(){
+      sidebar.classList.add("open");
+      backdrop.classList.add("show");
+    }
+    function closeSidebar(){
+      sidebar.classList.remove("open");
+      backdrop.classList.remove("show");
+    }
+
+    if(menuBtn){
+      menuBtn.addEventListener("click", () => {
+        if(sidebar.classList.contains("open")) closeSidebar();
+        else openSidebar();
+      });
+    }
+    backdrop.addEventListener("click", closeSidebar);
+
+    // Theme toggle (persisted)
+    const themeBtn = document.getElementById("themeBtn");
+    const themeLabel = document.getElementById("themeLabel");
+    const storedTheme = localStorage.getItem("sa_re_theme");
+    if(storedTheme === "dark"){
+      document.documentElement.setAttribute("data-theme","dark");
+      themeLabel.textContent = "Dark";
+    }
+
+    themeBtn.addEventListener("click", () => {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if(isDark){
+        document.documentElement.removeAttribute("data-theme");
+        localStorage.setItem("sa_re_theme","light");
+        themeLabel.textContent = "Light";
+      } else {
+        document.documentElement.setAttribute("data-theme","dark");
+        localStorage.setItem("sa_re_theme","dark");
+        themeLabel.textContent = "Dark";
+      }
+      // re-render charts to adapt grid colors
+      renderCharts();
+    });
+
+    // Live time
+    const nowMeta = document.getElementById("nowMeta");
+    function tick(){
+      const d = new Date();
+      nowMeta.textContent = "• " + d.toLocaleString("en-GB", { weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
+    }
+    tick();
+    setInterval(tick, 30_000);
+
+    /************************************************************
+     * SEARCH (demo: filters Recent Properties rows)
+     ************************************************************/
+    const searchInput = document.getElementById("searchInput");
+    const recentTbody = document.getElementById("recentTbody");
+
+    function applySearch(){
+      const q = (searchInput.value || "").trim().toLowerCase();
+      const rows = recentTbody.querySelectorAll("tr");
+      rows.forEach(tr => {
+        const txt = tr.innerText.toLowerCase();
+        tr.style.display = (!q || txt.includes(q)) ? "" : "none";
+      });
+    }
+    searchInput.addEventListener("input", applySearch);
+
+    /************************************************************
+     * CHARTS (styled to match UI; no external styles)
+     ************************************************************/
+    let profitChart, incomeExpenseChart;
+
+    function getGridColor(){
+      // Lighter grid in dark mode
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      return isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
+    }
+
+    function getTickColor(){
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      return isDark ? "rgba(230,233,239,0.80)" : "rgba(84,110,122,0.90)";
+    }
+
+    function destroyCharts(){
+      if(profitChart){ profitChart.destroy(); profitChart = null; }
+      if(incomeExpenseChart){ incomeExpenseChart.destroy(); incomeExpenseChart = null; }
+    }
+
+    function renderCharts(){
+      destroyCharts();
+
+      // Profit (line)
+      const profitCtx = document.getElementById("profitChart").getContext("2d");
+      profitChart = new Chart(profitCtx, {
+        type: "line",
+        data: {
+          labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+          datasets: [{
+            label: "Net Profit",
+            data: [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900],
+            borderColor: "#4dd0e1",
+            backgroundColor: "rgba(77, 208, 225, 0.12)",
+            borderWidth: 3,
+            fill: true,
+            tension: 0.42,
+            pointRadius: 3.8,
+            pointHoverRadius: 6,
+            pointBackgroundColor: "#4dd0e1"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` ${ctx.parsed.y.toLocaleString()}`
+              }
             }
-        });
-    </script>
+          },
+          scales: {
+            y: {
+              grid: { color: getGridColor() },
+              ticks: { color: getTickColor() }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: getTickColor() }
+            }
+          }
+        }
+      });
+
+      // Income vs Expense (doughnut)
+      const ieCtx = document.getElementById("incomeExpenseChart").getContext("2d");
+      incomeExpenseChart = new Chart(ieCtx, {
+        type: "doughnut",
+        data: {
+          labels: ["Income", "Expenses", "Profit"],
+          datasets: [{
+            data: [42500, 29600, 12900],
+            backgroundColor: ["#4dd0e1", "#9575cd", "#69f0ae"],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: getTickColor(), boxWidth: 14, font: { weight: "700" } }
+            }
+          },
+          cutout: "68%"
+        }
+      });
+    }
+
+    renderCharts();
+
+    /************************************************************
+     * RANGE SWITCH (demo)
+     ************************************************************/
+    function setRange(range){
+      document.getElementById("btn6m").classList.remove("active");
+      document.getElementById("btn12m").classList.remove("active");
+      document.getElementById("btnAll").classList.remove("active");
+
+      if(range === "6m") document.getElementById("btn6m").classList.add("active");
+      if(range === "12m") document.getElementById("btn12m").classList.add("active");
+      if(range === "all") document.getElementById("btnAll").classList.add("active");
+
+      // Demo behaviour: change dataset
+      const full = [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900];
+      const six = full.slice(6);
+      const all = [...full, 13150, 13400, 13720];
+
+      if(profitChart){
+        if(range === "6m"){
+          profitChart.data.labels = ["Jul","Aug","Sep","Oct","Nov","Dec"];
+          profitChart.data.datasets[0].data = six;
+        } else if(range === "all"){
+          profitChart.data.labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan+","Feb+","Mar+"];
+          profitChart.data.datasets[0].data = all;
+        } else {
+          profitChart.data.labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+          profitChart.data.datasets[0].data = full;
+        }
+        profitChart.update();
+      }
+    }
+
+    document.getElementById("btn6m").addEventListener("click", () => setRange("6m"));
+    document.getElementById("btn12m").addEventListener("click", () => setRange("12m"));
+    document.getElementById("btnAll").addEventListener("click", () => setRange("all"));
+
+    document.getElementById("refreshChartsBtn").addEventListener("click", () => {
+      // Demo refresh: tiny random drift
+      const drift = (n) => Math.round(n * (0.98 + Math.random()*0.04));
+      if(profitChart){
+        profitChart.data.datasets[0].data = profitChart.data.datasets[0].data.map(drift);
+        profitChart.update();
+      }
+      if(incomeExpenseChart){
+        const base = [42500, 29600, 12900].map(drift);
+        incomeExpenseChart.data.datasets[0].data = base;
+        incomeExpenseChart.update();
+      }
+    });
+
+    /************************************************************
+     * QUICK ADD + EXPORT (demo hooks)
+     ************************************************************/
+    document.getElementById("fabBtn").addEventListener("click", () => {
+      alert("Quick Add (demo): You can connect this to an Add Property form / modal.");
+    });
+
+    document.getElementById("addTaskBtn").addEventListener("click", () => {
+      const taskList = document.getElementById("taskList");
+      const now = new Date();
+      const item = document.createElement("div");
+      item.className = "task";
+      item.innerHTML = `
+        <div class="task-left">
+          <div class="task-dot" style="background: var(--opal-cyan);"></div>
+          <div>
+            <div class="task-title">New task created (${now.toLocaleDateString("en-GB")})</div>
+            <div class="task-meta">Assigned: You • Priority: Normal</div>
+          </div>
+        </div>
+        <div class="task-chip ok">On Track</div>
+      `;
+      taskList.prepend(item);
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      alert("Export (demo): You can generate CSV/PDF from your live Sheet data here.");
+    });
+  </script>
 </body>
 </html>
