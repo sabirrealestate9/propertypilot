@@ -16,639 +16,11 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <style>
-    :root{
-      /* Brand / Opal-inspired palette */
-      --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-      --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-      --opal-cyan: #00bcd4;
-      --opal-lilac: #9575cd;
-      --opal-mint: #69f0ae;
-
-      --navy: #1a237e;
-      --charcoal: #37474f;
-      --text-primary: #263238;
-      --text-secondary: #546e7a;
-
-      --bg-primary: #ffffff;
-      --bg-secondary: #f5f7fa;
-
-      --status-active: #2e7d32;
-      --status-expiring: #ef6c00;
-      --status-expired: #c62828;
-      --status-info: #1565c0;
-
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-      --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
-      --shadow-lg: 0 18px 48px rgba(0,0,0,0.14);
-
-      --radius-sm: 10px;
-      --radius-md: 14px;
-      --radius-lg: 18px;
-
-      --border: rgba(0,0,0,0.08);
-      --border-soft: rgba(0,0,0,0.06);
-      --focus: rgba(0, 188, 212, 0.28);
-
-      --sidebar-w: 268px;
-    }
-
-    /* Dark mode (optional) */
-    [data-theme="dark"]{
-      --bg-primary: #101322;
-      --bg-secondary: #0b0e19;
-      --text-primary: #e6e9ef;
-      --text-secondary: #a7b0c0;
-      --border: rgba(255,255,255,0.10);
-      --border-soft: rgba(255,255,255,0.08);
-      --shadow-sm: 0 2px 10px rgba(0,0,0,0.35);
-      --shadow-md: 0 14px 30px rgba(0,0,0,0.45);
-      --shadow-lg: 0 22px 60px rgba(0,0,0,0.55);
-      --focus: rgba(0,188,212,0.22);
-    }
-
-    *{ margin:0; padding:0; box-sizing:border-box; }
-    html, body{ height:100%; }
-    body{
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    /* ===== Layout ===== */
-    .sidebar{
-      position: fixed;
-      inset: 0 auto 0 0;
-      width: var(--sidebar-w);
-      background: var(--bg-primary);
-      border-right: 1px solid var(--border-soft);
-      padding: 22px 14px;
-      overflow-y: auto;
-      z-index: 50;
-    }
-
-    .main-content{
-      margin-left: var(--sidebar-w);
-      padding: 22px 26px 34px;
-      min-height: 100vh;
-    }
-
-    /* ===== Sidebar ===== */
-    .logo{
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding: 0 10px 18px;
-      border-bottom: 1px solid var(--border-soft);
-      margin-bottom: 18px;
-    }
-    .logo-icon{
-      width: 42px; height: 42px;
-      background: var(--opal-accent);
-      border-radius: 14px;
-      display:grid; place-items:center;
-      color:#fff;
-      box-shadow: 0 10px 22px rgba(124,77,255,0.18);
-      flex:0 0 auto;
-    }
-    .logo-text{
-      display:flex;
-      flex-direction:column;
-      line-height: 1.05;
-      gap: 2px;
-      min-width: 0;
-    }
-    .brand-name{
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: -0.2px;
-      background: var(--opal-accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 180px;
-    }
-    .brand-sub{
-      font-size: 11px;
-      font-weight: 800;
-      color: var(--text-secondary);
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 180px;
-    }
-
-    .nav-section{ margin: 14px 0 18px; }
-    .nav-section-title{
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      padding: 0 10px;
-      margin: 12px 0 8px;
-      letter-spacing: 0.6px;
-    }
-    .nav-link{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      padding: 12px 12px;
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      text-decoration:none;
-      font-size: 14px;
-      font-weight: 700;
-      transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-      margin-bottom: 6px;
-    }
-    .nav-link i{ width:20px; text-align:center; }
-    .nav-link:hover{ background: color-mix(in srgb, var(--bg-secondary) 80%, transparent); color: var(--text-primary); transform: translateY(-1px); }
-    .nav-link.active{
-      background: var(--opal-gradient);
-      color: var(--navy);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-    }
-    .nav-badge{
-      margin-left:auto;
-      background: var(--status-expired);
-      color:#fff;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-weight: 900;
-    }
-
-    /* ===== Header ===== */
-    .topbar{
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-    .page-title h1{
-      font-size: 28px;
-      font-weight: 900;
-      letter-spacing: -0.4px;
-      margin-bottom: 6px;
-    }
-    .page-title p{
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .header-actions{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content:flex-end;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 10px 12px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      box-shadow: var(--shadow-sm);
-      color: var(--text-secondary);
-      font-size: 13px;
-      white-space: nowrap;
-      font-weight: 700;
-    }
-    .pill strong{ color: var(--text-primary); }
-
-    .search-box{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      padding: 10px 14px;
-      min-width: 320px;
-      box-shadow: var(--shadow-sm);
-    }
-    .search-box i{ color: var(--text-secondary); }
-    .search-box input{
-      border:none;
-      outline:none;
-      font-size: 14px;
-      width: 100%;
-      background: transparent;
-      color: var(--text-primary);
-      font-weight: 600;
-    }
-    .search-box:focus-within{
-      border-color: rgba(0,188,212,0.55);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 900;
-      cursor:pointer;
-      border:none;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-      text-decoration:none;
-      user-select:none;
-      white-space: nowrap;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn-primary{
-      background: var(--opal-accent);
-      color:#fff;
-      box-shadow: 0 14px 26px rgba(77, 208, 225, 0.24);
-    }
-    .btn-primary:hover{ box-shadow: 0 18px 34px rgba(124, 77, 255, 0.22); }
-    .btn-secondary{
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-secondary:hover{ transform: translateY(-1px); }
-    .btn-icon{ padding: 10px 12px; }
-
-    /* ===== Grid sections ===== */
-    .grid{
-      display:grid;
-      gap: 18px;
-    }
-
-    .kpi-grid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-      margin: 14px 0 18px;
-    }
-
-    .card{
-      background: var(--bg-primary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      overflow:hidden;
-    }
-
-    .kpi-card{
-      grid-column: span 3;
-      padding: 16px 16px 14px;
-      position: relative;
-      border-radius: var(--radius-lg);
-      background:
-        linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent),
-        var(--bg-primary);
-    }
-    .kpi-card::before{
-      content:'';
-      position:absolute;
-      inset:0 0 auto 0;
-      height: 4px;
-      background: var(--opal-accent);
-      opacity: 0.95;
-    }
-
-    .kpi-row{
-      display:flex;
-      align-items:flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .kpi-icon{
-      width: 44px; height: 44px;
-      border-radius: 14px;
-      display:grid; place-items:center;
-      background: var(--opal-gradient);
-      color: var(--navy);
-      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
-    }
-
-    .kpi-label{
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 800;
-      letter-spacing: 0.3px;
-      text-transform: uppercase;
-    }
-    .kpi-value{
-      font-size: 26px;
-      font-weight: 1000;
-      letter-spacing: -0.4px;
-      margin-top: 6px;
-    }
-    .kpi-sub{
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 700;
-      margin-top: 2px;
-    }
-
-    .kpi-chip{
-      display:inline-flex;
-      align-items:center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 900;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-      background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
-      color: var(--text-secondary);
-      margin-top: 12px;
-    }
-    .kpi-chip.up{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
-    .kpi-chip.down{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-    .kpi-chip.warn{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-    .kpi-chip.info{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
-
-    /* Charts */
-    .charts-grid{
-      display:grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .card-header{
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--border-soft);
-      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent);
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .card-title{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      font-weight: 1000;
-      letter-spacing: -0.2px;
-    }
-    .card-title i{ color: var(--opal-cyan); }
-    .card-sub{
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 700;
-      margin-top: 2px;
-    }
-    .card-body{ padding: 14px 16px; }
-
-    .segmented{
-      display:inline-flex;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      overflow:hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .segmented button{
-      padding: 8px 12px;
-      border:none;
-      background: transparent;
-      cursor:pointer;
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--text-secondary);
-    }
-    .segmented button.active{
-      background: var(--opal-gradient);
-      color: var(--navy);
-    }
-
-    /* Alerts + Tasks */
-    .two-col{
-      display:grid;
-      grid-template-columns: 1.25fr 0.75fr;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .list{
-      display:flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .alert{
-      display:flex;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      background: color-mix(in srgb, var(--bg-secondary) 40%, transparent);
-      box-shadow: var(--shadow-sm);
-    }
-    .alert .ic{
-      width: 42px; height: 42px;
-      border-radius: 14px;
-      display:grid; place-items:center;
-      flex: 0 0 auto;
-      border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
-      background: var(--bg-primary);
-    }
-    .alert h4{
-      font-size: 14px;
-      font-weight: 1000;
-      margin-bottom: 2px;
-    }
-    .alert p{
-      font-size: 13px;
-      color: var(--text-secondary);
-      font-weight: 700;
-    }
-    .alert.danger .ic{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-    .alert.warn .ic{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-    .alert.info .ic{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
-
-    .task{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid var(--border-soft);
-      background: var(--bg-primary);
-      box-shadow: var(--shadow-sm);
-    }
-    .task-left{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      min-width: 0;
-    }
-    .task-dot{
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      background: var(--opal-cyan);
-      box-shadow: 0 0 0 4px rgba(0,188,212,0.14);
-      flex: 0 0 auto;
-    }
-    .task-title{
-      font-weight: 1000;
-      font-size: 13px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 360px;
-    }
-    .task-meta{
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 800;
-      margin-top: 2px;
-    }
-    .task-chip{
-      font-size: 11px;
-      font-weight: 1000;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-    .task-chip.due{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-    .task-chip.overdue{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-    .task-chip.ok{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
-
-    /* Table */
-    .table-wrap{ overflow-x: auto; }
-    table{ width: 100%; border-collapse: collapse; min-width: 980px; }
-    th{
-      background: var(--bg-secondary);
-      padding: 13px 14px;
-      text-align:left;
-      font-size: 11px;
-      font-weight: 1000;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.55px;
-      border-bottom: 1px solid var(--border-soft);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    td{
-      padding: 12px 14px;
-      border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 55%, transparent);
-      font-size: 13px;
-      font-weight: 700;
-      vertical-align: middle;
-    }
-    tr:hover{ background: color-mix(in srgb, var(--bg-secondary) 35%, transparent); }
-    .status-badge{
-      display:inline-flex;
-      align-items:center;
-      gap: 7px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 1000;
-      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-      white-space: nowrap;
-      line-height: 1;
-    }
-    .status-badge::before{ content:''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-    .status-badge.active{ background: rgba(46,125,50,0.10); color: var(--status-active); }
-    .status-badge.expiring{ background: rgba(239,108,0,0.10); color: var(--status-expiring); }
-    .status-badge.expired{ background: rgba(198,40,40,0.10); color: var(--status-expired); }
-    .status-badge.vacant{ background: rgba(21,101,192,0.10); color: var(--status-info); }
-
-    .money.pos{ color: var(--status-active); font-weight: 1000; }
-    .money.neg{ color: var(--status-expired); font-weight: 1000; }
-
-    /* Drawer toggle (mobile) */
-    .hamburger{
-      display:none;
-    }
-
-    /* Quick actions */
-    .quick-actions{
-      position: fixed;
-      bottom: 26px;
-      right: 26px;
-      z-index: 80;
-    }
-    .fab{
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: var(--opal-accent);
-      color:#fff;
-      border:none;
-      font-size: 22px;
-      cursor:pointer;
-      box-shadow: var(--shadow-lg);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .fab:hover{ transform: scale(1.06); box-shadow: 0 26px 60px rgba(124,77,255,0.25); }
-
-    /* Responsive */
-    @media (max-width: 1100px){
-      .charts-grid{ grid-template-columns: 1fr; }
-      .two-col{ grid-template-columns: 1fr; }
-      .kpi-card{ grid-column: span 6; }
-    }
-    @media (max-width: 860px){
-      .sidebar{
-        position: fixed;
-        transform: translateX(-110%);
-        transition: transform 0.22s ease;
-        box-shadow: var(--shadow-lg);
-      }
-      .sidebar.open{ transform: translateX(0); }
-      .main-content{ margin-left: 0; padding: 18px; }
-      .topbar{ flex-direction: column; align-items: stretch; }
-      .header-actions{ justify-content: flex-start; }
-      .search-box{ width: 100%; min-width: unset; }
-      .hamburger{
-        display:inline-flex;
-        align-items:center;
-        justify-content:center;
-        width: 44px; height: 44px;
-        border-radius: 14px;
-        border: 1px solid var(--border);
-        background: var(--bg-primary);
-        box-shadow: var(--shadow-sm);
-        cursor:pointer;
-      }
-      .kpi-card{ grid-column: span 12; }
-      .quick-actions{ right: 18px; bottom: 18px; }
-    }
-
-    /* Backdrop for mobile sidebar */
-    .backdrop{
-      position: fixed;
-      inset: 0;
-      background: rgba(12,18,38,0.45);
-      display: none;
-      z-index: 45;
-    }
-    .backdrop.show{ display:block; }
-  </style>
+  <!-- Shared UI Styles -->
+  <link rel="stylesheet" href="app.css" />
 </head>
 
-<body>
+<body data-page="dashboard">
   <div class="backdrop" id="backdrop"></div>
 
   <!-- Sidebar -->
@@ -667,7 +39,7 @@
       <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
       <a href="rent-records.html" class="nav-link">
         <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">3</span>
+        <span class="nav-badge" id="rentBadge">0</span>
       </a>
     </div>
 
@@ -710,7 +82,7 @@
           <span>Theme: <strong id="themeLabel">Light</strong></span>
         </div>
 
-        <div class="search-box" title="Search properties, tenants, owners">
+        <div class="search-box" title="Search unit / owner / tenant / location">
           <i class="fas fa-search"></i>
           <input id="searchInput" type="text" placeholder="Search unit / owner / tenant / location…" />
         </div>
@@ -735,43 +107,43 @@
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Total Units</div>
-            <div class="kpi-value" id="kpiTotalUnits">15</div>
+            <div class="kpi-value" id="kpiTotalUnits">—</div>
             <div class="kpi-sub">Studios & Apartments</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-building"></i></div>
         </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> 2 new this month</div>
+        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Live from Google Sheet</div>
       </div>
 
       <div class="kpi-card card">
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Occupied</div>
-            <div class="kpi-value" id="kpiOccupied">86%</div>
+            <div class="kpi-value" id="kpiOccupied">—</div>
             <div class="kpi-sub">Portfolio occupancy</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
         </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> +5% vs last month</div>
+        <div class="kpi-chip up"><i class="fas fa-chart-line"></i> Updated automatically</div>
       </div>
 
       <div class="kpi-card card">
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Net Monthly Profit</div>
-            <div class="kpi-value" id="kpiProfit">12,900</div>
+            <div class="kpi-value" id="kpiProfit">—</div>
             <div class="kpi-sub" id="kpiCurrency">QAR</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-sack-dollar"></i></div>
         </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> +8.2% growth</div>
+        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Income − Expenses</div>
       </div>
 
       <div class="kpi-card card">
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Overdue Payments</div>
-            <div class="kpi-value" id="kpiOverdue">3</div>
+            <div class="kpi-value" id="kpiOverdue">—</div>
             <div class="kpi-sub">Requires follow-up</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
@@ -783,7 +155,7 @@
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Contracts Expiring</div>
-            <div class="kpi-value" id="kpiExpiring">5</div>
+            <div class="kpi-value" id="kpiExpiring">—</div>
             <div class="kpi-sub">Within 90 days</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-calendar-days"></i></div>
@@ -795,7 +167,7 @@
         <div class="kpi-row">
           <div>
             <div class="kpi-label">Maintenance</div>
-            <div class="kpi-value" id="kpiMaintenance">2</div>
+            <div class="kpi-value" id="kpiMaintenance">—</div>
             <div class="kpi-sub">Open issues</div>
           </div>
           <div class="kpi-icon"><i class="fas fa-screwdriver-wrench"></i></div>
@@ -806,7 +178,7 @@
 
     <!-- Charts -->
     <section class="charts-grid" aria-label="Charts section">
-      <div class="card">
+      <div class="card" style="min-height: 320px;">
         <div class="card-header">
           <div>
             <div class="card-title"><i class="fas fa-chart-line"></i> Monthly Profit Trend</div>
@@ -818,23 +190,23 @@
             <button type="button" id="btnAll">All</button>
           </div>
         </div>
-        <div class="card-body">
-          <canvas id="profitChart" height="110"></canvas>
+        <div class="card-body" style="height: 250px;">
+          <canvas id="profitChart"></canvas>
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" style="min-height: 320px;">
         <div class="card-header">
           <div>
             <div class="card-title"><i class="fas fa-chart-pie"></i> Income vs Expenses</div>
             <div class="card-sub">Current month snapshot</div>
           </div>
-          <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh charts (demo)">
+          <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh charts">
             <i class="fas fa-rotate"></i>
           </button>
         </div>
-        <div class="card-body">
-          <canvas id="incomeExpenseChart" height="210"></canvas>
+        <div class="card-body" style="height: 250px;">
+          <canvas id="incomeExpenseChart"></canvas>
         </div>
       </div>
     </section>
@@ -852,33 +224,13 @@
           </a>
         </div>
         <div class="card-body">
+          <!-- Will be replaced by API -->
           <div class="list" id="alertsList">
-            <div class="alert danger">
-              <div class="ic"><i class="fas fa-exclamation-circle"></i></div>
-              <div>
-                <h4>3 overdue rent payments</h4>
-                <p>Ahsan Ali, Dinesh, Richard — immediate follow-up recommended</p>
-              </div>
-            </div>
-            <div class="alert warn">
-              <div class="ic"><i class="fas fa-calendar-exclamation"></i></div>
-              <div>
-                <h4>5 contracts expiring soon</h4>
-                <p>Owner/Tenant contracts expiring within 90 days</p>
-              </div>
-            </div>
             <div class="alert info">
-              <div class="ic"><i class="fas fa-file-lines"></i></div>
+              <div class="ic"><i class="fas fa-rotate"></i></div>
               <div>
-                <h4>2 missing documents</h4>
-                <p>Security deposit receipts pending upload</p>
-              </div>
-            </div>
-            <div class="alert warn">
-              <div class="ic"><i class="fas fa-shield-halved"></i></div>
-              <div>
-                <h4>Compliance check due</h4>
-                <p>Annual inspection for 3 properties — schedule site visits</p>
+                <h4>Loading alerts…</h4>
+                <p>Fetching data from Google Sheet</p>
               </div>
             </div>
           </div>
@@ -911,7 +263,7 @@
               <div class="task-left">
                 <div class="task-dot" style="background:var(--opal-lilac);box-shadow:0 0 0 4px rgba(149,117,205,0.14);"></div>
                 <div>
-                  <div class="task-title">Renew 5 contracts expiring within 90 days</div>
+                  <div class="task-title">Renew contracts expiring within 90 days</div>
                   <div class="task-meta">Assigned: Leasing • Priority: Medium</div>
                 </div>
               </div>
@@ -937,7 +289,7 @@
       <div class="card-header">
         <div>
           <div class="card-title"><i class="fas fa-table"></i> Recent Properties</div>
-          <div class="card-sub">Quick view of latest units (demo data)</div>
+          <div class="card-sub">Live view (from Google Sheet)</div>
         </div>
         <a href="properties.html" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> View All</a>
       </div>
@@ -960,59 +312,9 @@
             </thead>
             <tbody id="recentTbody">
               <tr>
-                <td><strong>S_No 1</strong></td>
-                <td>Studio</td>
-                <td>Shumon</td>
-                <td>Mushtaq</td>
-                <td>25</td>
-                <td>2,400 QAR</td>
-                <td>3,100 QAR</td>
-                <td><span class="money pos">700 QAR</span></td>
-                <td><span class="status-badge expiring">Expiring</span></td>
-              </tr>
-              <tr>
-                <td><strong>S_No 2</strong></td>
-                <td>Studio</td>
-                <td>Shumon</td>
-                <td>—</td>
-                <td>175</td>
-                <td>2,000 QAR</td>
-                <td>2,650 QAR</td>
-                <td><span class="money pos">650 QAR</span></td>
-                <td><span class="status-badge vacant">Vacant</span></td>
-              </tr>
-              <tr>
-                <td><strong>S_No 3</strong></td>
-                <td>Apartment</td>
-                <td>Shumon</td>
-                <td>Hamid</td>
-                <td>315</td>
-                <td>2,300 QAR</td>
-                <td>3,200 QAR</td>
-                <td><span class="money pos">900 QAR</span></td>
-                <td><span class="status-badge active">Active</span></td>
-              </tr>
-              <tr>
-                <td><strong>S_No 4</strong></td>
-                <td>Studio</td>
-                <td>Shaiful Islam</td>
-                <td>Prajith</td>
-                <td>0</td>
-                <td>2,700 QAR</td>
-                <td>3,400 QAR</td>
-                <td><span class="money pos">700 QAR</span></td>
-                <td><span class="status-badge expired">Expired</span></td>
-              </tr>
-              <tr>
-                <td><strong>S_No 5</strong></td>
-                <td>Studio</td>
-                <td>Shumon</td>
-                <td>Kamran Ahmed</td>
-                <td>139</td>
-                <td>2,700 QAR</td>
-                <td>3,400 QAR</td>
-                <td><span class="money pos">700 QAR</span></td>
-                <td><span class="status-badge active">Active</span></td>
+                <td colspan="9" style="padding:18px 14px;color:var(--text-secondary);font-weight:900;">
+                  Loading recent properties…
+                </td>
               </tr>
             </tbody>
           </table>
@@ -1028,252 +330,61 @@
     </button>
   </div>
 
+  <!-- Shared App Logic -->
+  <script src="app.js"></script>
+
+  <!-- Optional: Profit range buttons (uses chart already rendered from API) -->
   <script>
-    /************************************************************
-     * SMALL UX HELPERS (sidebar, theme, live time)
-     ************************************************************/
-    const sidebar = document.getElementById("sidebar");
-    const backdrop = document.getElementById("backdrop");
-    const menuBtn = document.getElementById("menuBtn");
-
-    function openSidebar(){
-      sidebar.classList.add("open");
-      backdrop.classList.add("show");
-    }
-    function closeSidebar(){
-      sidebar.classList.remove("open");
-      backdrop.classList.remove("show");
-    }
-
-    if(menuBtn){
-      menuBtn.addEventListener("click", () => {
-        if(sidebar.classList.contains("open")) closeSidebar();
-        else openSidebar();
-      });
-    }
-    backdrop.addEventListener("click", closeSidebar);
-
-    // Theme toggle (persisted)
-    const themeBtn = document.getElementById("themeBtn");
-    const themeLabel = document.getElementById("themeLabel");
-    const storedTheme = localStorage.getItem("sa_re_theme");
-    if(storedTheme === "dark"){
-      document.documentElement.setAttribute("data-theme","dark");
-      themeLabel.textContent = "Dark";
-    }
-
-    themeBtn.addEventListener("click", () => {
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      if(isDark){
-        document.documentElement.removeAttribute("data-theme");
-        localStorage.setItem("sa_re_theme","light");
-        themeLabel.textContent = "Light";
-      } else {
-        document.documentElement.setAttribute("data-theme","dark");
-        localStorage.setItem("sa_re_theme","dark");
-        themeLabel.textContent = "Dark";
-      }
-      // re-render charts to adapt grid colors
-      renderCharts();
-    });
-
-    // Live time
-    const nowMeta = document.getElementById("nowMeta");
-    function tick(){
-      const d = new Date();
-      nowMeta.textContent = "• " + d.toLocaleString("en-GB", { weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
-    }
-    tick();
-    setInterval(tick, 30_000);
-
-    /************************************************************
-     * SEARCH (demo: filters Recent Properties rows)
-     ************************************************************/
-    const searchInput = document.getElementById("searchInput");
-    const recentTbody = document.getElementById("recentTbody");
-
-    function applySearch(){
-      const q = (searchInput.value || "").trim().toLowerCase();
-      const rows = recentTbody.querySelectorAll("tr");
-      rows.forEach(tr => {
-        const txt = tr.innerText.toLowerCase();
-        tr.style.display = (!q || txt.includes(q)) ? "" : "none";
-      });
-    }
-    searchInput.addEventListener("input", applySearch);
-
-    /************************************************************
-     * CHARTS (styled to match UI; no external styles)
-     ************************************************************/
-    let profitChart, incomeExpenseChart;
-
-    function getGridColor(){
-      // Lighter grid in dark mode
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      return isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-    }
-
-    function getTickColor(){
-      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-      return isDark ? "rgba(230,233,239,0.80)" : "rgba(84,110,122,0.90)";
-    }
-
-    function destroyCharts(){
-      if(profitChart){ profitChart.destroy(); profitChart = null; }
-      if(incomeExpenseChart){ incomeExpenseChart.destroy(); incomeExpenseChart = null; }
-    }
-
-    function renderCharts(){
-      destroyCharts();
-
-      // Profit (line)
-      const profitCtx = document.getElementById("profitChart").getContext("2d");
-      profitChart = new Chart(profitCtx, {
-        type: "line",
-        data: {
-          labels: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
-          datasets: [{
-            label: "Net Profit",
-            data: [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900],
-            borderColor: "#4dd0e1",
-            backgroundColor: "rgba(77, 208, 225, 0.12)",
-            borderWidth: 3,
-            fill: true,
-            tension: 0.42,
-            pointRadius: 3.8,
-            pointHoverRadius: 6,
-            pointBackgroundColor: "#4dd0e1"
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => ` ${ctx.parsed.y.toLocaleString()}`
-              }
-            }
-          },
-          scales: {
-            y: {
-              grid: { color: getGridColor() },
-              ticks: { color: getTickColor() }
-            },
-            x: {
-              grid: { display: false },
-              ticks: { color: getTickColor() }
-            }
-          }
-        }
-      });
-
-      // Income vs Expense (doughnut)
-      const ieCtx = document.getElementById("incomeExpenseChart").getContext("2d");
-      incomeExpenseChart = new Chart(ieCtx, {
-        type: "doughnut",
-        data: {
-          labels: ["Income", "Expenses", "Profit"],
-          datasets: [{
-            data: [42500, 29600, 12900],
-            backgroundColor: ["#4dd0e1", "#9575cd", "#69f0ae"],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "bottom",
-              labels: { color: getTickColor(), boxWidth: 14, font: { weight: "700" } }
-            }
-          },
-          cutout: "68%"
-        }
-      });
-    }
-
-    renderCharts();
-
-    /************************************************************
-     * RANGE SWITCH (demo)
-     ************************************************************/
+    // Range switch is optional; it modifies the existing chart dataset in-memory.
     function setRange(range){
-      document.getElementById("btn6m").classList.remove("active");
-      document.getElementById("btn12m").classList.remove("active");
-      document.getElementById("btnAll").classList.remove("active");
+      const btn6m = document.getElementById("btn6m");
+      const btn12m = document.getElementById("btn12m");
+      const btnAll = document.getElementById("btnAll");
+      if(!btn6m || !btn12m || !btnAll) return;
 
-      if(range === "6m") document.getElementById("btn6m").classList.add("active");
-      if(range === "12m") document.getElementById("btn12m").classList.add("active");
-      if(range === "all") document.getElementById("btnAll").classList.add("active");
+      btn6m.classList.remove("active");
+      btn12m.classList.remove("active");
+      btnAll.classList.remove("active");
 
-      // Demo behaviour: change dataset
-      const full = [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900];
-      const six = full.slice(6);
-      const all = [...full, 13150, 13400, 13720];
+      if(range === "6m") btn6m.classList.add("active");
+      if(range === "12m") btn12m.classList.add("active");
+      if(range === "all") btnAll.classList.add("active");
 
-      if(profitChart){
-        if(range === "6m"){
-          profitChart.data.labels = ["Jul","Aug","Sep","Oct","Nov","Dec"];
-          profitChart.data.datasets[0].data = six;
-        } else if(range === "all"){
-          profitChart.data.labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan+","Feb+","Mar+"];
-          profitChart.data.datasets[0].data = all;
-        } else {
-          profitChart.data.labels = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-          profitChart.data.datasets[0].data = full;
-        }
-        profitChart.update();
+      // Uses window.__dashboardChartsData (set by app.js after API call)
+      if(!window.__dashboardChartsData || !window.__dashboardChartsData.profitTrend) return;
+
+      const fullLabels = window.__dashboardChartsData.profitTrend.labels || [];
+      const fullData = window.__dashboardChartsData.profitTrend.data || [];
+
+      // Access Chart instance via global (created in app.js)
+      // If you want range switching based on API history, expand your API to return 6m/all sets.
+      // Here we implement a safe slice for 6m and full for 12m.
+      const canvas = document.getElementById("profitChart");
+      if(!canvas) return;
+
+      // Re-render charts with modified data by overwriting __dashboardChartsData then calling renderCharts()
+      if(range === "6m"){
+        window.__dashboardChartsData.profitTrend = {
+          labels: fullLabels.slice(Math.max(0, fullLabels.length - 6)),
+          data: fullData.slice(Math.max(0, fullData.length - 6))
+        };
+      } else if(range === "all") {
+        // For "All", keep as-is unless your API returns longer history.
+        window.__dashboardChartsData.profitTrend = { labels: fullLabels, data: fullData };
+      } else {
+        window.__dashboardChartsData.profitTrend = { labels: fullLabels, data: fullData };
       }
+
+      if (typeof window.renderCharts === "function") window.renderCharts();
     }
 
-    document.getElementById("btn6m").addEventListener("click", () => setRange("6m"));
-    document.getElementById("btn12m").addEventListener("click", () => setRange("12m"));
-    document.getElementById("btnAll").addEventListener("click", () => setRange("all"));
+    document.getElementById("btn6m")?.addEventListener("click", () => setRange("6m"));
+    document.getElementById("btn12m")?.addEventListener("click", () => setRange("12m"));
+    document.getElementById("btnAll")?.addEventListener("click", () => setRange("all"));
 
-    document.getElementById("refreshChartsBtn").addEventListener("click", () => {
-      // Demo refresh: tiny random drift
-      const drift = (n) => Math.round(n * (0.98 + Math.random()*0.04));
-      if(profitChart){
-        profitChart.data.datasets[0].data = profitChart.data.datasets[0].data.map(drift);
-        profitChart.update();
-      }
-      if(incomeExpenseChart){
-        const base = [42500, 29600, 12900].map(drift);
-        incomeExpenseChart.data.datasets[0].data = base;
-        incomeExpenseChart.update();
-      }
-    });
-
-    /************************************************************
-     * QUICK ADD + EXPORT (demo hooks)
-     ************************************************************/
-    document.getElementById("fabBtn").addEventListener("click", () => {
-      alert("Quick Add (demo): You can connect this to an Add Property form / modal.");
-    });
-
-    document.getElementById("addTaskBtn").addEventListener("click", () => {
-      const taskList = document.getElementById("taskList");
-      const now = new Date();
-      const item = document.createElement("div");
-      item.className = "task";
-      item.innerHTML = `
-        <div class="task-left">
-          <div class="task-dot" style="background: var(--opal-cyan);"></div>
-          <div>
-            <div class="task-title">New task created (${now.toLocaleDateString("en-GB")})</div>
-            <div class="task-meta">Assigned: You • Priority: Normal</div>
-          </div>
-        </div>
-        <div class="task-chip ok">On Track</div>
-      `;
-      taskList.prepend(item);
-    });
-
-    document.getElementById("exportBtn").addEventListener("click", (e) => {
-      e.preventDefault();
-      alert("Export (demo): You can generate CSV/PDF from your live Sheet data here.");
+    // Refresh button (delegates to app.js listener if present; this is just a fallback)
+    document.getElementById("refreshChartsBtn")?.addEventListener("click", () => {
+      if (typeof window.renderCharts === "function") window.renderCharts();
     });
   </script>
 </body>
