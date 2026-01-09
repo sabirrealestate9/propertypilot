@@ -76,6 +76,15 @@
     </style>
 </head>
 <body>
+
+<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  </div>
+</div>
+<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+
     <nav class="sidebar">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-gem"></i></div>
@@ -174,156 +183,7 @@
                             <th>Margin</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>S_No 1</strong></td>
-                            <td>Shumon</td>
-                            <td>Mushtaq</td>
-                            <td>3,100 QAR</td>
-                            <td>2,400 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+1,400 QAR</td>
-                            <td>45.2%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 2</strong></td>
-                            <td>Shumon</td>
-                            <td>Vacant</td>
-                            <td>0 QAR</td>
-                            <td>2,000 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-negative">-2,000 QAR</td>
-                            <td>-</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 3</strong></td>
-                            <td>Shumon</td>
-                            <td>Hamid</td>
-                            <td>3,200 QAR</td>
-                            <td>2,300 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+1,200 QAR</td>
-                            <td>37.5%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 4</strong></td>
-                            <td>Shaiful Islam</td>
-                            <td>prajith kinathen</td>
-                            <td>3,400 QAR</td>
-                            <td>2,700 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+900 QAR</td>
-                            <td>26.5%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 5</strong></td>
-                            <td>Shumon</td>
-                            <td>Kamran Ahmed</td>
-                            <td>3,400 QAR</td>
-                            <td>2,700 QAR</td>
-                            <td>200 QAR</td>
-                            <td class="profit-positive">+500 QAR</td>
-                            <td>14.7%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 6</strong></td>
-                            <td>Saif Uddin R</td>
-                            <td>Jilna Mathew</td>
-                            <td>2,500 QAR</td>
-                            <td>2,000 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+700 QAR</td>
-                            <td>28.0%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 7</strong></td>
-                            <td>Shumon</td>
-                            <td>Gulam Mohamed</td>
-                            <td>3,400 QAR</td>
-                            <td>2,700 QAR</td>
-                            <td>350 QAR</td>
-                            <td class="profit-positive">+350 QAR</td>
-                            <td>10.3%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 8</strong></td>
-                            <td>Shumon</td>
-                            <td>Ali Raza Muhami</td>
-                            <td>3,300 QAR</td>
-                            <td>2,150 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+1,000 QAR</td>
-                            <td>30.3%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 10</strong></td>
-                            <td>Thomas Rea</td>
-                            <td>Ahsan Ali</td>
-                            <td>3,200 QAR</td>
-                            <td>2,250 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+1,100 QAR</td>
-                            <td>34.4%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 11</strong></td>
-                            <td>Shumon</td>
-                            <td>Jawwad Ali</td>
-                            <td>3,500 QAR</td>
-                            <td>2,700 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+550 QAR</td>
-                            <td>15.7%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 12</strong></td>
-                            <td>Saif Uddin R</td>
-                            <td>Dinesh</td>
-                            <td>2,900 QAR</td>
-                            <td>2,100 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+800 QAR</td>
-                            <td>27.6%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 13</strong></td>
-                            <td>Shumon</td>
-                            <td>Jude Merwin</td>
-                            <td>2,900 QAR</td>
-                            <td>2,100 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+800 QAR</td>
-                            <td>27.6%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 14</strong></td>
-                            <td>sadiq</td>
-                            <td>Richard</td>
-                            <td>2,000 QAR</td>
-                            <td>2,600 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-negative">-600 QAR</td>
-                            <td>-30.0%</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S_No 15</strong></td>
-                            <td>Shumon</td>
-                            <td>Abin Balachandr</td>
-                            <td>3,400 QAR</td>
-                            <td>2,700 QAR</td>
-                            <td>0 QAR</td>
-                            <td class="profit-positive">+3,000 QAR</td>
-                            <td>88.2%</td>
-                        </tr>
-                        <tr style="background:  var(--opal-gradient); font-weight: 600;">
-                            <td colspan="3"><strong>TOTAL</strong></td>
-                            <td>42,500 QAR</td>
-                            <td>29,600 QAR</td>
-                            <td>550 QAR</td>
-                            <td class="profit-positive">+12,900 QAR</td>
-                            <td>30.4%</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="monthlyProfitTbody"></tbody>
                 </table>
             </div>
         </div>
@@ -375,5 +235,10 @@
             }
         });
     </script>
+
+<script src="app-config.js"></script>
+<script src="app-data.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('monthly-profit'));</script>
+
 </body>
 </html>
