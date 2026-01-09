@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Profit - Opal Property Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart. js"></script>
+    <style>
+        : root {
+            --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
+            --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
+            --opal-cyan: #00bcd4;
+            --text-primary: #263238;
+            --text-secondary: #546e7a;
+            --bg-primary: #ffffff;
+            --bg-secondary:  #f5f7fa;
+            --status-active: #4caf50;
+            --status-expiring: #ff9800;
+            --status-expired: #f44336;
+            --navy:  #1a237e;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background:  var(--bg-secondary); color: var(--text-primary); min-height: 100vh; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-primary); border-right: 1px solid rgba(0,0,0,0.06); padding: 24px 16px; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 12px; padding: 0 12px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .logo-icon { width: 42px; height: 42px; background: var(--opal-accent); border-radius: 12px; display: flex; align-items: center; justify-content:  center; color: white; font-size: 20px; }
+        .logo-text { font-size: 24px; font-weight: 700; background: var(--opal-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); padding:  0 12px; margin-bottom: 8px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition:  all 0.2s; margin-bottom: 4px; }
+        .nav-link:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .nav-link. active { background: var(--opal-gradient); color: var(--navy); }
+        .nav-link i { width: 20px; text-align: center; }
+        .nav-badge { margin-left: auto; background: var(--status-expired); color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+
+        .main-content { margin-left: 260px; padding: 24px 32px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .page-title p { color: var(--text-secondary); font-size: 14px; }
+        .header-actions { display: flex; gap: 12px; }
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--opal-accent); color: white; }
+        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 1px solid rgba(0,0,0,0.1); }
+        .filter-select { padding: 10px 14px; border:  1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-size: 13px; background: var(--bg-primary); }
+
+        .profit-hero { background: var(--opal-gradient); border-radius: var(--radius-lg); padding: 32px; margin-bottom: 24px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .profit-hero-item { text-align: center; }
+        .profit-hero-value { font-size: 36px; font-weight: 700; margin-bottom: 4px; }
+        .profit-hero-value.income { color: var(--status-active); }
+        .profit-hero-value.expense { color: var(--status-expired); }
+        .profit-hero-value.profit { color: var(--navy); }
+        .profit-hero-value.margin { color: var(--opal-cyan); }
+        .profit-hero-label { font-size: 13px; color: var(--text-secondary); }
+
+        .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .chart-card { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom:  20px; }
+        .chart-title { font-size: 16px; font-weight: 600; }
+
+        .table-card { background: var(--bg-primary); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+        .table-header { padding: 20px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--bg-secondary); padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+        td { padding: 14px 16px; border-bottom: 1px solid rgba(0,0,0,0.04); font-size: 13px; }
+        tr:hover { background:  rgba(0,0,0,0.01); }
+        .profit-positive { color: var(--status-active); font-weight: 600; }
+        .profit-negative { color: var(--status-expired); font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  </div>
+</div>
+<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+
+    <nav class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-gem"></i></div>
+            <span class="logo-text">Opal</span>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+            <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
+            <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i>Rent Records<span class="nav-badge">3</span></a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Finance</div>
+            <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+            <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+            <a href="monthly-profit.html" class="nav-link active"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Reports</div>
+            <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">System</div>
+            <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Monthly Profit</h1>
+                <p>Detailed profit analysis per property and overall portfolio</p>
+            </div>
+            <div class="header-actions">
+                <select class="filter-select">
+                    <option>January 2026</option>
+                    <option>December 2025</option>
+                    <option>November 2025</option>
+                </select>
+                <button class="btn btn-secondary"><i class="fas fa-download"></i> Export</button>
+            </div>
+        </header>
+
+        <!-- Profit Hero -->
+        <div class="profit-hero">
+            <div class="profit-hero-item">
+                <div class="profit-hero-value income">42,500 QAR</div>
+                <div class="profit-hero-label">Total Income</div>
+            </div>
+            <div class="profit-hero-item">
+                <div class="profit-hero-value expense">29,600 QAR</div>
+                <div class="profit-hero-label">Total Expenses</div>
+            </div>
+            <div class="profit-hero-item">
+                <div class="profit-hero-value profit">12,900 QAR</div>
+                <div class="profit-hero-label">Net Profit</div>
+            </div>
+            <div class="profit-hero-item">
+                <div class="profit-hero-value margin">30. 4%</div>
+                <div class="profit-hero-label">Profit Margin</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">12-Month Profit Trend</h3>
+                </div>
+                <canvas id="trendChart" height="120"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Profit by Owner</h3>
+                </div>
+                <canvas id="ownerChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Profit Table by Property -->
+        <div class="table-card">
+            <div class="table-header">
+                <h3 style="font-size: 16px; font-weight: 600;">Profit Breakdown by Property - January 2026</h3>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Unit</th>
+                            <th>Owner</th>
+                            <th>Tenant</th>
+                            <th>Rent In (Income)</th>
+                            <th>Rent Out (Expense)</th>
+                            <th>Other Expenses</th>
+                            <th>Net Profit</th>
+                            <th>Margin</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthlyProfitTbody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan'],
+                datasets:  [{
+                    label: 'Net Profit',
+                    data:  [9500, 10200, 9800, 11200, 10800, 11500, 12100, 11800, 12400, 12000, 12600, 12900],
+                    borderColor: '#4dd0e1',
+                    backgroundColor: 'rgba(77, 208, 225, 0.1)',
+                    borderWidth:  3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales:  {
+                    y: { beginAtZero: false, grid: { color: 'rgba(0,0,0,0.04)' } },
+                    x: { grid:  { display: false } }
+                }
+            }
+        });
+
+        // Owner Chart
+        const ownerCtx = document.getElementById('ownerChart').getContext('2d');
+        new Chart(ownerCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Shumon', 'Saif Uddin R', 'Shaiful Islam', 'Thomas Rea', 'sadiq'],
+                datasets: [{
+                    data: [8800, 1500, 900, 1100, -600],
+                    backgroundColor: ['#4dd0e1', '#7c4dff', '#69f0ae', '#ff9800', '#f44336'],
+                    borderWidth:  0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend:  { position: 'bottom', labels: { boxWidth: 12, padding: 8 } } },
+                cutout: '60%'
+            }
+        });
+    </script>
+
+<script src="app-config.js"></script>
+<script src="app-data.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('monthly-profit'));</script>
+
+</body>
+</html>
