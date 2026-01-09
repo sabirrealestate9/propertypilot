@@ -8,637 +8,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-  <style>
-    :root{
-      --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-      --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-      --opal-cyan: #00bcd4;
-
-      --text-primary: #263238;
-      --text-secondary: #546e7a;
-      --bg-primary: #ffffff;
-      --bg-secondary: #f5f7fa;
-
-      --status-active: #4caf50;
-      --status-expiring: #ff9800;
-      --status-expired: #f44336;
-      --status-draft: #2196f3;
-
-      --navy: #1a237e;
-
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-      --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
-
-      --radius-sm: 10px;
-      --radius-md: 12px;
-      --radius-lg: 16px;
-
-      --border: rgba(0,0,0,0.10);
-      --border-soft: rgba(0,0,0,0.06);
-      --focus: rgba(0, 188, 212, 0.28);
-
-      --sidebar-w: 260px;
-    }
-
-    *{ margin:0; padding:0; box-sizing:border-box; }
-    body{
-      font-family: "Inter", sans-serif;
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      min-height: 100vh;
-    }
-
-    /* Sidebar */
-    .sidebar{
-      position: fixed;
-      left: 0; top: 0;
-      width: var(--sidebar-w);
-      height: 100vh;
-      background: var(--bg-primary);
-      border-right: 1px solid var(--border-soft);
-      padding: 24px 16px;
-      z-index: 1000;
-      overflow-y: auto;
-    }
-    .logo{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      padding: 0 12px 24px;
-      border-bottom: 1px solid var(--border-soft);
-      margin-bottom: 24px;
-    }
-    .logo-icon{
-      width: 42px; height: 42px;
-      background: var(--opal-accent);
-      border-radius: 12px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:#fff;
-      font-size: 20px;
-      box-shadow: 0 4px 12px rgba(77, 208, 225, 0.30);
-    }
-    .logo-text{
-      font-size: 24px;
-      font-weight: 900;
-      background: var(--opal-accent);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .nav-section{ margin-bottom: 24px; }
-    .nav-section-title{
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      color: var(--text-secondary);
-      padding: 0 12px;
-      margin-bottom: 8px;
-      letter-spacing: .6px;
-    }
-    .nav-link{
-      display:flex;
-      align-items:center;
-      gap: 12px;
-      padding: 12px;
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      text-decoration:none;
-      font-size: 14px;
-      font-weight: 700;
-      transition: all .15s ease;
-      margin-bottom: 6px;
-    }
-    .nav-link:hover{
-      background: var(--bg-secondary);
-      color: var(--text-primary);
-      transform: translateY(-1px);
-    }
-    .nav-link.active{
-      background: var(--opal-gradient);
-      color: var(--navy);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    .nav-link i{ width:20px; text-align:center; }
-    .nav-badge{
-      margin-left:auto;
-      background: var(--status-expired);
-      color:#fff;
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-weight: 900;
-    }
-
-    /* Main */
-    .main-content{
-      margin-left: var(--sidebar-w);
-      padding: 24px 32px 34px;
-      min-height: 100vh;
-    }
-    .page-header{
-      display:flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-    .page-title h1{
-      font-size: 28px;
-      font-weight: 900;
-      margin-bottom: 6px;
-      letter-spacing: -0.35px;
-    }
-    .page-title p{
-      color: var(--text-secondary);
-      font-size: 14px;
-      font-weight: 600;
-    }
-    .header-actions{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 900;
-      cursor:pointer;
-      border:none;
-      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-      text-decoration:none;
-      user-select:none;
-      white-space: nowrap;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .btn-primary{
-      background: var(--opal-accent);
-      color:#fff;
-      box-shadow: 0 14px 26px rgba(77, 208, 225, 0.24);
-    }
-    .btn-secondary{
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-secondary:hover{ transform: translateY(-1px); }
-    .btn-danger{
-      background: rgba(244,67,54,0.10);
-      color: #b71c1c;
-      border: 1px solid rgba(244,67,54,0.22);
-      box-shadow: var(--shadow-sm);
-    }
-
-    .card{
-      background: var(--bg-primary);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-soft);
-      overflow: hidden;
-    }
-    .card-header{
-      padding: 16px 18px;
-      border-bottom: 1px solid var(--border-soft);
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 10px;
-      background: linear-gradient(180deg, rgba(245,247,250,0.65), transparent);
-      flex-wrap: wrap;
-    }
-    .card-title{
-      font-size: 16px;
-      font-weight: 1000;
-      display:flex;
-      align-items:center;
-      gap: 10px;
-    }
-    .card-title i{ color: var(--opal-cyan); }
-    .card-sub{
-      font-size: 12px;
-      color: var(--text-secondary);
-      font-weight: 700;
-      margin-top: 3px;
-    }
-    .card-body{ padding: 16px 18px; }
-
-    /* Summary strip */
-    .summary-strip{
-      display:grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin: 14px 0 18px;
-    }
-    .summary-card{
-      background: var(--bg-primary);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border-soft);
-      border-left: 4px solid;
-    }
-    .summary-card.income{ border-left-color: var(--status-active); }
-    .summary-card.due{ border-left-color: var(--status-expiring); }
-    .summary-card.overdue{ border-left-color: var(--status-expired); }
-    .summary-card.pending{ border-left-color: var(--status-draft); }
-    .summary-value{
-      font-size: 24px;
-      font-weight: 1000;
-      letter-spacing: -0.3px;
-    }
-    .summary-label{
-      font-size: 12px;
-      color: var(--text-secondary);
-      margin-top: 4px;
-      font-weight: 700;
-    }
-
-    /* Filters */
-    .filters-bar{
-      display:flex;
-      gap: 10px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .filters-left, .filters-right{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .filter-select{
-      padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      font-size: 13px;
-      background: var(--bg-primary);
-      font-weight: 800;
-      color: var(--text-primary);
-      outline: none;
-      min-width: 140px;
-    }
-    .filter-select:focus{
-      border-color: rgba(0,188,212,0.55);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-    .search-box{
-      display:flex;
-      align-items:center;
-      background: var(--bg-primary);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 14px;
-      gap: 10px;
-      min-width: 260px;
-      box-shadow: var(--shadow-sm);
-    }
-    .search-box i{ color: var(--text-secondary); }
-    .search-box input{
-      border:none;
-      outline:none;
-      font-size: 14px;
-      width: 100%;
-      background: transparent;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .search-box:focus-within{
-      border-color: rgba(0,188,212,0.55);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-
-    /* Rent Entry (like your screenshot) */
-    .rent-entry-grid{
-      display:grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      gap: 14px;
-    }
-
-    .entry-top{
-      display:flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .checkbox{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: rgba(245,247,250,0.75);
-      border: 1px solid var(--border-soft);
-      font-weight: 900;
-      color: var(--text-secondary);
-      user-select: none;
-    }
-    .checkbox input{ transform: scale(1.05); accent-color: #00bcd4; }
-
-    .entry-form{
-      background: rgba(245,247,250,0.70);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-    }
-
-    .form-row{
-      display:grid;
-      grid-template-columns: 130px 1fr;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .form-row label{
-      font-size: 13px;
-      font-weight: 900;
-      color: var(--text-secondary);
-    }
-    .control{
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
-      font-weight: 800;
-      color: var(--text-primary);
-      outline: none;
-    }
-    .control:focus{
-      border-color: rgba(0,188,212,0.55);
-      box-shadow: 0 0 0 4px var(--focus);
-    }
-    .control[readonly]{
-      background: rgba(245,247,250,0.85);
-      color: var(--text-secondary);
-    }
-
-    .form-actions{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-      justify-content: flex-start;
-    }
-
-    .unpaid-panel{
-      background: rgba(244,67,54,0.07);
-      border: 1px solid rgba(244,67,54,0.18);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      height: 100%;
-      overflow: auto;
-    }
-    .unpaid-head{
-      display:flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .unpaid-title{
-      font-size: 14px;
-      font-weight: 1000;
-      color: #b71c1c;
-    }
-    .unpaid-meta{
-      font-size: 12px;
-      font-weight: 900;
-      color: #b71c1c;
-      opacity: .9;
-    }
-    .unpaid-stats{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 6px;
-      margin: 10px 0 12px;
-      font-size: 12px;
-      color: #b71c1c;
-      font-weight: 900;
-    }
-    .unpaid-list{
-      font-size: 12px;
-      color: #7a1b1b;
-      font-weight: 800;
-      line-height: 1.55;
-      white-space: pre-line;
-    }
-
-    /* Payment History table */
-    .split-actions{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .table-container{ overflow-x:auto; }
-    table{
-      width:100%;
-      border-collapse: collapse;
-      min-width: 980px;
-    }
-    th{
-      background: var(--bg-secondary);
-      padding: 13px 14px;
-      text-align:left;
-      font-size: 11px;
-      font-weight: 1000;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.55px;
-      border-bottom: 1px solid var(--border-soft);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-    }
-    td{
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      font-size: 13px;
-      font-weight: 700;
-      vertical-align: middle;
-    }
-    tr:hover{ background: rgba(0,0,0,0.015); }
-
-    .tenant-info{ display:flex; align-items:center; gap: 10px; }
-    .tenant-avatar{
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: var(--opal-gradient);
-      display:flex; align-items:center; justify-content:center;
-      font-weight: 900;
-      color: var(--navy);
-      font-size: 13px;
-      border: 1px solid var(--border-soft);
-      flex: 0 0 auto;
-    }
-
-    .status-badge{
-      display:inline-flex;
-      align-items:center;
-      gap: 7px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 1000;
-      border: 1px solid rgba(0,0,0,0.06);
-      white-space: nowrap;
-      line-height: 1;
-    }
-    .status-badge::before{ content:''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-    .status-badge.paid{ background: rgba(76,175,80,0.10); color: var(--status-active); }
-    .status-badge.pending{ background: rgba(255,152,0,0.10); color: var(--status-expiring); }
-    .status-badge.overdue{ background: rgba(244,67,54,0.10); color: var(--status-expired); }
-
-    .action-btn{
-      padding: 8px 10px;
-      border: 1px solid var(--border-soft);
-      background: rgba(245,247,250,0.80);
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 12px;
-      color: var(--text-secondary);
-      transition: all .15s ease;
-      font-weight: 900;
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      white-space: nowrap;
-    }
-    .action-btn:hover{ background: var(--opal-gradient); color: var(--navy); transform: translateY(-1px); }
-    .action-btn.primary{
-      background: rgba(0,188,212,0.12);
-      border-color: rgba(0,188,212,0.22);
-      color: #006064;
-    }
-
-    .pagination{
-      display:flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 16px;
-      border-top: 1px solid var(--border-soft);
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-    .pagination-info{ font-size: 13px; color: var(--text-secondary); font-weight: 700; }
-    .pagination-controls{ display:flex; gap: 6px; }
-    .pagination-btn{
-      width: 36px; height: 36px;
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
-      border-radius: 12px;
-      cursor:pointer;
-      font-size: 13px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight: 900;
-      color: var(--text-secondary);
-    }
-    .pagination-btn.active{
-      background: var(--opal-gradient);
-      border-color: transparent;
-      color: var(--navy);
-    }
-
-    /* Toast */
-    .toast{
-      position: fixed;
-      right: 18px;
-      bottom: 18px;
-      display:none;
-      align-items:center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-md);
-      z-index: 9999;
-      max-width: 520px;
-    }
-    .toast.show{ display:flex; }
-    .toast i{ color: var(--opal-cyan); }
-    .toast .msg{ font-size: 13px; font-weight: 800; color: var(--text-primary); }
-    .toast .sub{ font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-top: 2px; }
-
-    /* Loading + Error */
-    #ppLoading{
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(245,247,250,0.85);
-      z-index: 9999;
-    }
-    #ppLoading .box{
-      background: white;
-      padding: 16px 18px;
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      display:flex;
-      align-items:center;
-      gap: 10px;
-    }
-    #ppError{
-      display:none;
-      margin: 12px 0;
-      padding: 12px 14px;
-      border-radius: 10px;
-      border: 1px solid rgba(244,67,54,0.35);
-      background: rgba(244,67,54,0.08);
-      color:#b71c1c;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    @media (max-width: 1100px){
-      .summary-strip{ grid-template-columns: repeat(2, 1fr); }
-      .rent-entry-grid{ grid-template-columns: 1fr; }
-    }
-    @media (max-width: 860px){
-      :root{ --sidebar-w: 0px; }
-      .sidebar{ display:none; }
-      .main-content{ margin-left: 0; padding: 18px; }
-      .search-box{ min-width: unset; width: 100%; }
-      .filters-bar{ align-items: stretch; }
-      .filters-left, .filters-right{ width: 100%; }
-    }
-  </style>
+  <!-- IMPORTANT: Use the SAME design from your app.css (no feature removed) -->
+  <link rel="stylesheet" href="app.css" />
 </head>
 
 <body>
 
-  <!-- Loading + Error -->
-  <div id="ppLoading">
-    <div class="box">
+  <!-- Loading + Error (kept) -->
+  <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
       <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
       <span style="font-size:14px;color:#37474f;font-weight:800;">Loading live data…</span>
     </div>
   </div>
-  <div class="toast" id="toast">
-    <i class="fas fa-circle-check"></i>
+
+  <div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;font-weight:800;"></div>
+
+  <!-- Toast (kept) -->
+  <div class="toast" id="toast" style="position:fixed;right:18px;bottom:18px;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,0.06);box-shadow:0 10px 24px rgba(0,0,0,0.10);z-index:9999;max-width:520px;">
+    <i class="fas fa-circle-check" style="color:#00bcd4;"></i>
     <div>
-      <div class="msg" id="toastMsg">Done</div>
-      <div class="sub" id="toastSub" style="display:none;"></div>
+      <div class="msg" id="toastMsg" style="font-size:13px;font-weight:800;color:#263238;">Done</div>
+      <div class="sub" id="toastSub" style="display:none;font-size:12px;font-weight:700;color:#546e7a;margin-top:2px;"></div>
     </div>
   </div>
 
-  <!-- Sidebar -->
+  <!-- Sidebar (same structure) -->
   <nav class="sidebar">
     <div class="logo">
       <div class="logo-icon"><i class="fas fa-gem"></i></div>
@@ -675,8 +70,6 @@
 
   <!-- Main -->
   <main class="main-content">
-    <div id="ppError"></div>
-
     <header class="page-header">
       <div class="page-title">
         <h1>Rent Records</h1>
@@ -689,7 +82,7 @@
       </div>
     </header>
 
-    <!-- Summary Strip -->
+    <!-- Summary Strip (kept) -->
     <section class="summary-strip" aria-label="Monthly summary">
       <div class="summary-card income">
         <div class="summary-value" id="sumReceived">—</div>
@@ -709,7 +102,7 @@
       </div>
     </section>
 
-    <!-- Filters -->
+    <!-- Filters (kept) -->
     <section class="filters-bar" aria-label="Filters">
       <div class="filters-left">
         <div class="search-box">
@@ -735,7 +128,7 @@
       </div>
     </section>
 
-    <!-- Rent Entry (screenshot-like) -->
+    <!-- Rent Entry (kept) -->
     <section class="card" aria-label="Record monthly rent" id="rentEntryCard">
       <div class="card-header">
         <div>
@@ -764,7 +157,7 @@
           </div>
 
           <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (demo hook)">
+            <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (hook)">
               <i class="fas fa-envelope"></i> Email Unpaid (Bulk)
             </button>
             <button class="btn btn-danger" id="clearFormBtn" title="Clear entry form">
@@ -811,7 +204,7 @@
             </div>
 
             <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:800;">
-              Tip: Studio list and unpaid panel are computed from your Sheet (Rent Records + Properties).
+              Tip: Studio list and unpaid panel are computed from your Sheet (RentRecords + Properties).
             </div>
           </div>
 
@@ -831,7 +224,7 @@
           </div>
         </div>
 
-        <!-- Payment History -->
+        <!-- Payment History (kept) -->
         <div style="height:14px;"></div>
         <div class="card" style="border-radius: var(--radius-lg);">
           <div class="card-header">
@@ -863,7 +256,7 @@
       </div>
     </section>
 
-    <!-- Rent Records Table -->
+    <!-- Rent Records Table (kept) -->
     <section class="card" aria-label="Rent records table" style="margin-top:16px;">
       <div class="card-header">
         <div>
@@ -871,7 +264,7 @@
           <div class="card-sub">Filtered by status / unit / month-year • Live data from Google Sheet</div>
         </div>
         <div class="split-actions">
-          <button class="btn btn-secondary" id="markPaidBtn" title="Mark selected row as paid (demo hook)">
+          <button class="btn btn-secondary" id="markPaidBtn" title="Mark selected row as paid (hook)">
             <i class="fas fa-check"></i> Mark Paid
           </button>
           <button class="btn btn-secondary" id="openInSheetBtn" title="Open Sheet (requires link in app-config)">
@@ -910,23 +303,21 @@
     </section>
   </main>
 
-  <!-- Your shared app files (Google Sheet integration) -->
+  <!-- Your shared app files (same design + same feature set) -->
   <script src="app-config.js"></script>
+  <script src="app.js"></script>
   <script src="app-data.js"></script>
 
   <script>
     /*********************************************************************
-     * Rent Records Page (UI kept same) + Rent Entry (like your screenshot)
-     * Integration Notes:
-     * - This page expects window.PropertyPilot (from app-data.js) OR falls back to demo.
-     * - Required API methods (recommended):
-     *    PropertyPilot.getRentRecords({month, year}) -> array
-     *    PropertyPilot.getProperties() -> array
-     *    PropertyPilot.getUnpaidStudios({month, year}) -> { studios:[], totalUnpaid, totalAmount }
-     *    PropertyPilot.addRentPayment(payload) -> { ok:true }
-     *    PropertyPilot.getPaymentHistory({studioId}) -> array
-     *    PropertyPilot.sendReminder({studioId, month, year}) -> { ok:true }
-     *    PropertyPilot.sendBulkReminder({month, year}) -> { ok:true, count }
+     * Rent Records Page Controller
+     * - Uses SAME design via app.css
+     * - Keeps ALL features you already had:
+     *    Summary, filters, rent entry, unpaid panel, payment history,
+     *    export CSV, refresh, reminders hooks, open sheet, pagination,
+     *    select row -> load studio, collapse/expand entry.
+     * - Uses PropertyPilot / PropertyPilotApi from app-data.js (Google Sheet)
+     * - Falls back to a demo adapter ONLY if none exists (no features removed)
      *********************************************************************/
 
     const $ = (id) => document.getElementById(id);
@@ -938,25 +329,28 @@
     const toastMsg = $("toastMsg");
     const toastSub = $("toastSub");
 
-    function showToast(message, sub){
+    function showToast(message, sub) {
+      if (!toast) return;
       toastMsg.textContent = message || "Done";
-      if(sub){
+      if (sub) {
         toastSub.style.display = "";
         toastSub.textContent = sub;
       } else {
         toastSub.style.display = "none";
         toastSub.textContent = "";
       }
-      toast.classList.add("show");
-      setTimeout(() => toast.classList.remove("show"), 2600);
+      toast.style.display = "flex";
+      setTimeout(() => { toast.style.display = "none"; }, 2600);
     }
 
-    function setLoading(on){
+    function setLoading(on) {
+      if (!ppLoading) return;
       ppLoading.style.display = on ? "flex" : "none";
     }
 
-    function setError(msg){
-      if(!msg){
+    function setError(msg) {
+      if (!ppError) return;
+      if (!msg) {
         ppError.style.display = "none";
         ppError.textContent = "";
         return;
@@ -965,20 +359,19 @@
       ppError.textContent = msg;
     }
 
-    // ---- Demo fallback (keeps page usable even before sheet wiring finishes)
+    // Demo fallback (keeps UI usable without breaking; features remain)
     const DemoAPI = (() => {
       const properties = [
-        { unitId: "z1 va2 r6", unit: "S_No 1", owner: "Shumon", tenant: "Mushtaq", contact: "545213199", rent: 2600, type: "Personnel" },
-        { unitId: "z33 v1 r6", unit: "S_No 2", owner: "Shumon", tenant: "—", contact: "586861734", rent: 2550, type: "Personnel" },
-        { unitId: "z20 v76 rF1", unit: "S_No 3", owner: "Shumon", tenant: "Kamran Ahmed", contact: "565470449", rent: 3400, type: "Personnel" },
-        { unitId: "z16", unit: "S_No 4", owner: "Shaiful Islam", tenant: "Prajith", contact: "586861734", rent: 3200, type: "Personnel" },
+        { studioId: "z1 va2 r6", unit: "S_No 1", owner: "Shumon", tenant: "Mushtaq", contact: "545213199", rent: 2600, type: "Personnel" },
+        { studioId: "z33 v1 r6", unit: "S_No 2", owner: "Shumon", tenant: "—", contact: "586861734", rent: 2550, type: "Personnel" },
+        { studioId: "z20 v76 rF1", unit: "S_No 3", owner: "Shumon", tenant: "Kamran Ahmed", contact: "565470449", rent: 3400, type: "Personnel" },
+        { studioId: "z16", unit: "S_No 4", owner: "Shaiful Islam", tenant: "Prajith", contact: "586861734", rent: 3200, type: "Personnel" },
       ];
 
-      // Rent records (for table)
       let rentRecords = [
-        { tenant: "Mushtaq", unit: "S_No 1", dueDate: "2026-01-05", amount: 2600, receivedDate: "2026-01-09", method: "Cash", status: "paid", notes: "OK", studioId: "z1 va2 r6" },
-        { tenant: "Kamran Ahmed", unit: "S_No 3", dueDate: "2026-01-05", amount: 3400, receivedDate: "", method: "", status: "overdue", notes: "Call today", studioId: "z20 v76 rF1" },
-        { tenant: "Prajith", unit: "S_No 4", dueDate: "2026-01-05", amount: 3200, receivedDate: "", method: "", status: "pending", notes: "", studioId: "z16" },
+        { studioId: "z1 va2 r6", tenant: "Mushtaq", unit: "S_No 1", dueDate: "2026-01-05", amount: 2600, receivedDate: "2026-01-09", method: "Cash", status: "paid", notes: "OK", owner: "Shumon", contact: "545213199" },
+        { studioId: "z20 v76 rF1", tenant: "Kamran Ahmed", unit: "S_No 3", dueDate: "2026-01-05", amount: 3400, receivedDate: "", method: "", status: "overdue", notes: "Call today", owner: "Shumon", contact: "565470449" },
+        { studioId: "z16", tenant: "Prajith", unit: "S_No 4", dueDate: "2026-01-05", amount: 3200, receivedDate: "", method: "", status: "pending", notes: "", owner: "Shaiful Islam", contact: "586861734" },
       ];
 
       const historyByStudio = {
@@ -988,43 +381,35 @@
         ],
         "z20 v76 rF1": [
           { paymentDate: "2025-12-20", amount: 3400, maintenance: 0, month: 12, year: 2025, notes: "Personnel" },
-        ]
+        ],
       };
 
-      function monthKey(m,y){ return `${y}-${String(m).padStart(2,"0")}`; }
-
       return {
-        async getProperties(){ return properties; },
-        async getRentRecords({month, year}){
-          // Demo ignores month/year filtering for simplicity
-          return rentRecords;
-        },
-        async getUnpaidStudios({month, year}){
-          // Demo: unpaid = those not paid in records
-          const unpaid = properties
-            .filter(p => !rentRecords.some(r => r.studioId === p.unitId && r.status === "paid"))
-            .map(p => ({
-              studioId: p.unitId,
-              unit: p.unit,
-              tenant: p.tenant,
-              contact: p.contact,
-              rent: p.rent,
-              type: p.type
-            }));
-          const totalAmount = unpaid.reduce((a,b)=>a+(Number(b.rent)||0),0);
+        sheetUrl: "",
+        async getProperties() { return properties; },
+        async getRentRecords({ month, year }) { return rentRecords; },
+        async getUnpaidStudios({ month, year }) {
+          const paid = new Set(rentRecords.filter(r => (r.status || "").toLowerCase() === "paid").map(r => r.studioId));
+          const unpaid = properties.filter(p => !paid.has(p.studioId)).map(p => ({
+            studioId: p.studioId,
+            unit: p.unit,
+            tenant: p.tenant,
+            contact: p.contact,
+            rent: p.rent,
+            type: p.type,
+            owner: p.owner,
+          }));
           return {
             studios: unpaid,
             totalUnpaid: unpaid.length,
-            totalAmount
+            totalAmount: unpaid.reduce((a, b) => a + (Number(b.rent) || 0), 0),
           };
         },
-        async addRentPayment(payload){
-          const studio = properties.find(p => p.unitId === payload.studioId);
-          if(!studio) throw new Error("Studio not found");
-
-          // Add/Update table record
+        async addRentPayment(payload) {
+          const studio = properties.find(p => p.studioId === payload.studioId);
+          if (!studio) throw new Error("Studio not found");
           const existing = rentRecords.find(r => r.studioId === payload.studioId);
-          if(existing){
+          if (existing) {
             existing.receivedDate = payload.paymentDate;
             existing.amount = payload.amount;
             existing.method = payload.method || "Cash";
@@ -1032,58 +417,48 @@
             existing.notes = payload.notes || "";
           } else {
             rentRecords.unshift({
+              studioId: payload.studioId,
               tenant: studio.tenant,
               unit: studio.unit,
-              dueDate: `${payload.year}-${String(payload.month).padStart(2,"0")}-05`,
+              dueDate: `${payload.year}-${String(payload.month).padStart(2, "0")}-05`,
               amount: payload.amount,
               receivedDate: payload.paymentDate,
               method: payload.method || "Cash",
               status: "paid",
               notes: payload.notes || "",
-              studioId: payload.studioId
+              owner: studio.owner,
+              contact: studio.contact,
             });
           }
-
-          // Add to history
-          if(!historyByStudio[payload.studioId]) historyByStudio[payload.studioId] = [];
+          if (!historyByStudio[payload.studioId]) historyByStudio[payload.studioId] = [];
           historyByStudio[payload.studioId].unshift({
             paymentDate: payload.paymentDate,
             amount: payload.amount,
             maintenance: payload.maintenance || 0,
             month: payload.month,
             year: payload.year,
-            notes: payload.notes || ""
+            notes: payload.notes || "",
           });
-
           return { ok: true };
         },
-        async getPaymentHistory({studioId}){
-          return historyByStudio[studioId] || [];
-        },
-        async sendReminder({studioId, month, year}){
-          return { ok: true };
-        },
-        async sendBulkReminder({month, year}){
-          return { ok: true, count: 3 };
-        },
-        async exportCsv({month, year}){
-          const rows = await this.getRentRecords({month, year});
-          const headers = ["tenant","unit","dueDate","amount","receivedDate","method","status","notes","studioId"];
-          const csv = [headers.join(",")].concat(
-            rows.map(r => headers.map(h => `"${String(r[h] ?? "").replaceAll('"','""')}"`).join(","))
+        async getPaymentHistory({ studioId }) { return historyByStudio[studioId] || []; },
+        async sendReminder({ studioId, month, year }) { return { ok: true }; },
+        async sendBulkReminder({ month, year }) { return { ok: true, count: 0 }; },
+        async exportCsv({ month, year }) {
+          const rows = await this.getRentRecords({ month, year });
+          const headers = ["studioId", "tenant", "unit", "dueDate", "amount", "receivedDate", "method", "status", "notes", "owner", "contact"];
+          return [headers.join(",")].concat(
+            rows.map(r => headers.map(h => `"${String(r[h] ?? "").replaceAll('"', '""')}"`).join(","))
           ).join("\n");
-          return csv;
         },
-        sheetUrl: "" // optional
       };
     })();
 
-    function getAPI(){
-      // Prefer your app-data.js object if present; otherwise demo.
-      return window.PropertyPilot || window.PropertyPilotApi || DemoAPI;
+    function getAPI() {
+      return window.PropertyPilotApi || window.PropertyPilot || DemoAPI;
     }
 
-    // ---- Page State
+    // State
     const State = {
       records: [],
       filtered: [],
@@ -1093,149 +468,155 @@
       pageSize: 12,
     };
 
-    // ---- Date helpers
-    function pad2(n){ return String(n).padStart(2,"0"); }
-    function toMoney(n, currency){
+    // Helpers
+    function pad2(n) { return String(n).padStart(2, "0"); }
+    function initials(name) {
+      const s = (name || "").trim();
+      if (!s || s === "—" || s === "-") return "NA";
+      const parts = s.split(/\s+/).slice(0, 2);
+      return parts.map(p => (p[0] || "").toUpperCase()).join("");
+    }
+    function toMoney(n, currency) {
       const v = Number(n || 0);
-      if(!isFinite(v)) return "—";
+      if (!isFinite(v)) return "—";
       return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
     }
-    function initials(name){
-      const s = (name || "").trim();
-      if(!s || s === "—" || s === "-") return "NA";
-      const parts = s.split(/\s+/).slice(0,2);
-      return parts.map(p => p[0]?.toUpperCase() || "").join("");
+    function normalizeStatus(s) {
+      const v = String(s || "").toLowerCase();
+      if (v === "paid") return "paid";
+      if (v === "overdue") return "overdue";
+      return "pending";
     }
 
-    // ---- UI init (month/year selects)
-    function fillMonthSelect(sel){
+    // Month/Year selects
+    function fillMonthSelect(sel) {
       const months = [
-        {v:1,t:"January"},{v:2,t:"February"},{v:3,t:"March"},{v:4,t:"April"},
-        {v:5,t:"May"},{v:6,t:"June"},{v:7,t:"July"},{v:8,t:"August"},
-        {v:9,t:"September"},{v:10,t:"October"},{v:11,t:"November"},{v:12,t:"December"},
+        { v: 1, t: "January" }, { v: 2, t: "February" }, { v: 3, t: "March" }, { v: 4, t: "April" },
+        { v: 5, t: "May" }, { v: 6, t: "June" }, { v: 7, t: "July" }, { v: 8, t: "August" },
+        { v: 9, t: "September" }, { v: 10, t: "October" }, { v: 11, t: "November" }, { v: 12, t: "December" },
       ];
       sel.innerHTML = months.map(m => `<option value="${m.v}">${m.t}</option>`).join("");
     }
-    function fillYearSelect(sel, baseYear){
+    function fillYearSelect(sel, baseYear) {
       const y = baseYear || new Date().getFullYear();
       const years = [];
-      for(let i = y - 3; i <= y + 2; i++) years.push(i);
+      for (let i = y - 3; i <= y + 2; i++) years.push(i);
       sel.innerHTML = years.map(v => `<option value="${v}">${v}</option>`).join("");
     }
 
-    function getSelectedMonthYear(){
-      const month = Number($("monthFilter").value);
-      const year = Number($("yearFilter").value);
-      return { month, year };
+    function getSelectedMonthYear() {
+      return { month: Number($("monthFilter").value), year: Number($("yearFilter").value) };
     }
-
-    function syncEntryMonthYear(){
+    function syncEntryMonthYear() {
       $("entryMonth").value = $("monthFilter").value;
       $("entryYear").value = $("yearFilter").value;
     }
-
-    function syncFilterMonthYear(){
+    function syncFilterMonthYear() {
       $("monthFilter").value = $("entryMonth").value;
       $("yearFilter").value = $("entryYear").value;
     }
 
-    // ---- Rendering
-    function renderPropertyFilter(){
+    // Render filters
+    function renderPropertyFilter() {
       const sel = $("propertyFilter");
-      const options = [`<option value="all">All Units</option>`]
-        .concat(State.properties.map(p => `<option value="${p.unit || p.unitId || ""}">${p.unit || p.unitId}</option>`));
-      sel.innerHTML = options.join("");
+      const list = [`<option value="all">All Units</option>`].concat(
+        (State.properties || []).map(p => {
+          const unit = (p.unit || p.Unit || p.unitName || "").toString().trim();
+          return `<option value="${unit}">${unit || "—"}</option>`;
+        })
+      );
+      sel.innerHTML = list.join("");
     }
 
-    function renderStudioSelect(){
+    function renderStudioSelect() {
       const sel = $("studioSelect");
       const onlyUnpaid = $("onlyUnpaidChk").checked;
 
       const studios = onlyUnpaid
-        ? State.unpaid.studios
-        : State.properties.map(p => ({
-            studioId: p.unitId || p.studioId || p.id || "",
-            unit: p.unit || p.unitName || p.Unit || p.unitId || "",
-            tenant: p.tenant || p.Tenant || "—",
-            rent: p.rent || p.Rent || 0,
-            contact: p.contact || p.Contact || ""
+        ? (State.unpaid.studios || [])
+        : (State.properties || []).map(p => ({
+            studioId: (p.studioId || p.unitId || p.id || "").toString().trim(),
+            unit: (p.unit || "").toString().trim(),
+            tenant: (p.tenant || "—").toString().trim(),
           }));
 
       sel.innerHTML = studios.length
         ? studios.map(s => `<option value="${s.studioId}">${s.studioId} • ${s.unit || ""} • ${s.tenant || "—"}</option>`).join("")
         : `<option value="">No studios available</option>`;
 
-      if(!sel.value && studios.length) sel.value = studios[0].studioId;
+      if (!sel.value && studios.length) sel.value = studios[0].studioId;
     }
 
-    function renderUnpaidPanel(){
-      const { month, year } = { month: Number($("entryMonth").value), year: Number($("entryYear").value) };
+    // Unpaid panel
+    function renderUnpaidPanel() {
+      const month = Number($("entryMonth").value);
+      const year = Number($("entryYear").value);
 
       $("unpaidTitle").textContent = `Unpaid Studios for ${month}/${year}:`;
       $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
 
-      $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid}`;
-      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount, "AED")}`;
+      $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
+      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
 
-      if(!State.unpaid.studios.length){
+      const list = State.unpaid.studios || [];
+      if (!list.length) {
         $("unpaidList").textContent = "No unpaid studios for this period.";
         return;
       }
 
-      const lines = State.unpaid.studios.map(s => {
-        const nm = s.tenant && s.tenant !== "—" ? s.tenant : "Vacant/Unknown";
-        const unit = s.unit ? ` (${s.unit})` : "";
-        const contact = s.contact ? `Contact: ${s.contact}` : "Contact: —";
-        const rent = toMoney(s.rent, "AED");
-        const type = s.type ? ` • ${s.type}` : "";
-        return `${s.studioId}${unit} - ${nm}${type}\nRent: ${rent}\n${contact}\n`;
+      const lines = list.map(s => {
+        const studioId = (s.studioId || "").toString().trim();
+        const unit = (s.unit || "").toString().trim();
+        const tenant = (s.tenant || "Vacant/Unknown").toString().trim();
+        const type = (s.type || "").toString().trim();
+        const contact = (s.contact || "—").toString().trim();
+        const rent = toMoney(s.rent || 0, "AED");
+        return `${studioId}${unit ? ` (${unit})` : ""} - ${tenant}${type ? ` • ${type}` : ""}\nRent: ${rent}\nContact: ${contact}\n`;
       });
 
       $("unpaidList").textContent = lines.join("\n");
     }
 
-    function renderSummary(){
-      // These are best computed from actual records; here we compute basic values.
-      const { month, year } = getSelectedMonthYear();
-      const rows = State.records;
-
+    // Summary
+    function renderSummary() {
+      const rows = State.records || [];
       const received = rows
-        .filter(r => (r.status || "").toLowerCase() === "paid")
-        .reduce((a,b)=>a + Number(b.amount || b.Amount || 0), 0);
+        .filter(r => normalizeStatus(r.status || r.Status) === "paid")
+        .reduce((a, b) => a + Number(b.amount ?? b.Amount ?? 0), 0);
 
       const due = rows
-        .filter(r => (r.status || "").toLowerCase() !== "paid")
-        .reduce((a,b)=>a + Number(b.amount || b.Amount || 0), 0);
+        .filter(r => normalizeStatus(r.status || r.Status) !== "paid")
+        .reduce((a, b) => a + Number(b.amount ?? b.Amount ?? 0), 0);
 
-      const overdueCount = rows.filter(r => (r.status || "").toLowerCase() === "overdue").length;
+      const overdueCount = rows.filter(r => normalizeStatus(r.status || r.Status) === "overdue").length;
+      const pendingWeek = rows.filter(r => normalizeStatus(r.status || r.Status) === "pending").length;
 
-      // Pending this week (simple demo heuristic)
-      const pendingWeek = rows.filter(r => (r.status || "").toLowerCase() === "pending").length;
-
+      // Keep your prior behavior (QAR display in table summary)
       $("sumReceived").textContent = toMoney(received, "QAR");
       $("sumDue").textContent = toMoney(due, "QAR");
       $("sumOverdue").textContent = String(overdueCount);
       $("sumPending").textContent = String(pendingWeek);
     }
 
-    function applyFilters(){
+    // Filters apply
+    function applyFilters() {
       const q = ($("searchInput").value || "").trim().toLowerCase();
-      const status = $("statusFilter").value;
-      const unit = $("propertyFilter").value;
+      const statusFilter = $("statusFilter").value;
+      const unitFilter = $("propertyFilter").value;
 
-      State.filtered = State.records.filter(r => {
-        const tenant = (r.tenant || r.Tenant || "").toString();
-        const unitVal = (r.unit || r.Unit || "").toString();
-        const owner = (r.owner || r.Owner || "").toString();
-        const contact = (r.contact || r.Contact || "").toString();
-        const notes = (r.notes || r.Notes || "").toString();
-        const hay = `${tenant} ${unitVal} ${owner} ${contact} ${notes}`.toLowerCase();
+      State.filtered = (State.records || []).filter(r => {
+        const tenant = String(r.tenant || r.Tenant || "");
+        const unit = String(r.unit || r.Unit || "");
+        const owner = String(r.owner || r.Owner || "");
+        const contact = String(r.contact || r.Contact || "");
+        const notes = String(r.notes || r.Notes || "");
+        const hay = `${tenant} ${unit} ${owner} ${contact} ${notes}`.toLowerCase();
 
-        const s = (r.status || r.Status || "").toString().toLowerCase();
+        const status = normalizeStatus(r.status || r.Status);
 
         const matchesQ = !q || hay.includes(q);
-        const matchesStatus = status === "all" || s === status;
-        const matchesUnit = unit === "all" || unitVal === unit;
+        const matchesStatus = statusFilter === "all" || status === statusFilter;
+        const matchesUnit = unitFilter === "all" || unit === unitFilter;
 
         return matchesQ && matchesStatus && matchesUnit;
       });
@@ -1243,27 +624,26 @@
       State.page = 1;
     }
 
-    function renderTable(){
+    // Render rent records table
+    function renderTable() {
       const tbody = $("rentRecordsTbody");
       tbody.innerHTML = "";
 
-      const total = State.filtered.length;
+      const total = (State.filtered || []).length;
       const start = (State.page - 1) * State.pageSize;
       const end = Math.min(start + State.pageSize, total);
-      const pageRows = State.filtered.slice(start, end);
+      const pageRows = (State.filtered || []).slice(start, end);
 
-      for(const r of pageRows){
-        const tenant = (r.tenant || r.Tenant || "—").toString();
-        const unit = (r.unit || r.Unit || "—").toString();
-        const dueDate = (r.dueDate || r.DueDate || "—").toString();
-        const amount = r.amount ?? r.Amount ?? 0;
-        const receivedDate = (r.receivedDate || r.ReceivedDate || "—").toString();
-        const method = (r.method || r.PaymentMethod || "—").toString();
-        const status = (r.status || r.Status || "pending").toString().toLowerCase();
-        const notes = (r.notes || r.Notes || "").toString();
-
-        const statusClass = status === "paid" ? "paid" : (status === "overdue" ? "overdue" : "pending");
-        const studioId = (r.studioId || r.StudioId || r.unitId || "").toString();
+      pageRows.forEach(r => {
+        const tenant = String(r.tenant || r.Tenant || "—");
+        const unit = String(r.unit || r.Unit || "—");
+        const dueDate = String(r.dueDate || r.DueDate || "—");
+        const amount = Number(r.amount ?? r.Amount ?? 0);
+        const receivedDate = String(r.receivedDate || r.ReceivedDate || r.paymentDate || r.PaymentDate || "—");
+        const method = String(r.method || r.PaymentMethod || "—");
+        const status = normalizeStatus(r.status || r.Status);
+        const notes = String(r.notes || r.Notes || "");
+        const studioId = String(r.studioId || r.StudioId || r.unitId || r.UnitId || "");
 
         const tr = document.createElement("tr");
         tr.dataset.studioId = studioId;
@@ -1283,8 +663,8 @@
           <td>${toMoney(amount, "QAR")}</td>
           <td>${receivedDate || "—"}</td>
           <td>${method || "—"}</td>
-          <td><span class="status-badge ${statusClass}">${statusClass.toUpperCase()}</span></td>
-          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${notes.replaceAll('"','&quot;')}">${notes || "—"}</td>
+          <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
+          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${notes.replaceAll('"', '&quot;')}">${notes || "—"}</td>
           <td>
             <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
               <i class="fas fa-arrow-right"></i> Select
@@ -1294,9 +674,8 @@
             </button>
           </td>
         `;
-
         tbody.appendChild(tr);
-      }
+      });
 
       $("pageInfo").textContent = total
         ? `Showing ${start + 1}–${end} of ${total} records`
@@ -1306,22 +685,24 @@
       $("nextBtn").disabled = end >= total;
     }
 
-    function renderHistory(history){
+    // Payment history table
+    function renderHistory(history) {
       const tbody = $("historyTbody");
       tbody.innerHTML = "";
 
-      if(!history || !history.length){
+      const rows = Array.isArray(history) ? history : [];
+      if (!rows.length) {
         tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
         return;
       }
 
-      for(const h of history){
-        const paymentDate = h.paymentDate || h.PaymentDate || "—";
-        const amount = h.amount ?? h.Amount ?? 0;
-        const maintenance = h.maintenance ?? h.Maintenance ?? 0;
-        const month = h.month ?? h.Month ?? "—";
-        const year = h.year ?? h.Year ?? "—";
-        const notes = h.notes || h.Notes || "";
+      rows.forEach(h => {
+        const paymentDate = String(h.paymentDate || h.PaymentDate || "—");
+        const amount = Number(h.amount ?? h.Amount ?? 0);
+        const maintenance = Number(h.maintenance ?? h.Maintenance ?? 0);
+        const month = String(h.month ?? h.Month ?? "—");
+        const year = String(h.year ?? h.Year ?? "—");
+        const notes = String(h.notes || h.Notes || "");
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -1333,63 +714,24 @@
           <td>${notes || "—"}</td>
         `;
         tbody.appendChild(tr);
-      }
+      });
     }
 
-    // ---- Data Load
-    async function loadAll(){
-      try{
-        setError("");
-        setLoading(true);
-
-        const api = getAPI();
-
-        // Controls init
-        fillMonthSelect($("monthFilter"));
-        fillMonthSelect($("entryMonth"));
-
-        fillYearSelect($("yearFilter"), new Date().getFullYear());
-        fillYearSelect($("entryYear"), new Date().getFullYear());
-
-        const now = new Date();
-        $("monthFilter").value = String(now.getMonth() + 1);
-        $("yearFilter").value = String(now.getFullYear());
-        syncEntryMonthYear();
-
-        // Default payment date = today
-        $("paymentDate").valueAsDate = new Date();
-
-        // Load base data
-        State.properties = await api.getProperties();
-        renderPropertyFilter();
-
-        await refreshForPeriod(); // loads records + unpaid
-        renderStudioSelect();
-
-        // Load history for selected studio
-        await refreshHistory();
-
-        setLoading(false);
-      } catch(err){
-        setLoading(false);
-        setError(err?.message || "Failed to load data. Check your Google Sheet / Apps Script endpoint.");
-      }
-    }
-
-    async function refreshForPeriod(){
+    // Data loading
+    async function refreshForPeriod() {
       const api = getAPI();
       const { month, year } = getSelectedMonthYear();
 
       // Records
-      State.records = await api.getRentRecords({month, year});
-      State.records = Array.isArray(State.records) ? State.records : [];
+      const records = await api.getRentRecords({ month, year });
+      State.records = Array.isArray(records) ? records : [];
       applyFilters();
       renderSummary();
       renderTable();
 
       // Unpaid
-      State.unpaid = await api.getUnpaidStudios({month, year});
-      State.unpaid = State.unpaid || { studios: [], totalUnpaid: 0, totalAmount: 0 };
+      const unpaid = await api.getUnpaidStudios({ month, year });
+      State.unpaid = unpaid || { studios: [], totalUnpaid: 0, totalAmount: 0 };
       State.unpaid.studios = Array.isArray(State.unpaid.studios) ? State.unpaid.studios : [];
       State.unpaid.totalUnpaid = Number(State.unpaid.totalUnpaid ?? State.unpaid.studios.length ?? 0);
       State.unpaid.totalAmount = Number(State.unpaid.totalAmount ?? 0);
@@ -1398,118 +740,151 @@
       renderStudioSelect();
     }
 
-    async function refreshHistory(){
+    async function refreshHistory() {
       const api = getAPI();
       const studioId = $("studioSelect").value;
-      if(!studioId){
+      if (!studioId) {
         renderHistory([]);
         return;
       }
-      const history = await api.getPaymentHistory({studioId});
-      renderHistory(Array.isArray(history) ? history : []);
+      const history = await api.getPaymentHistory({ studioId });
+      renderHistory(history);
     }
 
-    // ---- Actions
-    function validateEntry(){
+    async function loadAll() {
+      try {
+        setError("");
+        setLoading(true);
+
+        // Init selects
+        fillMonthSelect($("monthFilter"));
+        fillMonthSelect($("entryMonth"));
+        fillYearSelect($("yearFilter"), new Date().getFullYear());
+        fillYearSelect($("entryYear"), new Date().getFullYear());
+
+        // Defaults
+        const now = new Date();
+        $("monthFilter").value = String(now.getMonth() + 1);
+        $("yearFilter").value = String(now.getFullYear());
+        syncEntryMonthYear();
+        $("paymentDate").valueAsDate = new Date();
+
+        // Load properties
+        const api = getAPI();
+        const props = await api.getProperties();
+        State.properties = Array.isArray(props) ? props : [];
+        renderPropertyFilter();
+
+        // Load records + unpaid + history
+        await refreshForPeriod();
+        await refreshHistory();
+
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        setError(err?.message || "Failed to load data. Check app-config.js API_URL and Apps Script deployment.");
+      }
+    }
+
+    // Entry validation
+    function validateEntry() {
       const studioId = $("studioSelect").value;
       const paymentDate = $("paymentDate").value;
       const amount = Number($("amountInput").value);
 
-      if(!studioId) return "Please select a Studio ID.";
-      if(!paymentDate) return "Please select a Payment Date.";
-      if(!isFinite(amount) || amount <= 0) return "Please enter a valid Amount > 0.";
-
+      if (!studioId) return "Please select a Studio ID.";
+      if (!paymentDate) return "Please select a Payment Date.";
+      if (!isFinite(amount) || amount <= 0) return "Please enter a valid Amount > 0.";
       return "";
     }
 
-    async function recordPayment(){
+    // Record payment
+    async function recordPayment() {
       const api = getAPI();
-
       const err = validateEntry();
-      if(err){ setError(err); showToast("Validation failed", err); return; }
+      if (err) { setError(err); showToast("Validation failed", err); return; }
       setError("");
-
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
 
       const payload = {
         studioId: $("studioSelect").value,
-        month,
-        year,
+        month: Number($("entryMonth").value),
+        year: Number($("entryYear").value),
         paymentDate: $("paymentDate").value,
         amount: Number($("amountInput").value),
         maintenance: Number($("maintenanceInput").value || 0),
         notes: ($("notesInput").value || "").trim(),
-        method: "Cash" // optional; you can add a select later
+        method: "Cash", // keep as-is; you can add method select later without removing any feature
       };
 
-      try{
+      try {
         setLoading(true);
-        const res = await api.addRentPayment(payload);
+        await api.addRentPayment(payload);
         setLoading(false);
 
         showToast("Payment recorded", `${payload.studioId} • ${payload.month}/${payload.year}`);
-        // Keep filters synced
+
+        // Keep month/year synced and refresh data
         syncFilterMonthYear();
         await refreshForPeriod();
         await refreshHistory();
-      } catch(e){
+      } catch (e) {
         setLoading(false);
         setError(e?.message || "Failed to record payment.");
       }
     }
 
-    async function sendReminder(studioId){
+    async function sendReminder(studioId) {
       const api = getAPI();
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
 
-      try{
+      try {
         setLoading(true);
-        await api.sendReminder({studioId, month, year});
+        await api.sendReminder({ studioId, month, year });
         setLoading(false);
         showToast("Reminder triggered", `${studioId} • ${month}/${year}`);
-      } catch(e){
+      } catch (e) {
         setLoading(false);
         setError(e?.message || "Failed to send reminder.");
       }
     }
 
-    async function sendBulkReminder(){
+    async function sendBulkReminder() {
       const api = getAPI();
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
 
-      try{
+      try {
         setLoading(true);
-        const res = await api.sendBulkReminder({month, year});
+        const res = await api.sendBulkReminder({ month, year });
         setLoading(false);
         showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${month}/${year}`);
-      } catch(e){
+      } catch (e) {
         setLoading(false);
         setError(e?.message || "Failed to send bulk reminders.");
       }
     }
 
-    async function exportCsv(){
+    async function exportCsv() {
       const api = getAPI();
       const { month, year } = getSelectedMonthYear();
 
-      try{
+      try {
         setLoading(true);
         let csv = "";
 
-        if(typeof api.exportCsv === "function"){
-          csv = await api.exportCsv({month, year});
+        if (typeof api.exportCsv === "function") {
+          csv = await api.exportCsv({ month, year });
         } else {
-          // fallback: build from filtered records
-          const headers = ["tenant","unit","dueDate","amount","receivedDate","method","status","notes","studioId"];
+          const headers = ["tenant", "unit", "dueDate", "amount", "receivedDate", "method", "status", "notes", "studioId"];
           csv = [headers.join(",")].concat(
-            State.filtered.map(r => headers.map(h => `"${String(r[h] ?? r[h[0].toUpperCase()+h.slice(1)] ?? "").replaceAll('"','""')}"`).join(","))
+            (State.filtered || []).map(r =>
+              headers.map(h => `"${String(r[h] ?? "").replaceAll('"', '""')}"`).join(",")
+            )
           ).join("\n");
         }
 
-        const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -1521,13 +896,13 @@
 
         setLoading(false);
         showToast("Exported CSV", `rent-records_${year}-${pad2(month)}.csv`);
-      } catch(e){
+      } catch (e) {
         setLoading(false);
         setError(e?.message || "Export failed.");
       }
     }
 
-    function clearForm(){
+    function clearForm() {
       $("amountInput").value = "";
       $("maintenanceInput").value = "";
       $("notesInput").value = "";
@@ -1535,8 +910,7 @@
       showToast("Cleared", "Entry form reset");
     }
 
-    // Collapse entry
-    function toggleEntry(){
+    function toggleEntry() {
       const body = $("entryBody");
       const btn = $("toggleEntryBtn");
       const isHidden = body.style.display === "none";
@@ -1546,7 +920,14 @@
         : `<i class="fas fa-chevron-down"></i> Expand`;
     }
 
-    // ---- Event wiring
+    // Hooks (kept; no features removed)
+    async function markPaidSelected() {
+      // This is a hook to your backend. Keeping the button + behavior placeholder.
+      // If your app-data.js supports it, you can implement PropertyPilotApi.markPaid(...)
+      showToast("Mark Paid", "Hook ready (implement in app-data.js / Apps Script if needed).");
+    }
+
+    // Event wiring (kept)
     $("searchInput").addEventListener("input", () => { applyFilters(); renderTable(); });
     $("statusFilter").addEventListener("change", () => { applyFilters(); renderTable(); });
     $("propertyFilter").addEventListener("change", () => { applyFilters(); renderTable(); });
@@ -1582,60 +963,64 @@
 
     $("historyRefreshBtn").addEventListener("click", refreshHistory);
     $("clearFormBtn").addEventListener("click", clearForm);
-
     $("toggleEntryBtn").addEventListener("click", toggleEntry);
 
     $("syncBtn").addEventListener("click", async () => {
-      setError("");
-      setLoading(true);
-      await refreshForPeriod();
-      await refreshHistory();
-      setLoading(false);
-      showToast("Refreshed", "Live data updated");
+      try {
+        setError("");
+        setLoading(true);
+        await refreshForPeriod();
+        await refreshHistory();
+        setLoading(false);
+        showToast("Refreshed", "Live data updated");
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Refresh failed.");
+      }
     });
 
     $("exportBtn").addEventListener("click", exportCsv);
 
     $("prevBtn").addEventListener("click", () => {
-      if(State.page <= 1) return;
+      if (State.page <= 1) return;
       State.page -= 1;
       renderTable();
     });
+
     $("nextBtn").addEventListener("click", () => {
-      const total = State.filtered.length;
+      const total = (State.filtered || []).length;
       const maxPage = Math.max(1, Math.ceil(total / State.pageSize));
-      if(State.page >= maxPage) return;
+      if (State.page >= maxPage) return;
       State.page += 1;
       renderTable();
     });
 
     $("rentRecordsTbody").addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-action]");
-      if(!btn) return;
+      if (!btn) return;
 
       const tr = btn.closest("tr");
       const studioId = tr?.dataset?.studioId || "";
       const action = btn.dataset.action;
 
-      if(action === "select"){
-        if(studioId){
+      if (action === "select") {
+        if (studioId) {
           $("studioSelect").value = studioId;
           await refreshHistory();
           showToast("Selected", studioId);
-          // Scroll to entry
-          $("rentEntryCard").scrollIntoView({behavior:"smooth", block:"start"});
+          $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
         }
       }
 
-      if(action === "remind"){
-        if(studioId) await sendReminder(studioId);
+      if (action === "remind") {
+        if (studioId) await sendReminder(studioId);
       }
     });
 
     $("openInSheetBtn").addEventListener("click", () => {
       const api = getAPI();
       const url = api.sheetUrl || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
-      if(!url){
+      if (!url) {
         showToast("Sheet link not set", "Add SHEET_URL in app-config.js");
         return;
       }
@@ -1643,21 +1028,22 @@
     });
 
     $("openEntryBtn").addEventListener("click", () => {
-      $("rentEntryCard").scrollIntoView({behavior:"smooth", block:"start"});
+      $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
       const body = $("entryBody");
-      if(body.style.display === "none") toggleEntry();
+      if (body.style.display === "none") toggleEntry();
     });
 
-    // ---- Start
+    $("markPaidBtn").addEventListener("click", markPaidSelected);
+
+    // Start
     window.addEventListener("DOMContentLoaded", async () => {
-      // If your app-data.js already has an init, keep it. This page still works either way.
-      try{
-        // If you have a global initPage system, call it safely:
-        if(window.PropertyPilot && typeof window.PropertyPilot.initPage === "function"){
-          // (Optional) You can keep your existing init approach.
-          // window.PropertyPilot.initPage("rent-records");
+      // Preserve your existing system init (no deletion)
+      try {
+        if (window.PropertyPilot && typeof window.PropertyPilot.initPage === "function") {
+          // Keep for compatibility with your existing app.js routing if any
+          // Not forcing it to avoid double-loading.
         }
-      } catch {}
+      } catch { /* no-op */ }
 
       await loadAll();
     });
