@@ -17,738 +17,1769 @@
   <link rel="stylesheet" href="app.css" />
 
   <style>
-    /* Page-only helpers (kept minimal; core design remains in app.css) */
-    .filters-bar { display:flex; gap:12px; margin: 10px 0 18px; flex-wrap: wrap; align-items:center; justify-content: space-between; }
-    .filters-left, .filters-right { display:flex; gap: 12px; flex-wrap: wrap; align-items:center; }
+    /* =========================================================
+       SABIR AMIN REAL ESTATE UI – Elegant / Professional
+       ========================================================= */
 
-    .table-wrap { overflow-x:auto; }
-    table { width: 100%; border-collapse: collapse; min-width: 1200px; }
-    th, td { text-align:left; }
-    th { position: sticky; top: 0; z-index: 2; }
+    :root{
+      /* Brand */
+      --brand-1: #0ea5e9;   /* sky */
+      --brand-2: #6366f1;   /* indigo */
+      --brand-3: #22c55e;   /* green accent */
+      --brand-grad: linear-gradient(135deg, rgba(14,165,233,1) 0%, rgba(99,102,241,1) 55%, rgba(34,197,94,1) 115%);
 
-    .unit-pill{
-      display:inline-flex;
-      align-items:center;
-      gap: 8px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-weight: 1000;
-      background: var(--opal-gradient);
-      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-      color: var(--navy);
-      white-space: nowrap;
+      /* Neutrals */
+      --bg: #0b1220;                /* page */
+      --panel: rgba(255,255,255,0.85);
+      --panel-2: rgba(255,255,255,0.72);
+      --panel-solid: #ffffff;
+
+      --text: #0f172a;              /* slate-900 */
+      --text-2: #475569;            /* slate-600 */
+      --text-3: #64748b;            /* slate-500 */
+
+      --border: rgba(15, 23, 42, 0.10);
+      --border-soft: rgba(15, 23, 42, 0.08);
+
+      --shadow-sm: 0 8px 20px rgba(2, 6, 23, 0.08);
+      --shadow-md: 0 18px 40px rgba(2, 6, 23, 0.12);
+      --shadow-lg: 0 28px 70px rgba(2, 6, 23, 0.22);
+
+      --radius-sm: 12px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+
+      --focus: rgba(14,165,233,0.25);
+
+      /* Status */
+      --ok: #16a34a;
+      --warn: #f59e0b;
+      --bad: #ef4444;
+      --info: #2563eb;
+
+      /* Sizing */
+      --sidebar-w: 292px;
     }
 
-    .status-badge{
-      display:inline-flex;
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(14,165,233,0.22), transparent 55%),
+        radial-gradient(900px 500px at 85% 25%, rgba(99,102,241,0.25), transparent 55%),
+        radial-gradient(900px 500px at 50% 90%, rgba(34,197,94,0.18), transparent 55%),
+        linear-gradient(180deg, #070b14 0%, #0b1220 35%, #0b1220 100%);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Ambient grid overlay */
+    body::before{
+      content:"";
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      opacity: 0.20;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle at 35% 20%, black 0%, transparent 70%);
+    }
+
+    /* =========================================================
+       Layout
+       ========================================================= */
+    .sidebar{
+      position: fixed;
+      inset: 16px auto 16px 16px;
+      width: var(--sidebar-w);
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow: hidden;
+      z-index: 50;
+    }
+
+    .sidebar-inner{
+      height: 100%;
+      padding: 18px 14px;
+      overflow-y: auto;
+    }
+
+    .brand{
+      display:flex;
       align-items:center;
-      gap: 7px;
-      padding: 6px 10px;
-      border-radius: 999px;
+      gap: 12px;
+      padding: 10px 12px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.18);
+      margin-bottom: 12px;
+    }
+
+    .brand-mark{
+      width: 44px; height: 44px;
+      border-radius: 16px;
+      display:grid; place-items:center;
+      background: var(--brand-grad);
+      box-shadow: 0 14px 30px rgba(14,165,233,0.25);
+      color:#fff;
+      flex: 0 0 auto;
+      position: relative;
+      overflow:hidden;
+    }
+    .brand-mark::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent 60%);
+      transform: rotate(20deg);
+      opacity: 0.85;
+    }
+    .brand-title{
+      display:flex; flex-direction:column; gap: 2px;
+      line-height: 1.1;
+    }
+    .brand-title strong{
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color: rgba(255,255,255,0.92);
+      text-transform: uppercase;
+    }
+    .brand-title span{
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.68);
+    }
+
+    .nav-section{ margin: 12px 0 14px; }
+    .nav-section-title{
       font-size: 11px;
-      font-weight: 1000;
-      border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-      white-space: nowrap;
-      line-height: 1;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      color: rgba(255,255,255,0.60);
+      padding: 10px 12px 8px;
     }
-    .status-badge::before{ content:''; width:7px; height:7px; border-radius:50%; background: currentColor; }
-    .status-badge.active{ background: rgba(46,125,50,0.10); color: var(--status-active); }
-    .status-badge.expiring{ background: rgba(239,108,0,0.10); color: var(--status-expiring); }
-    .status-badge.expired{ background: rgba(198,40,40,0.10); color: var(--status-expired); }
-    .status-badge.vacant{ background: rgba(21,101,192,0.10); color: var(--status-info); }
 
+    .nav-link{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 12px;
+      border-radius: 14px;
+      text-decoration:none;
+      color: rgba(255,255,255,0.78);
+      font-size: 14px;
+      font-weight: 800;
+      transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+      margin: 6px 6px;
+      position: relative;
+      overflow:hidden;
+    }
+    .nav-link i{ width: 18px; text-align:center; opacity: 0.95; }
+    .nav-link:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.92);
+    }
+    .nav-link.active{
+      background: rgba(255,255,255,0.16);
+      color: rgba(255,255,255,0.95);
+      box-shadow: 0 14px 26px rgba(2,6,23,0.18);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .nav-link.active::before{
+      content:"";
+      position:absolute;
+      inset: 0;
+      background: radial-gradient(900px 220px at 10% 0%, rgba(14,165,233,0.22), transparent 55%),
+                  radial-gradient(900px 220px at 90% 0%, rgba(99,102,241,0.18), transparent 55%);
+      opacity: 0.95;
+    }
+    .nav-link.active > *{ position: relative; z-index: 1; }
+
+    .nav-badge{
+      margin-left:auto;
+      background: rgba(239,68,68,0.95);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-weight: 900;
+      box-shadow: 0 10px 18px rgba(239,68,68,0.22);
+    }
+
+    .sidebar-footer{
+      margin-top: 14px;
+      padding: 14px 12px 8px;
+      border-top: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.68);
+      font-size: 12px;
+      font-weight: 700;
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+    }
     .chip{
-      display:inline-flex;
-      align-items:center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 1000;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-      background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
-    .action-btn{
       display:inline-flex;
       align-items:center;
       gap: 8px;
       padding: 8px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      box-shadow: var(--shadow-sm);
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 900;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-      user-select:none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.80);
+      font-weight: 800;
       white-space: nowrap;
     }
-    .action-btn:hover{ transform: translateY(-1px); }
-    .action-btn.primary{
-      background: var(--opal-accent);
-      color: #fff;
-      border: none;
-    }
-    .action-btn.danger{
-      background: rgba(198,40,40,0.10);
-      color: var(--status-expired);
-      border-color: rgba(198,40,40,0.16);
+
+    .main-content{
+      margin-left: calc(var(--sidebar-w) + 48px);
+      padding: 20px 28px 40px;
+      min-height: 100vh;
     }
 
-    /* Modal (Add/Edit) - uses same card look */
-    .modal{
+    /* =========================================================
+       Top Header / Summary
+       ========================================================= */
+    .page-header{
+      display:flex;
+      justify-content: space-between;
+      align-items:flex-start;
+      gap: 14px;
+      margin: 10px 0 14px;
+    }
+
+    .page-title h1{
+      color: rgba(255,255,255,0.92);
+      font-size: 30px;
+      font-weight: 950;
+      letter-spacing: -0.6px;
+      margin-bottom: 8px;
+    }
+
+    .page-title p{
+      color: rgba(255,255,255,0.70);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.4;
+      max-width: 760px;
+    }
+
+    .header-actions{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 14px 28px rgba(2,6,23,0.12);
+      color: rgba(255,255,255,0.76);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .pill strong{ color: rgba(255,255,255,0.92); font-weight: 900; }
+    .pill i{ opacity: 0.95; }
+
+    .search-box{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 340px;
+      padding: 11px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 14px 28px rgba(2,6,23,0.12);
+      color: rgba(255,255,255,0.80);
+    }
+    .search-box input{
+      border:none;
+      outline:none;
+      width:100%;
+      background: transparent;
+      color: rgba(255,255,255,0.92);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .search-box input::placeholder{ color: rgba(255,255,255,0.52); font-weight: 800; }
+    .search-box:focus-within{
+      border-color: rgba(14,165,233,0.55);
+      box-shadow: 0 0 0 4px rgba(14,165,233,0.18), 0 18px 40px rgba(2,6,23,0.18);
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor:pointer;
+      border:none;
+      text-decoration:none;
+      user-select:none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, background 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn-primary{
+      color: #fff;
+      background: var(--brand-grad);
+      box-shadow: 0 18px 40px rgba(14,165,233,0.20);
+    }
+    .btn-primary:hover{
+      box-shadow: 0 22px 48px rgba(99,102,241,0.20);
+      filter: saturate(1.05);
+      transform: translateY(-1px);
+    }
+    .btn-secondary{
+      color: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 14px 28px rgba(2,6,23,0.12);
+    }
+    .btn-secondary:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.18);
+    }
+    .btn-icon{ padding: 11px 12px; min-width: 44px; justify-content: center; }
+
+    /* Summary cards */
+    .summary{
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      gap: 12px;
+      margin: 12px 0 16px;
+    }
+    .summary-card{
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.12);
+      padding: 14px 14px 12px;
+      overflow: hidden;
+      position: relative;
+    }
+    .summary-card::before{
+      content:"";
+      position:absolute;
+      inset: -1px;
+      background: radial-gradient(700px 180px at 15% 0%, rgba(14,165,233,0.25), transparent 60%),
+                  radial-gradient(700px 180px at 85% 0%, rgba(99,102,241,0.22), transparent 60%);
+      opacity: 0.85;
+      pointer-events:none;
+    }
+    .summary-card > *{ position: relative; z-index: 1; }
+    .summary-top{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .summary-title{
+      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+    .summary-icon{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      display:grid; place-items:center;
+      color: rgba(255,255,255,0.95);
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.16);
+    }
+    .summary-value{
+      color: rgba(255,255,255,0.95);
+      font-size: 22px;
+      font-weight: 950;
+      letter-spacing: -0.4px;
+    }
+    .summary-sub{
+      color: rgba(255,255,255,0.66);
+      font-size: 12px;
+      font-weight: 800;
+      margin-top: 4px;
+    }
+
+    /* =========================================================
+       Filters / View Toggle
+       ========================================================= */
+    .filters-bar{
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin: 14px 0 16px;
+    }
+    .filters-left{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .filter-group{ display:flex; align-items:center; gap: 8px; }
+    .filter-group label{
+      color: rgba(255,255,255,0.72);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .filter-select{
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.90);
+      font-size: 13px;
+      font-weight: 900;
+      outline: none;
+      box-shadow: 0 14px 28px rgba(2,6,23,0.10);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      cursor: pointer;
+    }
+    .filter-select:focus{
+      box-shadow: 0 0 0 4px rgba(14,165,233,0.18), 0 18px 40px rgba(2,6,23,0.18);
+      border-color: rgba(14,165,233,0.55);
+    }
+    .filter-select option{ color: #0f172a; }
+
+    .view-toggle{
+      display:inline-flex;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.12);
+      overflow:hidden;
+      box-shadow: 0 14px 28px rgba(2,6,23,0.10);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .view-toggle button{
+      padding: 10px 12px;
+      min-width: 46px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.72);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .view-toggle button.active{
+      background: rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.95);
+    }
+
+    /* =========================================================
+       Table / Cards Containers
+       ========================================================= */
+    .table-card{
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+    .table-toolbar{
+      padding: 12px 14px;
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(248,250,252,0.95), rgba(255,255,255,0.72));
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+    }
+    .muted{ color: var(--text-3); font-size: 12px; font-weight: 900; }
+
+    .table-container{ overflow-x: auto; }
+    table{ width: 100%; border-collapse: collapse; min-width: 1280px; }
+    th{
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(241,245,249,0.92);
+      color: #334155;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.7px;
+      font-weight: 950;
+      padding: 13px 14px;
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+    }
+    td{
+      padding: 12px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      border-bottom: 1px solid rgba(15,23,42,0.06);
+      vertical-align: middle;
+    }
+    tr{ cursor: pointer; }
+    tbody tr:hover{ background: rgba(2,6,23,0.02); }
+
+    .unit-info{ display:flex; gap: 10px; align-items:center; }
+    .unit-avatar{
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(14,165,233,0.16), rgba(99,102,241,0.14), rgba(34,197,94,0.12));
+      border: 1px solid rgba(15,23,42,0.08);
+      display:grid; place-items:center;
+      font-weight: 950;
+      color: #0f172a;
+    }
+    .unit-name{ font-weight: 950; }
+    .unit-location{ font-size: 12px; color: #64748b; font-weight: 800; margin-top: 2px; }
+
+    .status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing: 0.2px;
+      border: 1px solid rgba(15,23,42,0.08);
+      white-space: nowrap;
+      line-height: 1;
+    }
+    .status-badge::before{
+      content:"";
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 3px rgba(15,23,42,0.04);
+    }
+    .status-badge.active{ color: var(--ok); background: rgba(22,163,74,0.10); }
+    .status-badge.expiring{ color: var(--warn); background: rgba(245,158,11,0.12); }
+    .status-badge.expired{ color: var(--bad); background: rgba(239,68,68,0.12); }
+    .status-badge.vacant{ color: var(--info); background: rgba(37,99,235,0.10); }
+
+    .days-badge{
+      padding: 7px 10px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 950;
+      border: 1px solid rgba(15,23,42,0.08);
+      min-width: 58px;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .days-badge.safe{ color: var(--ok); background: rgba(22,163,74,0.10); }
+    .days-badge.warning{ color: var(--warn); background: rgba(245,158,11,0.12); }
+    .days-badge.danger{ color: var(--bad); background: rgba(239,68,68,0.12); }
+
+    .profit-value{ font-weight: 950; }
+    .profit-value.positive{ color: var(--ok); }
+    .profit-value.negative{ color: var(--bad); }
+
+    .compliance{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width: 140px;
+    }
+    .compliance-bar{
+      width: 92px;
+      height: 9px;
+      background: rgba(15,23,42,0.10);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .compliance-fill{
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.25s ease;
+      background: rgba(15,23,42,0.20);
+    }
+    .compliance-fill.high{ background: var(--ok); }
+    .compliance-fill.medium{ background: var(--warn); }
+    .compliance-fill.low{ background: var(--bad); }
+    .compliance-label{ font-size: 12px; font-weight: 950; color: #64748b; }
+
+    .drive-link{
+      color: #0284c7;
+      font-weight: 950;
+      text-decoration:none;
+      display:inline-flex;
+      gap: 8px;
+      align-items:center;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .drive-link:hover{ text-decoration: underline; }
+
+    .action-btn{
+      width: 36px; height: 36px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(248,250,252,0.90);
+      cursor:pointer;
+      display:grid; place-items:center;
+      color: #0f172a;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .action-btn:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(2,6,23,0.10);
+    }
+
+    /* Pagination */
+    .pagination{
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: rgba(248,250,252,0.85);
+      border-top: 1px solid rgba(15,23,42,0.08);
+    }
+    .pagination-info{ color: #64748b; font-size: 13px; font-weight: 950; }
+    .pagination-controls{ display:flex; align-items:center; gap: 8px; }
+    .pagination-btn{
+      width: 38px; height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(255,255,255,0.92);
+      cursor:pointer;
+      display:grid; place-items:center;
+      box-shadow: 0 12px 22px rgba(2,6,23,0.08);
+    }
+    .pagination-btn:disabled{ opacity: 0.45; cursor: not-allowed; }
+    .pagination-btn.active{
+      background: linear-gradient(135deg, rgba(14,165,233,0.18), rgba(99,102,241,0.14));
+      border-color: rgba(14,165,233,0.25);
+      font-weight: 950;
+    }
+
+    /* Cards View */
+    .cards-grid{ display:none; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; }
+    .cards-grid.active{ display:grid; }
+    .table-card.hidden{ display:none; }
+
+    .property-card{
+      border-radius: var(--radius-lg);
+      background: rgba(255,255,255,0.86);
+      border: 1px solid rgba(255,255,255,0.55);
+      box-shadow: var(--shadow-md);
+      overflow:hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor:pointer;
+    }
+    .property-card:hover{ transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .property-card-header{
+      padding: 14px 14px 12px;
+      background:
+        radial-gradient(900px 240px at 12% 0%, rgba(14,165,233,0.18), transparent 60%),
+        radial-gradient(900px 240px at 88% 0%, rgba(99,102,241,0.14), transparent 60%),
+        linear-gradient(180deg, rgba(248,250,252,0.90), rgba(255,255,255,0.72));
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+      position: relative;
+    }
+    .property-card-header h3{
+      font-size: 16px;
+      font-weight: 950;
+      letter-spacing: -0.2px;
+      margin-bottom: 4px;
+    }
+    .property-card-header p{
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 850;
+    }
+    .property-card-status{
+      position:absolute;
+      top: 12px;
+      right: 12px;
+    }
+    .property-card-body{ padding: 12px 14px; }
+    .property-card-row{
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 850;
+    }
+    .property-card-row span:first-child{ color: #64748b; font-weight: 900; }
+    .property-card-row span:last-child{ color: #0f172a; font-weight: 950; text-align:right; }
+    .property-card-footer{
+      padding: 12px 14px;
+      border-top: 1px solid rgba(15,23,42,0.08);
+      display:flex;
+      justify-content: space-between;
+      align-items:center;
+      gap: 10px;
+      background: rgba(248,250,252,0.75);
+    }
+
+    /* Modal */
+    .modal-backdrop{
       position: fixed;
       inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
+      display:none;
+      align-items:center;
+      justify-content:center;
       padding: 18px;
-      z-index: 9999;
+      background: rgba(2,6,23,0.62);
+      z-index: 80;
     }
-    .modal.show{ display:flex; }
-    .modal-backdrop{
-      position:absolute;
-      inset:0;
-      background: rgba(12,18,38,0.45);
-    }
-    .modal-card{
-      position: relative;
-      width: min(980px, 100%);
-      max-height: 90vh;
-      overflow: auto;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-soft);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
+    .modal-backdrop.active{ display:flex; }
+    .modal{
+      width: min(920px, 100%);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: 0 40px 100px rgba(2,6,23,0.40);
+      overflow:hidden;
     }
     .modal-header{
       padding: 14px 16px;
-      border-bottom: 1px solid var(--border-soft);
       display:flex;
-      align-items:center;
       justify-content: space-between;
-      gap: 10px;
-      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent);
-    }
-    .modal-title{
-      display:flex;
       align-items:center;
       gap: 10px;
-      font-weight: 1000;
+      background:
+        radial-gradient(900px 240px at 15% 0%, rgba(14,165,233,0.18), transparent 60%),
+        radial-gradient(900px 240px at 85% 0%, rgba(99,102,241,0.14), transparent 60%),
+        linear-gradient(180deg, rgba(248,250,252,0.92), rgba(255,255,255,0.78));
+      border-bottom: 1px solid rgba(15,23,42,0.08);
+    }
+    .modal-title{ display:flex; flex-direction:column; gap: 2px; }
+    .modal-title h3{
+      font-size: 16px;
+      font-weight: 950;
       letter-spacing: -0.2px;
     }
-    .modal-body{ padding: 14px 16px; }
-    .modal-footer{
-      padding: 14px 16px;
-      border-top: 1px solid var(--border-soft);
-      display:flex;
-      justify-content: flex-end;
-      gap: 10px;
-      flex-wrap: wrap;
-      background: linear-gradient(0deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent);
+    .modal-title p{
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 900;
     }
+    .modal-close{
+      width: 40px; height: 40px;
+      border-radius: 14px;
+      border: 1px solid rgba(15,23,42,0.10);
+      background: rgba(255,255,255,0.90);
+      cursor:pointer;
+      display:grid; place-items:center;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .modal-close:hover{ transform: translateY(-1px); box-shadow: 0 12px 24px rgba(2,6,23,0.10); }
 
-    .form-grid{
+    .modal-body{
+      padding: 14px 16px 16px;
       display:grid;
-      grid-template-columns: repeat(12, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
-    .field{ grid-column: span 6; }
-    .field.sm{ grid-column: span 3; }
-    .field.lg{ grid-column: span 12; }
-
-    .label{
-      font-size: 12px;
-      font-weight: 900;
-      color: var(--text-secondary);
+    .kv{
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.90);
+      box-shadow: 0 14px 26px rgba(2,6,23,0.06);
+      padding: 12px;
+    }
+    .kv label{
+      display:block;
+      font-size: 11px;
+      font-weight: 950;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin: 2px 0 6px;
+      letter-spacing: 0.8px;
+      color: #64748b;
+      margin-bottom: 6px;
     }
-    .input, .select, .textarea{
-      width: 100%;
-      border: 1px solid var(--border);
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      padding: 10px 12px;
-      border-radius: 12px;
-      outline: none;
-      font-weight: 700;
-      font-size: 13px;
+    .kv div{
+      font-size: 14px;
+      font-weight: 900;
+      color: #0f172a;
+      word-break: break-word;
     }
-    .textarea{ min-height: 90px; resize: vertical; }
-    .input:focus, .select:focus, .textarea:focus{
-      border-color: rgba(0,188,212,0.55);
-      box-shadow: 0 0 0 4px var(--focus);
+    .modal-actions{
+      padding: 12px 16px 14px;
+      display:flex;
+      justify-content:flex-end;
+      gap: 10px;
+      border-top: 1px solid rgba(15,23,42,0.08);
+      background: rgba(248,250,252,0.85);
     }
 
-    /* Responsive (match app.css behavior) */
-    @media (max-width: 1100px){
-      table{ min-width: 1100px; }
+    /* Loading / Error */
+    #ppLoading{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background: rgba(2,6,23,0.52);
+      z-index: 9999;
     }
-    @media (max-width: 860px){
-      .filters-bar{ align-items: stretch; }
-      .filters-left, .filters-right{ justify-content: flex-start; }
-      .field, .field.sm{ grid-column: span 12; }
+    .loading-card{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid rgba(255,255,255,0.65);
+      box-shadow: 0 30px 70px rgba(2,6,23,0.35);
+      color: #0f172a;
+      font-weight: 950;
+    }
+    #ppError{
+      display:none;
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(239,68,68,0.35);
+      background: rgba(239,68,68,0.12);
+      color: rgba(255,255,255,0.92);
+      font-weight: 900;
+      white-space: pre-wrap;
+      box-shadow: 0 18px 40px rgba(2,6,23,0.12);
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px){
+      .summary{ grid-template-columns: repeat(2, minmax(200px, 1fr)); }
+      .search-box{ min-width: 280px; }
+    }
+    @media (max-width: 960px){
+      .sidebar{ position: static; width: auto; inset: auto; margin: 12px; border-radius: 22px; }
+      .main-content{ margin-left: 0; padding: 14px 14px 28px; }
+      .page-header{ flex-direction: column; align-items: stretch; }
+      .header-actions{ justify-content: flex-start; }
+      .search-box{ width: 100%; min-width: unset; }
+      .filters-bar{ grid-template-columns: 1fr; }
+      .modal-body{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-  <!-- Loading + error (same pattern you used in other pages) -->
-  <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
-    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
-      <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
-      <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+
+  <!-- Loading -->
+  <div id="ppLoading">
+    <div class="loading-card">
+      <i class="fas fa-spinner fa-spin" style="color:#0ea5e9;"></i>
+      <span>Loading live data…</span>
     </div>
   </div>
-  <div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
 
-  <!-- Sidebar (kept same structure you already use) -->
-  <nav class="sidebar" id="sidebar">
-    <div class="logo">
-      <div class="logo-icon"><i class="fas fa-gem"></i></div>
-      <div class="logo-text">
-        <div class="brand-name">Sabir Amin</div>
-        <div class="brand-sub">Real Estate Company LLC</div>
+  <!-- Error -->
+  <div id="ppError"></div>
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <i class="fa-solid fa-building-columns" style="position:relative;z-index:1;"></i>
+        </div>
+        <div class="brand-title">
+          <strong>Sabir Amin</strong>
+          <span>Real Estate Company LLC</span>
+        </div>
       </div>
-    </div>
 
-    <div class="nav-section">
-      <div class="nav-section-title">Main</div>
-      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a href="properties.html" class="nav-link active"><i class="fas fa-building"></i>Properties</a>
-      <a href="rent-records.html" class="nav-link">
-        <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">3</span>
-      </a>
-    </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+        <a href="properties.html" class="nav-link active"><i class="fas fa-building"></i>Properties</a>
+        <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i>Rent Records</a>
+      </div>
 
-    <div class="nav-section">
-      <div class="nav-section-title">Finance</div>
-      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
-      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
-      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
-    </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Finance</div>
+        <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+        <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+        <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+      </div>
 
-    <div class="nav-section">
-      <div class="nav-section-title">Reports</div>
-      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
-    </div>
+      <div class="nav-section">
+        <div class="nav-section-title">Reports</div>
+        <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+      </div>
 
-    <div class="nav-section">
-      <div class="nav-section-title">System</div>
-      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+      <div class="nav-section">
+        <div class="nav-section-title">System</div>
+        <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+      </div>
+
+      <div class="sidebar-footer">
+        <span style="opacity:0.9;">Live Data</span>
+        <span class="chip"><i class="fa-brands fa-google-drive"></i> Connected</span>
+      </div>
     </div>
   </nav>
 
-  <!-- Main -->
+  <!-- Main Content -->
   <main class="main-content">
-    <!-- Header (uses same topbar/card classes from app.css) -->
-    <header class="topbar">
+    <header class="page-header">
       <div class="page-title">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-          <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
-          <h1>Properties</h1>
-        </div>
-        <p>
-          Manage your portfolio units, owners, tenants, contracts, and Drive folders.
-          <span id="nowMeta" style="font-weight:900;"></span>
-        </p>
+        <h1>Properties</h1>
+        <p>Track owner/tenant contracts, days remaining, rental margins, and documents—powered by live Google Sheets.</p>
       </div>
 
       <div class="header-actions">
-        <div class="pill" title="Theme">
-          <i class="fas fa-moon" style="color:var(--opal-lilac);"></i>
-          <span>Theme: <strong id="themeLabel">Light</strong></span>
+        <div class="pill" title="Data source">
+          <i class="fa-brands fa-google-drive" style="color:#93c5fd;"></i>
+          <span>Source: <strong>Google Sheet</strong></span>
         </div>
 
-        <div class="search-box" title="Search unit / owner / tenant / location">
-          <i class="fas fa-search"></i>
+        <div class="search-box" title="Search by owner, tenant, location, unit">
+          <i class="fas fa-search" style="opacity:0.9;"></i>
           <input id="searchInput" type="text" placeholder="Search unit / owner / tenant / location…" />
         </div>
 
-        <button class="btn btn-secondary btn-icon" id="themeBtn" title="Toggle dark mode">
-          <i class="fas fa-circle-half-stroke"></i>
+        <button class="btn btn-secondary btn-icon" id="refreshBtn" title="Refresh data">
+          <i class="fas fa-rotate"></i>
         </button>
 
-        <a class="btn btn-secondary" id="exportBtn" href="#" title="Export (CSV)">
-          <i class="fas fa-file-export"></i> Export
+        <a class="btn btn-primary" id="openSheetBtn" href="#" target="_blank" rel="noopener">
+          <i class="fas fa-arrow-up-right-from-square"></i>
+          Open Sheet
         </a>
-
-        <button class="btn btn-primary" id="openAddBtn" title="Add new property">
-          <i class="fas fa-plus"></i> Add Property
-        </button>
       </div>
     </header>
 
-    <!-- Summary Strip (kept; values auto-filled from sheet when available) -->
-    <section class="kpi-grid" aria-label="Portfolio summary">
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Total Units</div>
-            <div class="kpi-value" id="sumTotalUnits">—</div>
-            <div class="kpi-sub">All properties</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-building"></i></div>
+    <!-- Summary (NEW) -->
+    <section class="summary" aria-label="Summary">
+      <div class="summary-card">
+        <div class="summary-top">
+          <div class="summary-title">Total Units</div>
+          <div class="summary-icon"><i class="fa-solid fa-city"></i></div>
         </div>
-        <div class="kpi-chip info"><i class="fas fa-layer-group"></i> Portfolio count</div>
+        <div class="summary-value" id="sumTotal">—</div>
+        <div class="summary-sub" id="sumTotalSub">All properties loaded</div>
       </div>
 
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Occupied</div>
-            <div class="kpi-value" id="sumOccupied">—</div>
-            <div class="kpi-sub">Currently rented</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
+      <div class="summary-card">
+        <div class="summary-top">
+          <div class="summary-title">Active</div>
+          <div class="summary-icon"><i class="fa-solid fa-circle-check"></i></div>
         </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Live from sheet</div>
+        <div class="summary-value" id="sumActive">—</div>
+        <div class="summary-sub">Contracts healthy</div>
       </div>
 
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Vacant</div>
-            <div class="kpi-value" id="sumVacant">—</div>
-            <div class="kpi-sub">Available units</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-door-open"></i></div>
+      <div class="summary-card">
+        <div class="summary-top">
+          <div class="summary-title">Expiring ≤ 30 days</div>
+          <div class="summary-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
         </div>
-        <div class="kpi-chip warn"><i class="fas fa-bolt"></i> Action list</div>
+        <div class="summary-value" id="sumExpiring">—</div>
+        <div class="summary-sub">Follow up required</div>
       </div>
 
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Expiring (90d)</div>
-            <div class="kpi-value" id="sumExpiring">—</div>
-            <div class="kpi-sub">Contracts nearing end</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-calendar-exclamation"></i></div>
+      <div class="summary-card">
+        <div class="summary-top">
+          <div class="summary-title">Net Monthly Profit</div>
+          <div class="summary-icon"><i class="fa-solid fa-chart-line"></i></div>
         </div>
-        <div class="kpi-chip down"><i class="fas fa-clock"></i> Renew soon</div>
+        <div class="summary-value" id="sumProfit">—</div>
+        <div class="summary-sub">Rent Out − Rent In</div>
       </div>
     </section>
 
     <!-- Filters -->
     <div class="filters-bar">
       <div class="filters-left">
-        <select class="filter-select" id="typeFilter">
-          <option value="">All Types</option>
-          <option value="Studio">Studio</option>
-          <option value="Apartment">Apartment</option>
-          <option value="Villa">Villa</option>
-          <option value="Commercial">Commercial</option>
-        </select>
+        <div class="filter-group">
+          <label>Status:</label>
+          <select class="filter-select" id="statusFilter">
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="expiring">Expiring Soon</option>
+            <option value="expired">Expired</option>
+            <option value="vacant">Vacant</option>
+          </select>
+        </div>
 
-        <select class="filter-select" id="statusFilter">
-          <option value="">All Status</option>
-          <option value="Active">Active</option>
-          <option value="Expiring">Expiring</option>
-          <option value="Expired">Expired</option>
-          <option value="Vacant">Vacant</option>
-        </select>
+        <div class="filter-group">
+          <label>Owner:</label>
+          <select class="filter-select" id="ownerFilter">
+            <option value="">All</option>
+          </select>
+        </div>
 
-        <select class="filter-select" id="ownerFilter">
-          <option value="">All Owners</option>
-        </select>
+        <div class="filter-group">
+          <label>Type:</label>
+          <select class="filter-select" id="typeFilter">
+            <option value="">All</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Ready to Move:</label>
+          <select class="filter-select" id="readyFilter">
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Sort:</label>
+          <select class="filter-select" id="sortSelect">
+            <option value="daysAsc">Days Left (Asc)</option>
+            <option value="daysDesc">Days Left (Desc)</option>
+            <option value="profitDesc">Profit (Desc)</option>
+            <option value="profitAsc">Profit (Asc)</option>
+            <option value="tenantAZ">Tenant (A→Z)</option>
+            <option value="ownerAZ">Owner (A→Z)</option>
+          </select>
+        </div>
       </div>
 
-      <div class="filters-right">
-        <button class="btn btn-secondary" id="refreshBtn" title="Refresh data from Google Sheet">
-          <i class="fas fa-rotate"></i> Refresh
-        </button>
+      <div class="view-toggle" aria-label="Toggle view">
+        <button class="active" id="btnTable" type="button" title="Table view"><i class="fas fa-list"></i></button>
+        <button id="btnCards" type="button" title="Card view"><i class="fas fa-th-large"></i></button>
       </div>
     </div>
 
-    <!-- Table -->
-    <section class="card" aria-label="Properties list">
-      <div class="card-header">
-        <div>
-          <div class="card-title"><i class="fas fa-table"></i> Properties</div>
-          <div class="card-sub">Live list from Google Sheet (with search & filters)</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <span class="pill" title="Records loaded">
-            <i class="fas fa-database" style="color:var(--opal-cyan);"></i>
-            <span>Loaded: <strong id="loadedCount">0</strong></span>
-          </span>
-          <span class="pill" title="Filtered results">
-            <i class="fas fa-filter" style="color:var(--opal-lilac);"></i>
-            <span>Showing: <strong id="shownCount">0</strong></span>
-          </span>
-        </div>
+    <!-- Table View -->
+    <div class="table-card" id="tableView">
+      <div class="table-toolbar">
+        <div class="muted" id="resultsMeta">Loading…</div>
+        <div class="muted" id="lastUpdatedMeta"></div>
       </div>
 
-      <div class="card-body" style="padding:0;">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Owner</th>
-                <th>Tenant</th>
-                <th>Days Left</th>
-                <th>Rent In</th>
-                <th>Rent Out</th>
-                <th>Profit</th>
-                <th>Status</th>
-                <th>Drive</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="propertiesTbody">
-              <!-- filled by app.js / PropertyPilot -->
-            </tbody>
-          </table>
+      <div class="table-container">
+        <table aria-label="Properties table">
+          <thead>
+            <tr>
+              <th>Unit</th>
+              <th>Type</th>
+              <th>Owner</th>
+              <th>Tenant</th>
+              <th>Owner Contract</th>
+              <th>Tenant Contract</th>
+              <th>Days Left</th>
+              <th>Rent In</th>
+              <th>Rent Out</th>
+              <th>Profit</th>
+              <th>Docs</th>
+              <th>Drive</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="propertiesTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <div class="pagination-info" id="paginationInfo">—</div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" id="prevPageBtn" title="Previous"><i class="fas fa-chevron-left"></i></button>
+          <button class="pagination-btn active" id="pageBtn">1</button>
+          <button class="pagination-btn" id="nextPageBtn" title="Next"><i class="fas fa-chevron-right"></i></button>
         </div>
       </div>
-    </section>
+    </div>
+
+    <!-- Cards View -->
+    <div class="cards-grid" id="cardsView"></div>
   </main>
 
-  <!-- Add/Edit Property Modal (kept in this page; hooks ready; no deletion) -->
-  <div class="modal" id="propertyModal" aria-hidden="true">
-    <div class="modal-backdrop" id="modalBackdrop"></div>
-
-    <div class="modal-card">
+  <!-- Detail Modal -->
+  <div class="modal-backdrop" id="detailBackdrop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal">
       <div class="modal-header">
         <div class="modal-title">
-          <i class="fas fa-building" style="color:var(--opal-cyan);"></i>
-          <span id="modalTitleText">Add / Edit Property</span>
+          <h3 id="modalTitle">Property</h3>
+          <p id="modalSub">—</p>
         </div>
-        <button class="btn btn-secondary btn-icon" id="closeModalBtn" title="Close">
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close">
           <i class="fas fa-xmark"></i>
         </button>
       </div>
 
-      <div class="modal-body">
-        <div class="form-grid">
-          <div class="field sm">
-            <div class="label">Unit / Studio ID</div>
-            <input class="input" id="fUnit" placeholder="e.g., S_No 1 / z1 va2 r6" />
-          </div>
+      <div class="modal-body" id="modalBody"></div>
 
-          <div class="field sm">
-            <div class="label">Type</div>
-            <select class="select" id="fType">
-              <option value="">Select…</option>
-              <option>Studio</option>
-              <option>Apartment</option>
-              <option>Villa</option>
-              <option>Commercial</option>
-            </select>
-          </div>
-
-          <div class="field sm">
-            <div class="label">Status</div>
-            <select class="select" id="fStatus">
-              <option value="">Select…</option>
-              <option>Active</option>
-              <option>Expiring</option>
-              <option>Expired</option>
-              <option>Vacant</option>
-              <option>Draft</option>
-            </select>
-          </div>
-
-          <div class="field sm">
-            <div class="label">Days Left</div>
-            <input class="input" id="fDaysLeft" type="number" placeholder="e.g., 90" />
-          </div>
-
-          <div class="field">
-            <div class="label">Owner</div>
-            <input class="input" id="fOwner" placeholder="Owner name" />
-          </div>
-
-          <div class="field">
-            <div class="label">Tenant</div>
-            <input class="input" id="fTenant" placeholder="Tenant name (or blank if vacant)" />
-          </div>
-
-          <div class="field">
-            <div class="label">Location</div>
-            <input class="input" id="fLocation" placeholder="Area / building / city" />
-          </div>
-
-          <div class="field">
-            <div class="label">Drive Folder Link</div>
-            <input class="input" id="fDrive" placeholder="https://drive.google.com/..." />
-          </div>
-
-          <div class="field sm">
-            <div class="label">Rent In</div>
-            <input class="input" id="fRentIn" type="number" placeholder="e.g., 2400" />
-          </div>
-
-          <div class="field sm">
-            <div class="label">Rent Out</div>
-            <input class="input" id="fRentOut" type="number" placeholder="e.g., 3100" />
-          </div>
-
-          <div class="field sm">
-            <div class="label">Currency</div>
-            <select class="select" id="fCurrency">
-              <option>QAR</option>
-              <option>AED</option>
-              <option>USD</option>
-            </select>
-          </div>
-
-          <div class="field lg">
-            <div class="label">Notes</div>
-            <textarea class="textarea" id="fNotes" placeholder="Any notes (contracts, contacts, maintenance, etc.)"></textarea>
-          </div>
-        </div>
-
-        <div style="margin-top:12px;">
-          <div class="pill" style="display:inline-flex;" title="Integration note">
-            <i class="fas fa-circle-info" style="color:var(--opal-cyan);"></i>
-            <span>
-              Saving can be connected to Google Sheet via your Apps Script endpoint in <strong>app-config.js</strong>.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="modalCancelBtn">
-          <i class="fas fa-ban"></i> Cancel
-        </button>
-        <button class="btn btn-secondary" id="modalSaveDraftBtn" title="Save draft locally (demo)">
-          <i class="fas fa-floppy-disk"></i> Save Draft
-        </button>
-        <button class="btn btn-primary" id="modalSaveBtn" title="Save to Google Sheet (requires endpoint)">
-          <i class="fas fa-cloud-arrow-up"></i> Save to Sheet
+      <div class="modal-actions">
+        <a class="btn btn-secondary" id="modalMapBtn" href="#" target="_blank" rel="noopener">
+          <i class="fas fa-map-location-dot"></i> Map
+        </a>
+        <a class="btn btn-secondary" id="modalDriveBtn" href="#" target="_blank" rel="noopener">
+          <i class="fa-brands fa-google-drive"></i> Drive
+        </a>
+        <button class="btn btn-primary" id="modalCloseBtn2" type="button">
+          <i class="fas fa-check"></i> Close
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Quick Actions FAB (kept, not removed) -->
-  <div class="quick-actions">
-    <button class="fab" id="fabBtn" title="Quick Add">
-      <i class="fas fa-plus"></i>
-    </button>
-  </div>
-
-  <!-- Config + Data + Main app (do not remove) -->
-  <script src="app-config.js"></script>
-  <script src="app-data.js"></script>
-  <script src="app.js"></script>
-
   <script>
-    /************************************************************
-     * KEEP SAME APP BEHAVIOR (theme, time, sidebar) - uses app.js
-     * DO NOT DELETE ANYTHING: only add page glue here.
-     ************************************************************/
+    /******************************************************************
+     * CONFIG (IMPORTANT)
+     ******************************************************************/
+    const CONFIG = {
+      API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
+      CURRENCY: "AED",
+      PAGE_SIZE: 12,
+      EXPIRING_THRESHOLD_DAYS: 30
+    };
 
-    // Live time (same pattern as your dashboard)
-    const nowMeta = document.getElementById("nowMeta");
-    function tick(){
-      const d = new Date();
-      nowMeta.textContent = "• " + d.toLocaleString("en-GB", { weekday:"short", day:"2-digit", month:"short", hour:"2-digit", minute:"2-digit" });
+    /******************************************************************
+     * DOM
+     ******************************************************************/
+    const elLoading = document.getElementById("ppLoading");
+    const elError = document.getElementById("ppError");
+
+    const openSheetBtn = document.getElementById("openSheetBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const ownerFilter = document.getElementById("ownerFilter");
+    const typeFilter = document.getElementById("typeFilter");
+    const readyFilter = document.getElementById("readyFilter");
+    const sortSelect = document.getElementById("sortSelect");
+
+    const btnTable = document.getElementById("btnTable");
+    const btnCards = document.getElementById("btnCards");
+    const tableView = document.getElementById("tableView");
+    const cardsView = document.getElementById("cardsView");
+
+    const tbody = document.getElementById("propertiesTbody");
+    const resultsMeta = document.getElementById("resultsMeta");
+    const lastUpdatedMeta = document.getElementById("lastUpdatedMeta");
+
+    const paginationInfo = document.getElementById("paginationInfo");
+    const prevPageBtn = document.getElementById("prevPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const pageBtn = document.getElementById("pageBtn");
+
+    const detailBackdrop = document.getElementById("detailBackdrop");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalSub = document.getElementById("modalSub");
+    const modalBody = document.getElementById("modalBody");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const modalCloseBtn2 = document.getElementById("modalCloseBtn2");
+    const modalDriveBtn = document.getElementById("modalDriveBtn");
+    const modalMapBtn = document.getElementById("modalMapBtn");
+
+    // Summary
+    const sumTotal = document.getElementById("sumTotal");
+    const sumActive = document.getElementById("sumActive");
+    const sumExpiring = document.getElementById("sumExpiring");
+    const sumProfit = document.getElementById("sumProfit");
+
+    /******************************************************************
+     * STATE
+     ******************************************************************/
+    const STATE = {
+      raw: [],
+      filtered: [],
+      view: "table",
+      page: 1,
+      sheetUrl: "",
+      lastUpdatedIso: ""
+    };
+
+    /******************************************************************
+     * UTILITIES
+     ******************************************************************/
+    function showLoading(on){ elLoading.style.display = on ? "flex" : "none"; }
+
+    function showError(message){
+      if(!message){
+        elError.style.display = "none";
+        elError.textContent = "";
+        return;
+      }
+      elError.style.display = "block";
+      elError.textContent = message;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    tick();
-    setInterval(tick, 30_000);
 
-    // Page init through PropertyPilot (same convention you used)
-    window.addEventListener("DOMContentLoaded", async () => {
-      if (window.PropertyPilot && typeof window.PropertyPilot.initPage === "function") {
-        await window.PropertyPilot.initPage("properties");
+    function safeText(v){
+      if(v === null || v === undefined) return "";
+      return String(v).trim();
+    }
+
+    function toNumber(v){
+      if(v === null || v === undefined || v === "") return 0;
+      if(typeof v === "number") return v;
+      const s = String(v).replace(/AED|AED|USD|,/gi,"").trim();
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function money(v){
+      const n = toNumber(v);
+      try {
+        return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(n);
+      } catch {
+        return `${n.toFixed(0)} ${CONFIG.CURRENCY}`;
       }
+    }
 
-      // Wire UI-only filters/search to PropertyPilot if implemented in app.js,
-      // otherwise we do local filtering here using loaded table rows.
-      const searchInput = document.getElementById("searchInput");
-      const typeFilter = document.getElementById("typeFilter");
-      const statusFilter = document.getElementById("statusFilter");
-      const ownerFilter = document.getElementById("ownerFilter");
-      const refreshBtn = document.getElementById("refreshBtn");
+    function fmtDateISO(iso){
+      const s = safeText(iso);
+      if(!s) return "—";
+      const d = new Date(s);
+      if(Number.isNaN(d.getTime())) return s;
+      return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+    }
 
-      const openAddBtn = document.getElementById("openAddBtn");
-      const fabBtn = document.getElementById("fabBtn");
+    function initialsFromUnit(unit){
+      const u = safeText(unit).replace(/[^a-z0-9]/gi," ").trim();
+      if(!u) return "SA";
+      const parts = u.split(/\s+/).slice(0,2);
+      return parts.map(p => p[0].toUpperCase()).join("");
+    }
 
-      const modal = document.getElementById("propertyModal");
-      const modalBackdrop = document.getElementById("modalBackdrop");
-      const closeModalBtn = document.getElementById("closeModalBtn");
-      const modalCancelBtn = document.getElementById("modalCancelBtn");
+    function computeStatus(p){
+      const tenant = safeText(p.TenantName || p.Tenant || "");
+      const days = toNumber(p.DaysLeft);
+      if(!tenant) return "vacant";
+      if(days <= 0) return "expired";
+      if(days <= CONFIG.EXPIRING_THRESHOLD_DAYS) return "expiring";
+      return "active";
+    }
 
-      const exportBtn = document.getElementById("exportBtn");
+    function statusLabel(st){
+      if(st === "active") return "Active";
+      if(st === "expiring") return "Expiring";
+      if(st === "expired") return "Expired";
+      if(st === "vacant") return "Vacant";
+      return "—";
+    }
 
-      function showModal(){
-        modal.classList.add("show");
-        modal.setAttribute("aria-hidden","false");
-      }
-      function hideModal(){
-        modal.classList.remove("show");
-        modal.setAttribute("aria-hidden","true");
-      }
+    function daysBadgeClass(days){
+      const d = toNumber(days);
+      if(d <= 0) return "danger";
+      if(d <= CONFIG.EXPIRING_THRESHOLD_DAYS) return "warning";
+      return "safe";
+    }
 
-      openAddBtn.addEventListener("click", showModal);
-      fabBtn.addEventListener("click", showModal);
-      modalBackdrop.addEventListener("click", hideModal);
-      closeModalBtn.addEventListener("click", hideModal);
-      modalCancelBtn.addEventListener("click", hideModal);
+    function computeCompliance(p){
+      let score = 0;
+      if(safeText(p.DriveFolderLink)) score += 50;
+      if(safeText(p.Coordinates)) score += 15;
+      if(safeText(p.GoogleMap)) score += 15;
+      if(safeText(p.OwnerContract)) score += 10;
+      if(safeText(p.SecurityCheque)) score += 10;
+      if(score > 100) score = 100;
 
-      // Local filter fallback (works even if app.js filtering is not present)
-      function applyLocalFilters(){
-        const q = (searchInput.value || "").trim().toLowerCase();
-        const t = (typeFilter.value || "").trim().toLowerCase();
-        const s = (statusFilter.value || "").trim().toLowerCase();
-        const o = (ownerFilter.value || "").trim().toLowerCase();
+      let level = "low";
+      if(score >= 80) level = "high";
+      else if(score >= 50) level = "medium";
 
-        const tbody = document.getElementById("propertiesTbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
+      return { score, level };
+    }
 
-        let shown = 0;
-        rows.forEach(tr => {
-          const txt = tr.innerText.toLowerCase();
-          const rowType = (tr.getAttribute("data-type") || "").toLowerCase();
-          const rowStatus = (tr.getAttribute("data-status") || "").toLowerCase();
-          const rowOwner = (tr.getAttribute("data-owner") || "").toLowerCase();
+    function normalizeFromApi(row){
+      const ownerRent = toNumber(row.OwnerRent);
+      const tenantRent = toNumber(row.TenantRent);
+      const profit = tenantRent - ownerRent;
 
-          const okQ = !q || txt.includes(q);
-          const okT = !t || rowType === t;
-          const okS = !s || rowStatus === s;
-          const okO = !o || rowOwner === o;
+      const unitId = safeText(row.Flat || row.S_No || "—");
 
-          const show = okQ && okT && okS && okO;
-          tr.style.display = show ? "" : "none";
-          if(show) shown++;
-        });
+      return {
+        S_No: safeText(row.S_No),
+        UnitId: unitId,
 
-        document.getElementById("shownCount").textContent = String(shown);
-      }
+        Month: safeText(row.Month),
+        Flat: safeText(row.Flat),
+        Type: safeText(row.Property || row.Flat || "—"),
+        Property: safeText(row.Property),
 
-      // Fill Owner dropdown from loaded rows (fallback)
-      function rebuildOwnerFilter(){
-        const tbody = document.getElementById("propertiesTbody");
-        const owners = new Set();
-        tbody.querySelectorAll("tr").forEach(tr => {
-          const owner = (tr.getAttribute("data-owner") || "").trim();
-          if(owner) owners.add(owner);
-        });
+        OwnerName: safeText(row.OwnerName),
+        OwnerContact: safeText(row.OwnerContact),
 
-        const prev = ownerFilter.value;
-        ownerFilter.innerHTML = `<option value="">All Owners</option>` + Array.from(owners)
-          .sort((a,b)=>a.localeCompare(b))
-          .map(x => `<option value="${x.replaceAll('"','&quot;')}">${x}</option>`)
-          .join("");
+        TenantName: safeText(row.TenantName),
+        TenantContact: safeText(row.TenantContact),
 
-        // best-effort restore
-        if(prev && Array.from(owners).includes(prev)) ownerFilter.value = prev;
-      }
+        Location: safeText(row.Location),
+        GoogleMap: safeText(row.GoogleMap),
+        Coordinates: safeText(row.Coordinates),
 
-      // When PropertyPilot finishes rendering, it can call this hook:
-      // window.__PP_ON_PROPERTIES_RENDER?.()
-      window.__PP_ON_PROPERTIES_RENDER = () => {
-        const tbody = document.getElementById("propertiesTbody");
-        const total = tbody.querySelectorAll("tr").length;
-        document.getElementById("loadedCount").textContent = String(total);
+        OwnerRent: ownerRent,
+        TenantRent: tenantRent,
+        Profit: profit,
 
-        rebuildOwnerFilter();
-        applyLocalFilters();
+        SecurityCheque: safeText(row.SecurityCheque),
+        OwnerContract: safeText(row.OwnerContract),
+
+        TContractFrom: safeText(row.TContractFrom),
+        TContractTo: safeText(row.TContractTo),
+        DaysLeft: toNumber(row.DaysLeft),
+
+        StatusRaw: safeText(row.Status),
+        ReadyToMove: safeText(row.ReadyToMove),
+
+        Maintenance: toNumber(row.Maintenance),
+        DriveFolderLink: safeText(row.DriveFolderLink)
       };
+    }
 
-      searchInput.addEventListener("input", applyLocalFilters);
-      typeFilter.addEventListener("change", applyLocalFilters);
-      statusFilter.addEventListener("change", applyLocalFilters);
-      ownerFilter.addEventListener("change", applyLocalFilters);
+    function updateSummary(){
+      const all = STATE.raw;
+      const total = all.length;
+      const active = all.filter(p => computeStatus(p) === "active").length;
+      const expiring = all.filter(p => computeStatus(p) === "expiring").length;
+      const profit = all.reduce((acc,p)=> acc + toNumber(p.Profit), 0);
 
-      refreshBtn.addEventListener("click", async () => {
-        if(window.PropertyPilot && typeof window.PropertyPilot.initPage === "function"){
-          await window.PropertyPilot.initPage("properties");
-        }
-        // In case app.js does not re-call the hook:
-        setTimeout(() => window.__PP_ON_PROPERTIES_RENDER && window.__PP_ON_PROPERTIES_RENDER(), 250);
-      });
+      sumTotal.textContent = String(total);
+      sumActive.textContent = String(active);
+      sumExpiring.textContent = String(expiring);
+      sumProfit.textContent = money(profit);
+    }
 
-      // Export CSV (client-side)
-      exportBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        const tbody = document.getElementById("propertiesTbody");
-        const rows = Array.from(tbody.querySelectorAll("tr")).filter(r => r.style.display !== "none");
-        const headers = ["Unit","Type","Location","Owner","Tenant","Days Left","Rent In","Rent Out","Profit","Status","Drive"];
-        const lines = [headers.join(",")];
+    /******************************************************************
+     * API
+     ******************************************************************/
+    async function fetchData(){
+      showError("");
+      showLoading(true);
 
-        rows.forEach(tr => {
-          const cols = Array.from(tr.querySelectorAll("td")).slice(0, 11).map(td => {
-            const val = (td.innerText || "").replaceAll("\n"," ").trim().replaceAll('"','""');
-            return `"${val}"`;
-          });
-          lines.push(cols.join(","));
+      try{
+        const res = await fetch(CONFIG.API_URL, { method: "GET" });
+        const txt = await res.text();
+
+        let payload;
+        try { payload = JSON.parse(txt); }
+        catch { throw new Error("API did not return JSON.\nFirst 250 chars:\n" + txt.slice(0,250)); }
+
+        if(!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + txt.slice(0,250));
+        if(!payload.ok) throw new Error(payload.error || "API returned ok=false");
+
+        const arr = Array.isArray(payload.properties) ? payload.properties : [];
+        STATE.raw = arr.map(normalizeFromApi);
+
+        STATE.sheetUrl = safeText(payload.sheetUrl || "");
+        STATE.lastUpdatedIso = safeText(payload.lastUpdatedIso || "");
+
+        if(STATE.sheetUrl) openSheetBtn.href = STATE.sheetUrl;
+
+        hydrateFilterOptions();
+        updateSummary();
+        applyFiltersAndRender(true);
+
+      } catch(err){
+        showError((err && err.message) ? err.message : "Failed to load data.");
+        STATE.raw = [];
+        updateSummary();
+        applyFiltersAndRender(true);
+      } finally{
+        showLoading(false);
+      }
+    }
+
+    /******************************************************************
+     * FILTERS / SORT / PAGINATION
+     ******************************************************************/
+    function hydrateFilterOptions(){
+      const owners = Array.from(new Set(STATE.raw.map(x => x.OwnerName).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+      ownerFilter.innerHTML = `<option value="">All</option>` + owners.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("");
+
+      const types = Array.from(new Set(STATE.raw.map(x => x.Property || x.Flat).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+      typeFilter.innerHTML = `<option value="">All</option>` + types.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("");
+    }
+
+    function applyFiltersAndRender(resetPage){
+      if(resetPage) STATE.page = 1;
+
+      const q = safeText(searchInput.value).toLowerCase();
+      const st = safeText(statusFilter.value);
+      const ow = safeText(ownerFilter.value);
+      const tp = safeText(typeFilter.value);
+      const rd = safeText(readyFilter.value).toLowerCase();
+      const sort = safeText(sortSelect.value);
+
+      let items = [...STATE.raw];
+
+      if(q){
+        items = items.filter(p => {
+          const hay = [
+            p.UnitId, p.Flat, p.Location, p.OwnerName, p.OwnerContact,
+            p.TenantName, p.TenantContact, p.Property, p.StatusRaw
+          ].map(safeText).join(" ").toLowerCase();
+          return hay.includes(q);
         });
-
-        const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `properties_export_${new Date().toISOString().slice(0,10)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      });
-
-      // Modal save buttons (demo/local + sheet)
-      document.getElementById("modalSaveDraftBtn").addEventListener("click", () => {
-        const draft = collectForm();
-        const key = "pp_property_drafts";
-        const arr = JSON.parse(localStorage.getItem(key) || "[]");
-        arr.unshift({ ...draft, _savedAt: new Date().toISOString() });
-        localStorage.setItem(key, JSON.stringify(arr));
-        alert("Draft saved locally (demo). Connect Save to Sheet via Apps Script endpoint.");
-        hideModal();
-      });
-
-      document.getElementById("modalSaveBtn").addEventListener("click", async () => {
-        const payload = collectForm();
-        try{
-          if(window.PropertyPilot && typeof window.PropertyPilot.saveProperty === "function"){
-            await window.PropertyPilot.saveProperty(payload);
-            alert("Saved to Sheet (success).");
-            hideModal();
-            await window.PropertyPilot.initPage("properties");
-          } else {
-            alert("Save endpoint not wired yet. Implement PropertyPilot.saveProperty(payload) in app.js (Apps Script POST).");
-          }
-        } catch(err){
-          alert("Save failed: " + (err?.message || err));
-        }
-      });
-
-      function collectForm(){
-        return {
-          unit: document.getElementById("fUnit").value || "",
-          type: document.getElementById("fType").value || "",
-          status: document.getElementById("fStatus").value || "",
-          daysLeft: document.getElementById("fDaysLeft").value || "",
-          owner: document.getElementById("fOwner").value || "",
-          tenant: document.getElementById("fTenant").value || "",
-          location: document.getElementById("fLocation").value || "",
-          drive: document.getElementById("fDrive").value || "",
-          rentIn: document.getElementById("fRentIn").value || "",
-          rentOut: document.getElementById("fRentOut").value || "",
-          currency: document.getElementById("fCurrency").value || "QAR",
-          notes: document.getElementById("fNotes").value || ""
-        };
       }
 
-      // If app.js didn’t call render hook, do it once after load
-      setTimeout(() => window.__PP_ON_PROPERTIES_RENDER && window.__PP_ON_PROPERTIES_RENDER(), 350);
+      if(ow) items = items.filter(p => p.OwnerName === ow);
+      if(tp) items = items.filter(p => (p.Property || p.Flat) === tp);
+
+      if(rd){
+        items = items.filter(p => {
+          const v = safeText(p.ReadyToMove).toLowerCase();
+          const isYes = ["yes","true","1","ready"].includes(v);
+          return rd === "yes" ? isYes : !isYes;
+        });
+      }
+
+      if(st){
+        items = items.filter(p => computeStatus(p) === st);
+      }
+
+      items.sort((a,b)=>{
+        if(sort === "daysAsc") return toNumber(a.DaysLeft) - toNumber(b.DaysLeft);
+        if(sort === "daysDesc") return toNumber(b.DaysLeft) - toNumber(a.DaysLeft);
+        if(sort === "profitDesc") return toNumber(b.Profit) - toNumber(a.Profit);
+        if(sort === "profitAsc") return toNumber(a.Profit) - toNumber(b.Profit);
+        if(sort === "tenantAZ") return safeText(a.TenantName).localeCompare(safeText(b.TenantName));
+        if(sort === "ownerAZ") return safeText(a.OwnerName).localeCompare(safeText(b.OwnerName));
+        return 0;
+      });
+
+      STATE.filtered = items;
+      render();
+    }
+
+    function getPaged(){
+      const total = STATE.filtered.length;
+      const pages = Math.max(1, Math.ceil(total / CONFIG.PAGE_SIZE));
+      if(STATE.page > pages) STATE.page = pages;
+
+      const start = (STATE.page - 1) * CONFIG.PAGE_SIZE;
+      const end = start + CONFIG.PAGE_SIZE;
+      const slice = STATE.filtered.slice(start, end);
+
+      return { total, pages, start, end, slice };
+    }
+
+    /******************************************************************
+     * RENDER
+     ******************************************************************/
+    function render(){
+      const { total, pages, start, end, slice } = getPaged();
+
+      const showingFrom = total ? (start + 1) : 0;
+      const showingTo = Math.min(end, total);
+
+      resultsMeta.textContent = `Showing ${showingFrom}-${showingTo} of ${total} properties`;
+      lastUpdatedMeta.textContent = STATE.lastUpdatedIso ? `Last updated: ${new Date(STATE.lastUpdatedIso).toLocaleString("en-GB")}` : "";
+
+      paginationInfo.textContent = `Page ${STATE.page} of ${pages}`;
+      pageBtn.textContent = String(STATE.page);
+
+      prevPageBtn.disabled = (STATE.page <= 1);
+      nextPageBtn.disabled = (STATE.page >= pages);
+
+      tbody.innerHTML = slice.length ? slice.map(rowToTr).join("") : emptyTableRow();
+      cardsView.innerHTML = slice.length ? slice.map(rowToCard).join("") : emptyCards();
+
+      if(STATE.view === "table"){
+        tableView.classList.remove("hidden");
+        cardsView.classList.remove("active");
+        btnTable.classList.add("active");
+        btnCards.classList.remove("active");
+      } else {
+        tableView.classList.add("hidden");
+        cardsView.classList.add("active");
+        btnCards.classList.add("active");
+        btnTable.classList.remove("active");
+      }
+
+      wireRowClicks();
+    }
+
+    function emptyTableRow(){
+      return `
+        <tr>
+          <td colspan="14" style="padding:18px 14px;color:#334155;font-weight:900;">
+            No matching properties found. Adjust your filters or search text.
+          </td>
+        </tr>
+      `;
+    }
+
+    function emptyCards(){
+      return `
+        <div class="property-card" style="grid-column: 1/-1; cursor:default;">
+          <div class="property-card-header">
+            <h3>No results</h3>
+            <p>Try different filters or a broader search.</p>
+          </div>
+          <div class="property-card-body">
+            <div class="property-card-row"><span>Tip</span><span>Search by Owner, Tenant, or Location</span></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function rowToTr(p){
+      const unit = escapeHtml(p.UnitId);
+      const loc = escapeHtml(p.Location || "—");
+      const owner = escapeHtml(p.OwnerName || "—");
+      const tenant = escapeHtml(p.TenantName || "—");
+
+      const ownerContract = escapeHtml(p.OwnerContract || "—");
+      const tFrom = fmtDateISO(p.TContractFrom);
+      const tTo = fmtDateISO(p.TContractTo);
+      const tenantContract = `${tFrom} → ${tTo}`;
+
+      const days = toNumber(p.DaysLeft);
+      const daysClass = daysBadgeClass(days);
+
+      const status = computeStatus(p);
+      const compliance = computeCompliance(p);
+
+      const profit = toNumber(p.Profit);
+      const profitClass = profit >= 0 ? "positive" : "negative";
+
+      const driveLink = p.DriveFolderLink
+        ? `<a class="drive-link" href="${escapeAttr(p.DriveFolderLink)}" target="_blank" rel="noopener"><i class="fab fa-google-drive"></i> Open</a>`
+        : `<span style="color:#64748b;font-weight:900;font-size:12px;">—</span>`;
+
+      return `
+        <tr data-unit="${escapeAttr(p.UnitId)}" data-sno="${escapeAttr(p.S_No)}">
+          <td>
+            <div class="unit-info">
+              <div class="unit-avatar">${escapeHtml(initialsFromUnit(p.UnitId))}</div>
+              <div>
+                <div class="unit-name">${unit}</div>
+                <div class="unit-location">${loc}</div>
+              </div>
+            </div>
+          </td>
+          <td>${escapeHtml(p.Property || p.Flat || "—")}</td>
+          <td>
+            <div style="font-weight:950;">${owner}</div>
+            <div style="color:#64748b;font-size:12px;font-weight:850;">${escapeHtml(p.OwnerContact || "")}</div>
+          </td>
+          <td>
+            <div style="font-weight:950;">${tenant}</div>
+            <div style="color:#64748b;font-size:12px;font-weight:850;">${escapeHtml(p.TenantContact || "")}</div>
+          </td>
+          <td>${ownerContract}</td>
+          <td>${escapeHtml(tenantContract)}</td>
+          <td><span class="days-badge ${daysClass}">${days}</span></td>
+          <td>${money(p.OwnerRent)}</td>
+          <td>${money(p.TenantRent)}</td>
+          <td><span class="profit-value ${profitClass}">${money(profit)}</span></td>
+          <td>
+            <div class="compliance">
+              <div class="compliance-bar">
+                <div class="compliance-fill ${compliance.level}" style="width:${compliance.score}%"></div>
+              </div>
+              <div class="compliance-label">${compliance.score}%</div>
+            </div>
+          </td>
+          <td>${driveLink}</td>
+          <td><span class="status-badge ${status}">${statusLabel(status)}</span></td>
+          <td style="text-align:right;">
+            <button class="action-btn" title="View details" data-action="details">
+              <i class="fas fa-arrow-right"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function rowToCard(p){
+      const status = computeStatus(p);
+      const days = toNumber(p.DaysLeft);
+      const daysClass = daysBadgeClass(days);
+      const profit = toNumber(p.Profit);
+      const profitClass = profit >= 0 ? "positive" : "negative";
+
+      return `
+        <div class="property-card" data-unit="${escapeAttr(p.UnitId)}" data-sno="${escapeAttr(p.S_No)}">
+          <div class="property-card-header">
+            <h3>${escapeHtml(p.UnitId)} • ${escapeHtml(p.Property || p.Flat || "—")}</h3>
+            <p>${escapeHtml(p.Location || "—")} • ${escapeHtml(p.OwnerName || "—")}</p>
+            <div class="property-card-status">
+              <span class="status-badge ${status}">${statusLabel(status)}</span>
+            </div>
+          </div>
+          <div class="property-card-body">
+            <div class="property-card-row"><span>Tenant</span><span>${escapeHtml(p.TenantName || "—")}</span></div>
+            <div class="property-card-row"><span>Days Left</span><span class="days-badge ${daysClass}">${days}</span></div>
+            <div class="property-card-row"><span>Rent In</span><span>${money(p.OwnerRent)}</span></div>
+            <div class="property-card-row"><span>Rent Out</span><span>${money(p.TenantRent)}</span></div>
+            <div class="property-card-row"><span>Profit</span><span class="profit-value ${profitClass}">${money(profit)}</span></div>
+          </div>
+          <div class="property-card-footer">
+            ${
+              p.DriveFolderLink
+                ? `<a href="${escapeAttr(p.DriveFolderLink)}" target="_blank" rel="noopener" class="drive-link"><i class="fab fa-google-drive"></i> Documents</a>`
+                : `<span style="color:#64748b;font-weight:900;font-size:12px;">No Drive link</span>`
+            }
+            <button class="action-btn" title="Details" data-action="details"><i class="fas fa-arrow-right"></i></button>
+          </div>
+        </div>
+      `;
+    }
+
+    function wireRowClicks(){
+      tbody.querySelectorAll("tr").forEach(tr => {
+        tr.addEventListener("click", (e)=>{
+          const a = e.target && e.target.closest ? e.target.closest("a") : null;
+          if(a) return;
+          const unit = tr.getAttribute("data-unit");
+          const sno = tr.getAttribute("data-sno");
+          openDetail(unit, sno);
+        });
+      });
+
+      cardsView.querySelectorAll(".property-card").forEach(card=>{
+        card.addEventListener("click", (e)=>{
+          const a = e.target && e.target.closest ? e.target.closest("a") : null;
+          if(a) return;
+          const unit = card.getAttribute("data-unit");
+          const sno = card.getAttribute("data-sno");
+          openDetail(unit, sno);
+        });
+      });
+    }
+
+    /******************************************************************
+     * DETAIL MODAL
+     ******************************************************************/
+    function openDetail(unit, sno){
+      const p = STATE.raw.find(x => x.UnitId === unit && safeText(x.S_No) === safeText(sno))
+            || STATE.raw.find(x => x.UnitId === unit)
+            || null;
+      if(!p) return;
+
+      const status = computeStatus(p);
+      const profit = toNumber(p.Profit);
+
+      modalTitle.textContent = `${p.UnitId} • ${p.Property || p.Flat || "—"}`;
+      modalSub.textContent = `${statusLabel(status)} • Profit: ${money(profit)}`;
+
+      const mapLink = p.GoogleMap || (p.Coordinates ? `https://www.google.com/maps?q=${encodeURIComponent(p.Coordinates)}` : "#");
+      modalMapBtn.href = mapLink || "#";
+      modalMapBtn.style.pointerEvents = mapLink && mapLink !== "#" ? "auto" : "none";
+      modalMapBtn.style.opacity = mapLink && mapLink !== "#" ? "1" : "0.55";
+
+      modalDriveBtn.href = p.DriveFolderLink || "#";
+      modalDriveBtn.style.pointerEvents = p.DriveFolderLink ? "auto" : "none";
+      modalDriveBtn.style.opacity = p.DriveFolderLink ? "1" : "0.55";
+
+      const rows = [
+        ["Owner", `${p.OwnerName || "—"} ${p.OwnerContact ? "• " + p.OwnerContact : ""}`],
+        ["Tenant", `${p.TenantName || "—"} ${p.TenantContact ? "• " + p.TenantContact : ""}`],
+        ["Location", p.Location || "—"],
+        ["Coordinates", p.Coordinates || "—"],
+        ["Ready to Move", p.ReadyToMove || "—"],
+        ["Owner Rent", money(p.OwnerRent)],
+        ["Tenant Rent", money(p.TenantRent)],
+        ["Profit", money(p.Profit)],
+        ["Security Cheque", p.SecurityCheque || "—"],
+        ["Owner Contract", p.OwnerContract || "—"],
+        ["Tenant Contract From", fmtDateISO(p.TContractFrom)],
+        ["Tenant Contract To", fmtDateISO(p.TContractTo)],
+        ["Days Left", String(toNumber(p.DaysLeft))],
+        ["Status (Sheet)", p.StatusRaw || "—"]
+      ];
+
+      modalBody.innerHTML = rows.map(([k,v]) => `
+        <div class="kv">
+          <label>${escapeHtml(k)}</label>
+          <div>${escapeHtml(v)}</div>
+        </div>
+      `).join("");
+
+      detailBackdrop.classList.add("active");
+      detailBackdrop.setAttribute("aria-hidden","false");
+    }
+
+    function closeDetail(){
+      detailBackdrop.classList.remove("active");
+      detailBackdrop.setAttribute("aria-hidden","true");
+    }
+
+    /******************************************************************
+     * VIEW TOGGLE
+     ******************************************************************/
+    function setView(view){ STATE.view = view; render(); }
+
+    /******************************************************************
+     * PAGINATION
+     ******************************************************************/
+    function nextPage(){
+      const pages = Math.max(1, Math.ceil(STATE.filtered.length / CONFIG.PAGE_SIZE));
+      if(STATE.page < pages){ STATE.page++; render(); }
+    }
+    function prevPage(){
+      if(STATE.page > 1){ STATE.page--; render(); }
+    }
+
+    /******************************************************************
+     * HTML Escaping
+     ******************************************************************/
+    function escapeHtml(str){
+      return safeText(str)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+    function escapeAttr(str){ return escapeHtml(str).replace(/`/g,"&#096;"); }
+
+    /******************************************************************
+     * EVENTS
+     ******************************************************************/
+    document.addEventListener("DOMContentLoaded", () => {
+      setView("table");
+
+      refreshBtn.addEventListener("click", () => fetchData());
+
+      searchInput.addEventListener("input", () => applyFiltersAndRender(true));
+      statusFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      ownerFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      typeFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      readyFilter.addEventListener("change", () => applyFiltersAndRender(true));
+      sortSelect.addEventListener("change", () => applyFiltersAndRender(true));
+
+      btnTable.addEventListener("click", () => { btnTable.classList.add("active"); btnCards.classList.remove("active"); setView("table"); });
+      btnCards.addEventListener("click", () => { btnCards.classList.add("active"); btnTable.classList.remove("active"); setView("cards"); });
+
+      prevPageBtn.addEventListener("click", prevPage);
+      nextPageBtn.addEventListener("click", nextPage);
+
+      modalCloseBtn.addEventListener("click", closeDetail);
+      modalCloseBtn2.addEventListener("click", closeDetail);
+      detailBackdrop.addEventListener("click", (e)=>{ if(e.target === detailBackdrop) closeDetail(); });
+      document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeDetail(); });
+
+      fetchData();
     });
   </script>
+
 </body>
 </html>
