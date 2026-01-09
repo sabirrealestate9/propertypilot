@@ -114,6 +114,15 @@
     </style>
 </head>
 <body>
+
+<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  </div>
+</div>
+<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+
     <nav class="sidebar">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-gem"></i></div>
@@ -195,47 +204,47 @@
                         </div>
                         <div class="info-item">
                             <div class="info-label">Owner Name</div>
-                            <div class="info-value">Shumon</div>
+                            <div class="info-value" id="pdOwnerName">Shumon</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Owner Contract</div>
-                            <div class="info-value">521738932</div>
+                            <div class="info-value" id="pdOwnerContract">521738932</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Tenant Name</div>
-                            <div class="info-value">Mushtaq</div>
+                            <div class="info-value" id="pdTenantName">Mushtaq</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Tenant Contract</div>
-                            <div class="info-value">564761500</div>
+                            <div class="info-value" id="pdTenantContract">564761500</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Google Map</div>
-                            <div class="info-value">z20 v321 r2</div>
+                            <div class="info-value" id="pdGoogleMap">z20 v321 r2</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Owner Contract Date</div>
-                            <div class="info-value">01/09/2025</div>
+                            <div class="info-value" id="pdOwnerContractFrom">01/09/2025</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Coordinates</div>
-                            <div class="info-value">24.3234089847</div>
+                            <div class="info-value" id="pdCoords">24.3234089847</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Tenant Contract From</div>
-                            <div class="info-value">01/11/2025</div>
+                            <div class="info-value" id="pdTenantFrom">01/11/2025</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Tenant Contract To</div>
-                            <div class="info-value">30/01/2026</div>
+                            <div class="info-value" id="pdTenantTo">30/01/2026</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Days Left</div>
-                            <div class="info-value" style="color: var(--status-expiring); font-weight: 600;">25 days</div>
+                            <div class="info-value" id="pdDaysLeft" style="color: var(--status-expiring); font-weight: 600;">25 days</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Status</div>
-                            <div class="info-value">Personnel</div>
+                            <div class="info-value" id="pdStatus">Personnel</div>
                         </div>
                     </div>
                     <div class="map-placeholder" style="margin-top: 20px;">
@@ -251,19 +260,19 @@
                         <div class="info-grid" style="grid-template-columns: 1fr;">
                             <div class="info-item">
                                 <div class="info-label">Owner Rent (Rent Out)</div>
-                                <div class="info-value" style="font-size: 20px; color: var(--status-expired);">2,400 QAR</div>
+                                <div class="info-value" id="pdRentOut" style="font-size: 20px; color: var(--status-expired);">2,400 QAR</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Tenant Rent (Rent In)</div>
-                                <div class="info-value" style="font-size: 20px; color: var(--status-active);">3,100 QAR</div>
+                                <div class="info-value" id="pdRentIn" style="font-size: 20px; color: var(--status-active);">3,100 QAR</div>
                             </div>
                             <div class="info-item">
                                 <div class="info-label">Security/Cheque</div>
-                                <div class="info-value">2,000 cheque</div>
+                                <div class="info-value" id="pdSecurity">2,000 cheque</div>
                             </div>
                         </div>
                         <div class="profit-highlight">
-                            <div class="profit-highlight-value">+1,400 QAR</div>
+                            <div class="profit-highlight-value" id="pdProfit">+1,400 QAR</div>
                             <div class="profit-highlight-label">Monthly Profit</div>
                         </div>
                     </div>
@@ -525,5 +534,10 @@
             }
         }
     </script>
+
+<script src="app-config.js"></script>
+<script src="app-data.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('property-detail'));</script>
+
 </body>
 </html>
