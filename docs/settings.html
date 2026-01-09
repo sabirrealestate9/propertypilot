@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Opal Property Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter: wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
+            --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
+            --opal-cyan: #00bcd4;
+            --text-primary: #263238;
+            --text-secondary: #546e7a;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f7fa;
+            --status-active: #4caf50;
+            --status-expiring: #ff9800;
+            --navy: #1a237e;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-secondary); color: var(--text-primary); min-height: 100vh; }
+
+        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: var(--bg-primary); border-right: 1px solid rgba(0,0,0,0.06); padding: 24px 16px; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 12px; padding: 0 12px 24px; border-bottom: 1px solid rgba(0,0,0,0.06); margin-bottom: 24px; }
+        .logo-icon { width: 42px; height: 42px; background: var(--opal-accent); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; }
+        .logo-text { font-size: 24px; font-weight: 700; background: var(--opal-accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-section { margin-bottom: 24px; }
+        .nav-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); padding:  0 12px; margin-bottom: 8px; }
+        .nav-link { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--radius-sm); color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500; transition:  all 0.2s; margin-bottom: 4px; }
+        .nav-link:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .nav-link.active { background: var(--opal-gradient); color: var(--navy); }
+        .nav-link i { width: 20px; text-align: center; }
+        .nav-badge { margin-left: auto; background: #f44336; color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; }
+
+        .main-content { margin-left: 260px; padding: 24px 32px; }
+        .page-header { margin-bottom: 32px; }
+        .page-title h1 { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+        .page-title p { color: var(--text-secondary); font-size: 14px; }
+
+        .settings-grid { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+        .settings-nav { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); height: fit-content; }
+        .settings-nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: var(--radius-sm); color: var(--text-secondary); cursor: pointer; transition: all 0.2s; margin-bottom: 4px; font-size: 14px; }
+        .settings-nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+        .settings-nav-item.active { background: var(--opal-gradient); color: var(--navy); font-weight: 500; }
+        .settings-nav-item i { width: 20px; }
+
+        .settings-content { background: var(--bg-primary); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-sm); }
+        .settings-section { margin-bottom: 32px; }
+        .settings-section: last-child { margin-bottom:  0; }
+        .settings-section-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+        .settings-section-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+        .integration-card { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: 12px; }
+        .integration-icon { width: 48px; height: 48px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .integration-icon. github { background: #24292e; color: white; }
+        .integration-icon.drive { background: #4285f4; color: white; }
+        .integration-icon.sheets { background: #0f9d58; color: white; }
+        .integration-info { flex: 1; }
+        .integration-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .integration-info p { font-size: 12px; color: var(--text-secondary); }
+        .integration-status { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
+        .integration-status.connected { color: var(--status-active); }
+        .integration-status.disconnected { color: var(--text-secondary); }
+        .integration-status:: before { content: ''; width: 8px; height:  8px; border-radius:  50%; background: currentColor; }
+
+        .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; text-decoration: none; }
+        .btn-primary { background: var(--opal-accent); color: white; }
+        .btn-secondary { background: var(--bg-primary); color: var(--text-primary); border: 1px solid rgba(0,0,0,0.1); }
+        .btn-sm { padding: 8px 14px; font-size: 12px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+        .form-input { width: 100%; padding:  12px 16px; border: 1px solid rgba(0,0,0,0.1); border-radius: var(--radius-sm); font-size: 14px; transition: all 0.2s; }
+        .form-input:focus { outline: none; border-color:  var(--opal-cyan); box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.1); }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+        .user-role-card { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); margin-bottom: 8px; }
+        .user-role-info { display: flex; align-items: center; gap: 12px; }
+        .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--opal-gradient); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--navy); }
+        .user-name { font-size:  14px; font-weight: 500; }
+        .user-email { font-size: 12px; color: var(--text-secondary); }
+        .role-badge { padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 500; }
+        .role-badge.admin { background: rgba(156, 39, 176, 0.1); color: #9c27b0; }
+        .role-badge.manager { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+        . role-badge.viewer { background: rgba(0,0,0,0.05); color: var(--text-secondary); }
+
+        .sync-status { display: flex; align-items: center; gap: 16px; padding: 20px; background: var(--opal-gradient); border-radius: var(--radius-md); margin-bottom: 16px; }
+        . sync-icon { width: 48px; height: 48px; border-radius: 50%; background: var(--bg-primary); display: flex; align-items:  center; justify-content: center; font-size: 20px; color: var(--status-active); }
+        .sync-info h4 { font-size: 15px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+        .sync-info p { font-size: 12px; color: var(--text-secondary); }
+
+        .error-log { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 16px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 12px; color: var(--text-secondary); }
+        .error-log-item { padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.04); }
+        .error-log-item:last-child { border-bottom: none; }
+        .error-log-time { color: var(--opal-cyan); }
+        .error-log-message { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-gem"></i></div>
+            <span class="logo-text">Opal</span>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Main</div>
+            <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+            <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
+            <a href="rent-records.html" class="nav-link"><i class="fas fa-file-invoice-dollar"></i>Rent Records<span class="nav-badge">3</span></a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Finance</div>
+            <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+            <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+            <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Reports</div>
+            <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">System</div>
+            <a href="settings.html" class="nav-link active"><i class="fas fa-cog"></i>Settings</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="page-header">
+            <div class="page-title">
+                <h1>Settings</h1>
+                <p>Configure your Opal property management system</p>
+            </div>
+        </header>
+
+        <div class="settings-grid">
+            <div class="settings-nav">
+                <div class="settings-nav-item active"><i class="fas fa-plug"></i> Integrations</div>
+                <div class="settings-nav-item"><i class="fas fa-users"></i> User Roles</div>
+                <div class="settings-nav-item"><i class="fas fa-sync"></i> Data Sync</div>
+                <div class="settings-nav-item"><i class="fas fa-bell"></i> Notifications</div>
+                <div class="settings-nav-item"><i class="fas fa-palette"></i> Appearance</div>
+                <div class="settings-nav-item"><i class="fas fa-shield-alt"></i> Security</div>
+            </div>
+
+            <div class="settings-content">
+                <!-- Integrations Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Integrations</h3>
+                    <p class="settings-section-desc">Connect external services to sync your property data automatically</p>
+
+                    <div class="integration-card">
+                        <div class="integration-icon github"><i class="fab fa-github"></i></div>
+                        <div class="integration-info">
+                            <h4>GitHub Repository</h4>
+                            <p>sabirrealestate9/propertypilot • Last push: Today</p>
+                        </div>
+                        <div class="integration-status connected">Connected</div>
+                        <button class="btn btn-secondary btn-sm">Configure</button>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-icon drive"><i class="fab fa-google-drive"></i></div>
+                        <div class="integration-info">
+                            <h4>Google Drive</h4>
+                            <p>Property documents and contracts storage</p>
+                        </div>
+                        <div class="integration-status connected">Connected</div>
+                        <button class="btn btn-secondary btn-sm">Configure</button>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="integration-icon sheets"><i class="fas fa-table"></i></div>
+                        <div class="integration-info">
+                            <h4>Google Sheets</h4>
+                            <p>Property data source • 8 sheets connected</p>
+                        </div>
+                        <div class="integration-status connected">Connected</div>
+                        <button class="btn btn-secondary btn-sm">Configure</button>
+                    </div>
+                </div>
+
+                <!-- User Roles Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">User Roles</h3>
+                    <p class="settings-section-desc">Manage team members and their access levels</p>
+
+                    <div class="user-role-card">
+                        <div class="user-role-info">
+                            <div class="user-avatar">S</div>
+                            <div>
+                                <div class="user-name">sabirrealestate9</div>
+                                <div class="user-email">admin@opal-properties.com</div>
+                            </div>
+                        </div>
+                        <span class="role-badge admin">Admin</span>
+                        <button class="btn btn-secondary btn-sm">Edit</button>
+                    </div>
+
+                    <div class="user-role-card">
+                        <div class="user-role-info">
+                            <div class="user-avatar">M</div>
+                            <div>
+                                <div class="user-name">Manager User</div>
+                                <div class="user-email">manager@opal-properties.com</div>
+                            </div>
+                        </div>
+                        <span class="role-badge manager">Manager</span>
+                        <button class="btn btn-secondary btn-sm">Edit</button>
+                    </div>
+
+                    <div class="user-role-card">
+                        <div class="user-role-info">
+                            <div class="user-avatar">V</div>
+                            <div>
+                                <div class="user-name">Viewer User</div>
+                                <div class="user-email">viewer@opal-properties. com</div>
+                            </div>
+                        </div>
+                        <span class="role-badge viewer">Viewer</span>
+                        <button class="btn btn-secondary btn-sm">Edit</button>
+                    </div>
+
+                    <button class="btn btn-primary" style="margin-top: 12px;"><i class="fas fa-plus"></i> Add User</button>
+                </div>
+
+                <!-- Data Sync Section -->
+                <div class="settings-section">
+                    <h3 class="settings-section-title">Data Sync</h3>
+                    <p class="settings-section-desc">Synchronize data from Google Sheets and other sources</p>
+
+                    <div class="sync-status">
+                        <div class="sync-icon"><i class="fas fa-check"></i></div>
+                        <div class="sync-info">
+                            <h4>All Data Synced</h4>
+                            <p>Last successful sync: January 9, 2026 at 10:45 AM</p>
+                        </div>
+                        <button class="btn btn-primary"><i class="fas fa-sync"></i> Sync Now</button>
+                    </div>
+
+                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Connected Sheets</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px;">
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>Table (Main)</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>PersonnelAccounts</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>Transactions</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>MonthlyProfits</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>RecurringExpenses</span>
+                            <span style="color:  var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content:  space-between;">
+                            <span>RentRecords</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>Studios</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                        <div style="padding: 12px 16px; background: var(--bg-secondary); border-radius: var(--radius-sm); font-size: 13px; display: flex; justify-content: space-between;">
+                            <span>Login Users</span>
+                            <span style="color: var(--status-active);"><i class="fas fa-check-circle"></i></span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size:  14px; font-weight:  600; margin-bottom: 12px;">Sync Errors Log</h4>
+                    <div class="error-log">
+                        <div class="error-log-item">
+                            <span class="error-log-time">[2026-01-09 10:45:12]</span>
+                            <span class="error-log-message"> INFO: Sync completed successfully - 15 properties, 156 transactions</span>
+                        </div>
+                        <div class="error-log-item">
+                            <span class="error-log-time">[2026-01-08 14:22:08]</span>
+                            <span class="error-log-message"> INFO: Sync completed successfully - 15 properties, 154 transactions</span>
+                        </div>
+                        <div class="error-log-item">
+                            <span class="error-log-time">[2026-01-07 09:15:33]</span>
+                            <span class="error-log-message" style="color: var(--status-expiring);"> WARN: Duplicate entry found in RentRecords - skipped row 45</span>
+                        </div>
+                        <div class="error-log-item">
+                            <span class="error-log-time">[2026-01-06 11:30:00]</span>
+                            <span class="error-log-message"> INFO: Sync completed successfully - 15 properties, 152 transactions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
