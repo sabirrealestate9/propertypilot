@@ -59,6 +59,15 @@
     </style>
 </head>
 <body>
+
+<div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+  <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+    <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+    <span style="font-size:14px;color:#37474f;">Loading live data…</span>
+  </div>
+</div>
+<div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;"></div>
+
     <nav class="sidebar">
         <div class="logo">
             <div class="logo-icon"><i class="fas fa-gem"></i></div>
@@ -248,5 +257,10 @@
             </div>
         </div>
     </main>
+
+<script src="app-config.js"></script>
+<script src="app-data.js"></script>
+<script>window.addEventListener('DOMContentLoaded', () => window.PropertyPilot && window.PropertyPilot.initPage('reports'));</script>
+
 </body>
 </html>
