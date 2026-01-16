@@ -886,6 +886,8 @@
       .search-box{ width: 100%; min-width: unset; }
       .filters-bar{ grid-template-columns: 1fr; }
       .modal-body{ grid-template-columns: 1fr; }
+      /* Make cards comfortable on smaller screens */
+      .cards-grid{ grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -977,7 +979,7 @@
       </div>
     </header>
 
-    <!-- Summary (NEW) -->
+    <!-- Summary -->
     <section class="summary" aria-label="Summary">
       <div class="summary-card">
         <div class="summary-top">
@@ -1154,7 +1156,8 @@
       API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
       CURRENCY: "AED",
       PAGE_SIZE: 12,
-      EXPIRING_THRESHOLD_DAYS: 30
+      EXPIRING_THRESHOLD_DAYS: 30,
+      FETCH_TIMEOUT_MS: 15000
     };
 
     /******************************************************************
@@ -1366,6 +1369,25 @@
     }
 
     /******************************************************************
+     * FETCH (Mobile-safe)
+     ******************************************************************/
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000){
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      try{
+        return await fetch(url, {
+          ...options,
+          signal: controller.signal,
+          mode: "cors",
+          redirect: "follow",
+          cache: "no-store"
+        });
+      } finally {
+        clearTimeout(t);
+      }
+    }
+
+    /******************************************************************
      * API
      ******************************************************************/
     async function fetchData(){
@@ -1373,14 +1395,40 @@
       showLoading(true);
 
       try{
-        const res = await fetch(CONFIG.API_URL, { method: "GET" });
+        // Cache buster important for iOS Safari/in-app browsers
+        const u = new URL(CONFIG.API_URL);
+        u.searchParams.set("_ts", String(Date.now()));
+
+        const res = await fetchWithTimeout(u.toString(), { method: "GET" }, CONFIG.FETCH_TIMEOUT_MS);
         const txt = await res.text();
 
-        let payload;
-        try { payload = JSON.parse(txt); }
-        catch { throw new Error("API did not return JSON.\nFirst 250 chars:\n" + txt.slice(0,250)); }
+        // If Apps Script returns HTML (login/consent/redirect page), show clear error
+        const trimmed = (txt || "").trim();
+        const looksLikeHtml =
+          trimmed.startsWith("<!DOCTYPE") ||
+          trimmed.startsWith("<html") ||
+          trimmed.includes("<head") ||
+          trimmed.includes("<body");
 
-        if(!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + txt.slice(0,250));
+        if(looksLikeHtml){
+          throw new Error(
+            "Mobile browser received an HTML page instead of JSON.\n\n" +
+            "Reason: Google Apps Script Web App is not public for mobile, so it redirects to a Google page.\n\n" +
+            "Fix (Apps Script):\n" +
+            "1) Deploy → New deployment → Web app\n" +
+            "2) Execute as: Me\n" +
+            "3) Who has access: Anyone\n" +
+            "4) Copy the NEW /exec URL and update CONFIG.API_URL\n"
+          );
+        }
+
+        let payload;
+        try { payload = JSON.parse(trimmed); }
+        catch {
+          throw new Error("API did not return valid JSON.\n\nFirst 250 chars:\n" + trimmed.slice(0,250));
+        }
+
+        if(!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + trimmed.slice(0,250));
         if(!payload.ok) throw new Error(payload.error || "API returned ok=false");
 
         const arr = Array.isArray(payload.properties) ? payload.properties : [];
@@ -1396,10 +1444,16 @@
         applyFiltersAndRender(true);
 
       } catch(err){
-        showError((err && err.message) ? err.message : "Failed to load data.");
+        const msg =
+          (err && err.name === "AbortError")
+            ? "Request timed out. Please check mobile network / VPN / in-app browser restrictions."
+            : ((err && err.message) ? err.message : "Failed to load data.");
+
+        showError(msg);
         STATE.raw = [];
         updateSummary();
         applyFiltersAndRender(true);
+
       } finally{
         showLoading(false);
       }
@@ -1755,7 +1809,12 @@
      * EVENTS
      ******************************************************************/
     document.addEventListener("DOMContentLoaded", () => {
-      setView("table");
+      // Default to cards on mobile for better UX
+      if(window.innerWidth <= 960){
+        setView("cards");
+      } else {
+        setView("table");
+      }
 
       refreshBtn.addEventListener("click", () => fetchData());
 
