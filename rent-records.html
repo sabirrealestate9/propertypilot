@@ -8,11 +8,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-  <!-- IMPORTANT: cache-buster to force GitHub Pages/browser to reload CSS -->
-  <link rel="stylesheet" href="app.css?v=20260117" />
+  <!-- IMPORTANT: Absolute URL + cache-bust to ensure GitHub Pages applies styling -->
+  <link rel="stylesheet" href="https://sabirrealestate9.github.io/propertypilot/app.css?v=20260117" />
 </head>
 
-<body data-page="rent-records">
+<body>
 
   <!-- Loading + Error (kept) -->
   <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
@@ -34,7 +34,7 @@
   </div>
 
   <!-- Sidebar (same structure) -->
-  <nav class="sidebar" id="sidebar">
+  <nav class="sidebar">
     <div class="logo">
       <div class="logo-icon"><i class="fas fa-gem"></i></div>
       <span class="logo-text">Opal</span>
@@ -46,7 +46,7 @@
       <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
       <a href="rent-records.html" class="nav-link active">
         <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">0</span>
+        <span class="nav-badge" id="rentBadge">3</span>
       </a>
     </div>
 
@@ -67,9 +67,6 @@
       <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
     </div>
   </nav>
-
-  <!-- Optional backdrop for mobile drawer (safe if CSS supports it) -->
-  <div id="backdrop"></div>
 
   <!-- Main -->
   <main class="main-content">
@@ -318,16 +315,14 @@
     </section>
   </main>
 
-  <!-- Shared app files (order maintained) -->
+  <!-- Your shared app files -->
   <script src="app-config.js"></script>
   <script src="app.js"></script>
   <script src="app-data.js"></script>
 
   <script>
     /*********************************************************************
-     * RENT RECORDS – Unpaid Logic:
-     * Unpaid = Studios sheet MINUS RentRecords sheet for selected month/year.
-     * Enrich using Table sheet where Location == StudioId.
+     * RENT RECORDS – CORRECT UNPAID LOGIC (matches your C# behavior)
      *********************************************************************/
 
     const $ = (id) => document.getElementById(id);
@@ -361,8 +356,7 @@
     }
 
     /*********************************************************************
-     * Fallback API (if window.PropertyPilotApi not present)
-     * Supports Apps Script endpoints that may return HTML if not public.
+     * SAFE API CLIENT (fallback if app-data.js doesn't expose functions)
      *********************************************************************/
     const API_FALLBACK = {
       timeoutMs: 15000,
@@ -388,7 +382,6 @@
 
         const u = new URL(base);
         u.searchParams.set("action", action);
-        u.searchParams.set("op", action);
         u.searchParams.set("_ts", String(Date.now()));
 
         const res = await this.fetchWithTimeout(u.toString(), {
@@ -401,7 +394,7 @@
         const trimmed = (txt || "").trim();
 
         if(trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")){
-          throw new Error("API returned HTML instead of JSON. Fix Apps Script deployment: Access: Anyone.");
+          throw new Error("API returned HTML instead of JSON. Fix Apps Script deployment: Execute as Me, Access: Anyone.");
         }
 
         let json;
@@ -416,6 +409,7 @@
 
     function getAPI(){
       if(window.PropertyPilotApi) return window.PropertyPilotApi;
+      if(window.PropertyPilot) return window.PropertyPilot;
 
       return {
         sheetUrl: (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "",
@@ -432,8 +426,7 @@
           return r.data || r.records || r.rows || [];
         },
         async addRentPayment(payload){
-          const r = await API_FALLBACK.call("addRentPayment", payload);
-          return r;
+          return await API_FALLBACK.call("addRentPayment", payload);
         },
         async getPaymentHistory({studioId}){
           const r = await API_FALLBACK.call("getPaymentHistory", { studioId });
@@ -444,17 +437,14 @@
           return r.csv || "";
         },
         async sendReminder({studioId, month, year}){
-          const r = await API_FALLBACK.call("sendReminder", { studioId, month, year });
-          return r;
+          return await API_FALLBACK.call("sendReminder", { studioId, month, year });
         },
         async sendBulkReminder({month, year}){
-          const r = await API_FALLBACK.call("sendBulkReminder", { month, year });
-          return r;
+          return await API_FALLBACK.call("sendBulkReminder", { month, year });
         }
       };
     }
 
-    // ---- State
     const State = {
       records: [],
       filtered: [],
@@ -462,41 +452,34 @@
       tableRows: [],
       tableMap: new Map(),
       unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
-      displayRecords: [],
       page: 1,
       pageSize: 12,
     };
 
-    // ---- Helpers
     function pad2(n) { return String(n).padStart(2, "0"); }
     function normStr(v){ return String(v ?? "").trim(); }
     function normalizeId(v){ return normStr(v).toLowerCase().replace(/\s+/g, " "); }
     function toNum(v){ const n = Number(v); return isFinite(n) ? n : 0; }
-
     function toMoney(n, currency){
       const v = Number(n || 0);
       if (!isFinite(v)) return "—";
       return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
     }
-
     function initials(name){
       const s = normStr(name);
       if (!s) return "NA";
       return s.split(/\s+/).slice(0,2).map(p => (p[0] || "").toUpperCase()).join("");
     }
-
     function monthName(m){
       const names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
       return names[(m-1)] || String(m);
     }
-
     function normalizeStatus(v){
       const s = normStr(v).toLowerCase();
       if(s === "paid") return "paid";
       if(s === "overdue") return "overdue";
       return "pending";
     }
-
     function parseDateToMonthYear(d){
       const s = normStr(d);
       if(!s) return null;
@@ -559,6 +542,7 @@
 
         if(match) paid.add(sid);
       }
+
       return paid;
     }
 
@@ -704,7 +688,7 @@
             dueDate: `01/${pad2(month)}/${year}`,
             amount: toNum(pr.Amount ?? pr.amount ?? rent),
             receivedDate: normStr(pr.PaymentDate ?? pr.paymentDate ?? ""),
-            method: normStr(pr.Method ?? pr.method ?? pr.PaymentMethod ?? "—"),
+            method: normStr(pr.Method ?? pr.method ?? pr.PaymentMethod ?? $("paymentMethod")?.value ?? "—"),
             status: "paid",
             notes: normStr(pr.Notes ?? pr.notes ?? "")
           });
@@ -754,6 +738,7 @@
         const matchesStatus = statusFilter === "all" || status === statusFilter;
 
         const matchesUnit = unitFilter === "all" || normalizeId(r.unit) === normalizeId(unitFilter);
+
         return matchesQ && matchesStatus && matchesUnit;
       });
 
@@ -857,9 +842,10 @@
       const { month, year } = getSelectedMonthYear();
 
       const studiosRaw = await api.getStudios();
-      const tableRaw = await api.getTable();
+      const tableRaw = (typeof api.getTable === "function") ? await api.getTable() : (await (api.getProperties?.() ?? []));
 
       State.studios = Array.isArray(studiosRaw) ? studiosRaw : [];
+
       State.tableRows = Array.isArray(tableRaw) ? tableRaw : [];
       State.tableMap = buildTableMap(State.tableRows);
       renderPropertyFilter();
@@ -1006,7 +992,6 @@
       renderTable();
     }
 
-    // Events
     $("searchInput").addEventListener("input", applyAndRender);
     $("statusFilter").addEventListener("change", applyAndRender);
     $("propertyFilter").addEventListener("change", applyAndRender);
@@ -1110,7 +1095,6 @@
       if(body.style.display === "none") toggleEntry();
     });
 
-    // Init
     window.addEventListener("DOMContentLoaded", async () => {
       try{
         setError("");
