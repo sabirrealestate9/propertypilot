@@ -1,803 +1,1102 @@
-/* app.css
-   Sabir Amin Real Estate Company LLC • Opal UI System
-   Use this file across ALL pages to keep the same design.
-*/
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rent Records - Sabir Amin Real Estate Company LLC</title>
 
-:root{
-  /* Brand / Opal-inspired palette */
-  --opal-gradient: linear-gradient(135deg, #e0f7fa 0%, #e8eaf6 25%, #f3e5f5 50%, #e8f5e9 75%, #fff8e1 100%);
-  --opal-accent: linear-gradient(135deg, #4dd0e1 0%, #7c4dff 50%, #69f0ae 100%);
-  --opal-cyan: #00bcd4;
-  --opal-lilac: #9575cd;
-  --opal-mint: #69f0ae;
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-  --navy: #1a237e;
-  --charcoal: #37474f;
-  --text-primary: #263238;
-  --text-secondary: #546e7a;
+  <!-- Use SAME design from your app.css -->
+  <link rel="stylesheet" href="app.css" />
+</head>
 
-  --bg-primary: #ffffff;
-  --bg-secondary: #f5f7fa;
+<body>
 
-  --status-active: #2e7d32;
-  --status-expiring: #ef6c00;
-  --status-expired: #c62828;
-  --status-info: #1565c0;
+  <!-- Loading + Error (kept) -->
+  <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
+    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
+      <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
+      <span style="font-size:14px;color:#37474f;font-weight:800;">Loading live data…</span>
+    </div>
+  </div>
 
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
-  --shadow-md: 0 10px 24px rgba(0,0,0,0.10);
-  --shadow-lg: 0 18px 48px rgba(0,0,0,0.14);
+  <div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;font-weight:800;"></div>
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
+  <!-- Toast (kept) -->
+  <div class="toast" id="toast" style="position:fixed;right:18px;bottom:18px;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,0.06);box-shadow:0 10px 24px rgba(0,0,0,0.10);z-index:9999;max-width:520px;">
+    <i class="fas fa-circle-check" style="color:#00bcd4;"></i>
+    <div>
+      <div class="msg" id="toastMsg" style="font-size:13px;font-weight:800;color:#263238;">Done</div>
+      <div class="sub" id="toastSub" style="display:none;font-size:12px;font-weight:700;color:#546e7a;margin-top:2px;"></div>
+    </div>
+  </div>
 
-  --border: rgba(0,0,0,0.08);
-  --border-soft: rgba(0,0,0,0.06);
-  --focus: rgba(0, 188, 212, 0.28);
+  <!-- Sidebar (same structure) -->
+  <nav class="sidebar">
+    <div class="logo">
+      <div class="logo-icon"><i class="fas fa-gem"></i></div>
+      <span class="logo-text">Opal</span>
+    </div>
 
-  --sidebar-w: 268px;
-}
+    <div class="nav-section">
+      <div class="nav-section-title">Main</div>
+      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
+      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
+      <a href="rent-records.html" class="nav-link active">
+        <i class="fas fa-file-invoice-dollar"></i>Rent Records
+        <span class="nav-badge" id="rentBadge">0</span>
+      </a>
+    </div>
 
-/* Dark mode (optional) */
-[data-theme="dark"]{
-  --bg-primary: #101322;
-  --bg-secondary: #0b0e19;
-  --text-primary: #e6e9ef;
-  --text-secondary: #a7b0c0;
-  --border: rgba(255,255,255,0.10);
-  --border-soft: rgba(255,255,255,0.08);
-  --shadow-sm: 0 2px 10px rgba(0,0,0,0.35);
-  --shadow-md: 0 14px 30px rgba(0,0,0,0.45);
-  --shadow-lg: 0 22px 60px rgba(0,0,0,0.55);
-  --focus: rgba(0,188,212,0.22);
-}
+    <div class="nav-section">
+      <div class="nav-section-title">Finance</div>
+      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
+      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
+      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
+    </div>
 
-*{ margin:0; padding:0; box-sizing:border-box; }
-html, body{ height:100%; }
-body{
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+    <div class="nav-section">
+      <div class="nav-section-title">Reports</div>
+      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
+    </div>
 
-/* ===== Layout ===== */
-.sidebar{
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: var(--sidebar-w);
-  background: var(--bg-primary);
-  border-right: 1px solid var(--border-soft);
-  padding: 22px 14px;
-  overflow-y: auto;
-  z-index: 50;
-}
+    <div class="nav-section">
+      <div class="nav-section-title">System</div>
+      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
+    </div>
+  </nav>
 
-.main-content{
-  margin-left: var(--sidebar-w);
-  padding: 22px 26px 34px;
-  min-height: 100vh;
-}
+  <!-- Main -->
+  <main class="main-content">
+    <header class="page-header">
+      <div class="page-title">
+        <h1>Rent Records</h1>
+        <p>Track rent payments, unpaid studios, payment history, and reminders (Google Sheet integrated).</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
+        <button class="btn btn-secondary" id="syncBtn"><i class="fas fa-rotate"></i> Refresh</button>
+        <button class="btn btn-primary" id="openEntryBtn"><i class="fas fa-plus"></i> Record Monthly Rent</button>
+      </div>
+    </header>
 
-/* ===== Sidebar ===== */
-.logo{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding: 0 10px 18px;
-  border-bottom: 1px solid var(--border-soft);
-  margin-bottom: 18px;
-}
-.logo-icon{
-  width: 42px; height: 42px;
-  background: var(--opal-accent);
-  border-radius: 14px;
-  display:grid; place-items:center;
-  color:#fff;
-  box-shadow: 0 10px 22px rgba(124,77,255,0.18);
-  flex:0 0 auto;
-}
-.logo-text{
-  display:flex;
-  flex-direction:column;
-  line-height: 1.05;
-  gap: 2px;
-  min-width: 0;
-}
-.brand-name{
-  font-size: 15px;
-  font-weight: 900;
-  letter-spacing: -0.2px;
-  background: var(--opal-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 180px;
-}
-.brand-sub{
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--text-secondary);
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 180px;
-}
+    <!-- Summary Strip (kept) -->
+    <section class="summary-strip" aria-label="Monthly summary">
+      <div class="summary-card income">
+        <div class="summary-value" id="sumReceived">—</div>
+        <div class="summary-label">Total Received (Selected Month)</div>
+      </div>
+      <div class="summary-card due">
+        <div class="summary-value" id="sumDue">—</div>
+        <div class="summary-label">Total Due (Selected Month)</div>
+      </div>
+      <div class="summary-card overdue">
+        <div class="summary-value" id="sumOverdue">—</div>
+        <div class="summary-label">Overdue Studios</div>
+      </div>
+      <div class="summary-card pending">
+        <div class="summary-value" id="sumPending">—</div>
+        <div class="summary-label">Pending This Week</div>
+      </div>
+    </section>
 
-.nav-section{ margin: 14px 0 18px; }
-.nav-section-title{
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--text-secondary);
-  padding: 0 10px;
-  margin: 12px 0 8px;
-  letter-spacing: 0.6px;
-}
-.nav-link{
-  display:flex;
-  align-items:center;
-  gap: 12px;
-  padding: 12px 12px;
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  text-decoration:none;
-  font-size: 14px;
-  font-weight: 700;
-  transition: background 0.15s ease, transform 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
-  margin-bottom: 6px;
-}
-.nav-link i{ width:20px; text-align:center; }
-.nav-link:hover{
-  background: color-mix(in srgb, var(--bg-secondary) 80%, transparent);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-.nav-link.active{
-  background: var(--opal-gradient);
-  color: var(--navy);
-  box-shadow: var(--shadow-sm);
-  border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-}
-.nav-badge{
-  margin-left:auto;
-  background: var(--status-expired);
-  color:#fff;
-  font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-weight: 900;
-}
+    <!-- Filters (kept) -->
+    <section class="filters-bar" aria-label="Filters">
+      <div class="filters-left">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input id="searchInput" type="text" placeholder="Search tenant / unit / owner / contact…" />
+        </div>
 
-/* ===== Header ===== */
-.topbar{
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  margin-bottom: 18px;
-}
-.page-title h1{
-  font-size: 28px;
-  font-weight: 900;
-  letter-spacing: -0.4px;
-  margin-bottom: 6px;
-}
-.page-title p{
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
-}
+        <select class="filter-select" id="statusFilter">
+          <option value="all">All Status</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="overdue">Overdue</option>
+        </select>
 
-.header-actions{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content:flex-end;
-}
+        <select class="filter-select" id="propertyFilter">
+          <option value="all">All Units</option>
+        </select>
+      </div>
 
-.pill{
-  display:inline-flex;
-  align-items:center;
-  gap: 8px;
-  padding: 10px 12px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  box-shadow: var(--shadow-sm);
-  color: var(--text-secondary);
-  font-size: 13px;
-  white-space: nowrap;
-  font-weight: 700;
-}
-.pill strong{ color: var(--text-primary); }
+      <div class="filters-right">
+        <select class="filter-select" id="monthFilter"></select>
+        <select class="filter-select" id="yearFilter"></select>
+      </div>
+    </section>
 
-.search-box{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 10px 14px;
-  min-width: 320px;
-  box-shadow: var(--shadow-sm);
-}
-.search-box i{ color: var(--text-secondary); }
-.search-box input{
-  border:none;
-  outline:none;
-  font-size: 14px;
-  width: 100%;
-  background: transparent;
-  color: var(--text-primary);
-  font-weight: 600;
-}
-.search-box:focus-within{
-  border-color: rgba(0,188,212,0.55);
-  box-shadow: 0 0 0 4px var(--focus);
-}
+    <!-- Rent Entry (kept) -->
+    <section class="card" aria-label="Record monthly rent" id="rentEntryCard">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-pen-to-square"></i> Record Monthly Rent</div>
+          <div class="card-sub">Post a rent payment to Google Sheet, view unpaid studios, and see payment history.</div>
+        </div>
+        <div class="split-actions">
+          <div class="checkbox" title="Show only unpaid studios in the Studio list">
+            <input type="checkbox" id="onlyUnpaidChk" checked />
+            <span>Show Only Unpaid Studios</span>
+          </div>
+          <button class="btn btn-secondary" id="toggleEntryBtn" title="Collapse / Expand">
+            <i class="fas fa-chevron-up"></i> Collapse
+          </button>
+        </div>
+      </div>
 
-.btn{
-  display:inline-flex;
-  align-items:center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 900;
-  cursor:pointer;
-  border:none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
-  text-decoration:none;
-  user-select:none;
-  white-space: nowrap;
-}
-.btn:active{ transform: translateY(1px); }
-.btn-primary{
-  background: var(--opal-accent);
-  color:#fff;
-  box-shadow: 0 14px 26px rgba(77, 208, 225, 0.24);
-}
-.btn-primary:hover{ box-shadow: 0 18px 34px rgba(124, 77, 255, 0.22); }
-.btn-secondary{
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-}
-.btn-secondary:hover{ transform: translateY(-1px); }
-.btn-icon{ padding: 10px 12px; }
+      <div class="card-body" id="entryBody">
+        <div class="entry-top" style="margin-bottom:12px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Month:</label>
+            <select class="filter-select" id="entryMonth"></select>
 
-/* ===== Grid sections ===== */
-.grid{
-  display:grid;
-  gap: 18px;
-}
+            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Year:</label>
+            <select class="filter-select" id="entryYear"></select>
+          </div>
 
-.kpi-grid{
-  display:grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-  margin: 14px 0 18px;
-}
+          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (hook)">
+              <i class="fas fa-envelope"></i> Email Unpaid (Bulk)
+            </button>
+            <button class="btn btn-danger" id="clearFormBtn" title="Clear entry form">
+              <i class="fas fa-eraser"></i> Clear
+            </button>
+          </div>
+        </div>
 
-.card{
-  background: var(--bg-primary);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  overflow:hidden;
-}
+        <div class="rent-entry-grid">
+          <!-- Left: Entry Form -->
+          <div class="entry-form">
+            <div class="form-row">
+              <label>Studio ID:</label>
+              <select class="control" id="studioSelect"></select>
+            </div>
 
-.kpi-card{
-  grid-column: span 3;
-  padding: 16px 16px 14px;
-  position: relative;
-  border-radius: var(--radius-lg);
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent),
-    var(--bg-primary);
-}
-.kpi-card::before{
-  content:'';
-  position:absolute;
-  inset:0 0 auto 0;
-  height: 4px;
-  background: var(--opal-accent);
-  opacity: 0.95;
-}
+            <div class="form-row">
+              <label>Payment Date:</label>
+              <input class="control" id="paymentDate" type="date" />
+            </div>
 
-.kpi-row{
-  display:flex;
-  align-items:flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-}
+            <div class="form-row">
+              <label>Amount:</label>
+              <input class="control" id="amountInput" type="number" step="0.01" placeholder="e.g. 2600" />
+            </div>
 
-.kpi-icon{
-  width: 44px; height: 44px;
-  border-radius: 14px;
-  display:grid; place-items:center;
-  background: var(--opal-gradient);
-  color: var(--navy);
-  border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
-}
+            <div class="form-row">
+              <label>Maintenance:</label>
+              <input class="control" id="maintenanceInput" type="number" step="0.01" placeholder="optional" />
+            </div>
 
-.kpi-label{
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
-}
-.kpi-value{
-  font-size: 26px;
-  font-weight: 1000;
-  letter-spacing: -0.4px;
-  margin-top: 6px;
-}
-.kpi-sub{
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 700;
-  margin-top: 2px;
-}
+            <div class="form-row">
+              <label>Payment Method:</label>
+              <select class="control" id="paymentMethod">
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
 
-.kpi-chip{
-  display:inline-flex;
-  align-items:center;
-  gap: 6px;
-  font-size: 12px;
-  font-weight: 900;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
-  background: color-mix(in srgb, var(--bg-secondary) 60%, transparent);
-  color: var(--text-secondary);
-  margin-top: 12px;
-}
-.kpi-chip.up{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
-.kpi-chip.down{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-.kpi-chip.warn{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-.kpi-chip.info{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
+            <div class="form-row">
+              <label>Notes:</label>
+              <input class="control" id="notesInput" type="text" placeholder="e.g. transfer ref, partial, remarks…" />
+            </div>
 
-/* Charts */
-.charts-grid{
-  display:grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-bottom: 18px;
-}
+            <div class="form-actions">
+              <button class="btn btn-primary" id="recordPaymentBtn">
+                <i class="fas fa-circle-check"></i> Record Payment
+              </button>
+              <button class="btn btn-secondary" id="emailReminderBtn">
+                <i class="fas fa-envelope"></i> Email Reminder
+              </button>
+            </div>
 
-.card-header{
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-soft);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 55%, transparent), transparent);
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 10px;
-}
-.card-title{
-  display:flex;
-  align-items:center;
-  gap: 10px;
-  font-weight: 1000;
-  letter-spacing: -0.2px;
-}
-.card-title i{ color: var(--opal-cyan); }
-.card-sub{
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 700;
-  margin-top: 2px;
-}
-.card-body{ padding: 14px 16px; }
+            <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:800;">
+              Tip: Unpaid is calculated by <b>Studios sheet MINUS RentRecords sheet</b> for selected month/year.
+            </div>
+          </div>
 
-.segmented{
-  display:inline-flex;
-  background: var(--bg-primary);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  overflow:hidden;
-  box-shadow: var(--shadow-sm);
-}
-.segmented button{
-  padding: 8px 12px;
-  border:none;
-  background: transparent;
-  cursor:pointer;
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--text-secondary);
-}
-.segmented button.active{
-  background: var(--opal-gradient);
-  color: var(--navy);
-}
+          <!-- Right: Unpaid Panel -->
+          <div class="unpaid-panel">
+            <div class="unpaid-head">
+              <div class="unpaid-title" id="unpaidTitle">Unpaid Studios for —</div>
+              <div class="unpaid-meta" id="unpaidMeta">—</div>
+            </div>
 
-/* Alerts + Tasks */
-.two-col{
-  display:grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  gap: 16px;
-  margin-bottom: 18px;
-}
+            <div class="unpaid-stats">
+              <div id="unpaidCount">Total Unpaid Studios: —</div>
+              <div id="unpaidAmount">Total Unpaid Amount: —</div>
+            </div>
 
-.list{
-  display:flex;
-  flex-direction: column;
-  gap: 10px;
-}
+            <div class="unpaid-list" id="unpaidList">Loading…</div>
+          </div>
+        </div>
 
-.alert{
-  display:flex;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
-  background: color-mix(in srgb, var(--bg-secondary) 40%, transparent);
-  box-shadow: var(--shadow-sm);
-}
-.alert .ic{
-  width: 42px; height: 42px;
-  border-radius: 14px;
-  display:grid; place-items:center;
-  flex: 0 0 auto;
-  border: 1px solid color-mix(in srgb, var(--border-soft) 70%, transparent);
-  background: var(--bg-primary);
-}
-.alert h4{
-  font-size: 14px;
-  font-weight: 1000;
-  margin-bottom: 2px;
-}
-.alert p{
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 700;
-}
-.alert.danger .ic{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-.alert.warn .ic{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-.alert.info .ic{ color: var(--status-info); background: rgba(21,101,192,0.10); border-color: rgba(21,101,192,0.16); }
+        <!-- Payment History (kept) -->
+        <div style="height:14px;"></div>
+        <div class="card" style="border-radius: var(--radius-lg);">
+          <div class="card-header">
+            <div>
+              <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Payment History</div>
+              <div class="card-sub">History for selected studio (latest first)</div>
+            </div>
+            <button class="btn btn-secondary" id="historyRefreshBtn">
+              <i class="fas fa-rotate"></i> Refresh History
+            </button>
+          </div>
+          <div class="table-container">
+            <table style="min-width: 760px;">
+              <thead>
+                <tr>
+                  <th>Payment Date</th>
+                  <th>Amount</th>
+                  <th>Maintenance</th>
+                  <th>Month</th>
+                  <th>Year</th>
+                  <th>Method</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="historyTbody"></tbody>
+            </table>
+          </div>
+        </div>
 
-.task{
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  border-radius: 16px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
-}
-.task-left{
-  display:flex;
-  align-items:center;
-  gap: 12px;
-  min-width: 0;
-}
-.task-dot{
-  width: 12px; height: 12px;
-  border-radius: 50%;
-  background: var(--opal-cyan);
-  box-shadow: 0 0 0 4px rgba(0,188,212,0.14);
-  flex: 0 0 auto;
-}
-.task-title{
-  font-weight: 1000;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 360px;
-}
-.task-meta{
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 800;
-  margin-top: 2px;
-}
-.task-chip{
-  font-size: 11px;
-  font-weight: 1000;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--bg-secondary) 55%, transparent);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-.task-chip.due{ color: var(--status-expiring); background: rgba(239,108,0,0.10); border-color: rgba(239,108,0,0.16); }
-.task-chip.overdue{ color: var(--status-expired); background: rgba(198,40,40,0.10); border-color: rgba(198,40,40,0.16); }
-.task-chip.ok{ color: var(--status-active); background: rgba(46,125,50,0.10); border-color: rgba(46,125,50,0.16); }
+      </div>
+    </section>
 
-/* Table */
-.table-wrap{ overflow-x: auto; }
-table{ width: 100%; border-collapse: collapse; min-width: 980px; }
-th{
-  background: var(--bg-secondary);
-  padding: 13px 14px;
-  text-align:left;
-  font-size: 11px;
-  font-weight: 1000;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.55px;
-  border-bottom: 1px solid var(--border-soft);
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-td{
-  padding: 12px 14px;
-  border-bottom: 1px solid color-mix(in srgb, var(--border-soft) 55%, transparent);
-  font-size: 13px;
-  font-weight: 700;
-  vertical-align: middle;
-}
-tr:hover{ background: color-mix(in srgb, var(--bg-secondary) 35%, transparent); }
-.status-badge{
-  display:inline-flex;
-  align-items:center;
-  gap: 7px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 1000;
-  border: 1px solid color-mix(in srgb, var(--border-soft) 65%, transparent);
-  white-space: nowrap;
-  line-height: 1;
-}
-.status-badge::before{ content:''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-.status-badge.active{ background: rgba(46,125,50,0.10); color: var(--status-active); }
-.status-badge.expiring{ background: rgba(239,108,0,0.10); color: var(--status-expiring); }
-.status-badge.expired{ background: rgba(198,40,40,0.10); color: var(--status-expired); }
-.status-badge.vacant{ background: rgba(21,101,192,0.10); color: var(--status-info); }
+    <!-- Rent Records Table (kept) -->
+    <section class="card" aria-label="Rent records table" style="margin-top:16px;">
+      <div class="card-header">
+        <div>
+          <div class="card-title"><i class="fas fa-table"></i> Rent Records</div>
+          <div class="card-sub">Filtered by status / unit / month-year • Live data from Google Sheet</div>
+        </div>
+        <div class="split-actions">
+          <button class="btn btn-secondary" id="markPaidBtn" title="Mark selected row as paid (hook)">
+            <i class="fas fa-check"></i> Mark Paid
+          </button>
+          <button class="btn btn-secondary" id="openInSheetBtn" title="Open Sheet (requires link in app-config)">
+            <i class="fas fa-up-right-from-square"></i> Open Sheet
+          </button>
+        </div>
+      </div>
 
-.money.pos{ color: var(--status-active); font-weight: 1000; }
-.money.neg{ color: var(--status-expired); font-weight: 1000; }
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Tenant</th>
+              <th>Unit</th>
+              <th>Due Date</th>
+              <th>Amount</th>
+              <th>Received Date</th>
+              <th>Payment Method</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rentRecordsTbody"></tbody>
+        </table>
+      </div>
 
-/* Drawer toggle (mobile) */
-.hamburger{ display:none; }
+      <div class="pagination">
+        <div class="pagination-info" id="pageInfo">Showing 0–0 of 0 records</div>
+        <div class="pagination-controls">
+          <button class="pagination-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+          <button class="pagination-btn active" id="pageBtn">1</button>
+          <button class="pagination-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </section>
+  </main>
 
-/* Quick actions */
-.quick-actions{
-  position: fixed;
-  bottom: 26px;
-  right: 26px;
-  z-index: 80;
-}
-.fab{
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  background: var(--opal-accent);
-  color:#fff;
-  border:none;
-  font-size: 22px;
-  cursor:pointer;
-  box-shadow: var(--shadow-lg);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.fab:hover{
-  transform: scale(1.06);
-  box-shadow: 0 26px 60px rgba(124,77,255,0.25);
-}
+  <!-- Your shared app files -->
+  <script src="app-config.js"></script>
+  <script src="app.js"></script>
+  <script src="app-data.js"></script>
 
-/* Backdrop for mobile sidebar */
-.backdrop{
-  position: fixed;
-  inset: 0;
-  background: rgba(12,18,38,0.45);
-  display: none;
-  z-index: 45;
-}
-.backdrop.show{ display:block; }
+  <script>
+    /*********************************************************************
+     * UNPAID FIX (Robust):
+     * Unpaid = Studios sheet (ALL) minus RentRecords (selected Month/Year)
+     *
+     * Works even if StudioId column names differ.
+     *********************************************************************/
+    const $ = (id) => document.getElementById(id);
 
-/* Responsive */
-@media (max-width: 1100px){
-  .charts-grid{ grid-template-columns: 1fr; }
-  .two-col{ grid-template-columns: 1fr; }
-  .kpi-card{ grid-column: span 6; }
-}
-@media (max-width: 860px){
-  .sidebar{
-    position: fixed;
-    transform: translateX(-110%);
-    transition: transform 0.22s ease;
-    box-shadow: var(--shadow-lg);
-  }
-  .sidebar.open{ transform: translateX(0); }
-  .main-content{ margin-left: 0; padding: 18px; }
-  .topbar{ flex-direction: column; align-items: stretch; }
-  .header-actions{ justify-content: flex-start; }
-  .search-box{ width: 100%; min-width: unset; }
-  .hamburger{
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    width: 44px; height: 44px;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    background: var(--bg-primary);
-    box-shadow: var(--shadow-sm);
-    cursor:pointer;
-  }
-  .kpi-card{ grid-column: span 12; }
-  .quick-actions{ right: 18px; bottom: 18px; }
-}
-/* ==============================
-   RENT RECORDS PAGE – LAYOUT FIX
-   Paste at END of app.css
-================================ */
+    const ppLoading = $("ppLoading");
+    const ppError = $("ppError");
 
-/* Card spacing (gentle) */
-#rentEntryCard .card-body {
-  padding-top: 14px;
-}
+    const toast = $("toast");
+    const toastMsg = $("toastMsg");
+    const toastSub = $("toastSub");
+    const rentBadge = $("rentBadge");
 
-/* Entry top bar: Month/Year left, actions right */
-#rentEntryCard .entry-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
+    function showToast(message, sub) {
+      toastMsg.textContent = message || "Done";
+      if (sub) { toastSub.style.display = ""; toastSub.textContent = sub; }
+      else { toastSub.style.display = "none"; toastSub.textContent = ""; }
+      toast.style.display = "flex";
+      setTimeout(() => { toast.style.display = "none"; }, 2600);
+    }
 
-/* Main grid: Form + Unpaid panel */
-.rent-entry-grid {
-  display: grid;
-  grid-template-columns: minmax(380px, 520px) 1fr;
-  gap: 16px;
-  align-items: start;
-}
+    function setLoading(on) { ppLoading.style.display = on ? "flex" : "none"; }
+    function setError(msg) {
+      if (!msg) { ppError.style.display = "none"; ppError.textContent = ""; return; }
+      ppError.style.display = "block";
+      ppError.textContent = msg;
+    }
 
-/* FORM CARD */
-.entry-form {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-}
+    // Try to use your existing API object if present
+    function getAPI() {
+      return window.PropertyPilotApi || window.PropertyPilot || null;
+    }
 
-/* Each row: Label left, control right */
-.entry-form .form-row {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 10px;
-}
+    // App Script URL
+    function getApiUrl() {
+      return (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "";
+    }
 
-.entry-form .form-row label {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--text-secondary);
-  margin: 0;
-}
+    async function callAppsScript(action, params) {
+      const urlBase = getApiUrl();
+      if (!urlBase) throw new Error("API_URL not set in app-config.js (APP_CONFIG.API_URL).");
 
-/* Make inputs/selects full width */
-.entry-form .control {
-  width: 100%;
-  min-width: 0;
-}
+      const u = new URL(urlBase);
+      u.searchParams.set("action", action);
+      if (params && typeof params === "object") {
+        Object.keys(params).forEach(k => {
+          if (params[k] !== undefined && params[k] !== null) u.searchParams.set(k, String(params[k]));
+        });
+      }
 
-/* Buttons row */
-.entry-form .form-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 12px;
-}
+      const res = await fetch(u.toString(), { method: "GET" });
+      const txt = await res.text();
 
-.entry-form .form-actions .btn {
-  flex: 1 1 180px;
-  justify-content: center;
-}
+      let payload;
+      try { payload = JSON.parse(txt); }
+      catch { throw new Error("API did not return JSON.\n" + txt.slice(0, 250)); }
 
-/* UNPAID PANEL */
-.unpaid-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  min-height: 220px;
-}
+      if (!res.ok) throw new Error("HTTP " + res.status + "\n" + txt.slice(0, 250));
+      if (payload && payload.ok === false) throw new Error(payload.error || "API returned ok=false");
 
-.unpaid-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-}
+      return payload;
+    }
 
-.unpaid-title {
-  font-weight: 1000;
-  font-size: 14px;
-}
+    // ---- State
+    const State = {
+      records: [],
+      filtered: [],
+      studios: [],
+      unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
+      page: 1,
+      pageSize: 12,
+    };
 
-.unpaid-meta {
-  font-size: 12px;
-  color: var(--text-secondary);
-  font-weight: 800;
-}
+    // ---- Helpers
+    function pad2(n) { return String(n).padStart(2, "0"); }
 
-/* Stats block */
-.unpaid-stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 10px;
-}
+    // Strong normalization to match IDs reliably
+    function normalizeKey(v) {
+      return String(v ?? "")
+        .trim()
+        .toLowerCase()
+        .replace(/[\s\-_.]+/g, "");  // remove spaces/dashes/underscores/dots
+    }
 
-.unpaid-stats > div {
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.15);
-  font-weight: 900;
-  color: var(--text-primary);
-}
+    function toMoney(n, currency) {
+      const v = Number(n || 0);
+      if (!isFinite(v)) return "—";
+      return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
+    }
 
-/* List area */
-.unpaid-list {
-  white-space: pre-wrap;
-  font-family: Inter, sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.12);
-  max-height: 320px;
-  overflow: auto;
-}
+    function initials(name) {
+      const s = String(name || "").trim();
+      if (!s || s === "—" || s === "-") return "NA";
+      return s.split(/\s+/).slice(0,2).map(p => (p[0] || "").toUpperCase()).join("");
+    }
 
-/* Payment history table container improvement */
-#rentEntryCard .table-container {
-  margin-top: 10px;
-}
+    function normalizeStatus(s) {
+      const v = String(s || "").toLowerCase();
+      if (v === "paid") return "paid";
+      if (v === "overdue") return "overdue";
+      return "pending";
+    }
 
-/* Make filters bar look cleaner on wrap */
-.filters-bar {
-  gap: 12px;
-}
-.filters-left, .filters-right {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  align-items: center;
-}
+    function monthNameToNumber(m) {
+      const v = String(m ?? "").trim().toLowerCase();
+      const map = {
+        january:1,february:2,march:3,april:4,may:5,june:6,
+        july:7,august:8,september:9,october:10,november:11,december:12
+      };
+      if (!v) return 0;
+      if (/^\d+$/.test(v)) return Number(v);
+      return map[v] || 0;
+    }
 
-/* Responsive: stack on smaller screens */
-@media (max-width: 980px) {
-  .rent-entry-grid {
-    grid-template-columns: 1fr;
-  }
+    function fillMonthSelect(sel) {
+      const months = [
+        { v: 1, t: "January" }, { v: 2, t: "February" }, { v: 3, t: "March" }, { v: 4, t: "April" },
+        { v: 5, t: "May" }, { v: 6, t: "June" }, { v: 7, t: "July" }, { v: 8, t: "August" },
+        { v: 9, t: "September" }, { v: 10, t: "October" }, { v: 11, t: "November" }, { v: 12, t: "December" },
+      ];
+      sel.innerHTML = months.map(m => `<option value="${m.v}">${m.t}</option>`).join("");
+    }
 
-  .entry-form .form-row {
-    grid-template-columns: 1fr;
-  }
+    function fillYearSelect(sel, baseYear) {
+      const y = baseYear || new Date().getFullYear();
+      const years = [];
+      for (let i = y - 3; i <= y + 2; i++) years.push(i);
+      sel.innerHTML = years.map(v => `<option value="${v}">${v}</option>`).join("");
+    }
 
-  .entry-form .form-row label {
-    margin-bottom: -4px;
-  }
+    function getSelectedMonthYear() {
+      return { month: Number($("monthFilter").value), year: Number($("yearFilter").value) };
+    }
 
-  .unpaid-stats {
-    grid-template-columns: 1fr;
-  }
-}
+    function syncEntryMonthYear() {
+      $("entryMonth").value = $("monthFilter").value;
+      $("entryYear").value = $("yearFilter").value;
+    }
+    function syncFilterMonthYear() {
+      $("monthFilter").value = $("entryMonth").value;
+      $("yearFilter").value = $("entryYear").value;
+    }
+
+    // Extract studioId from any rent record row (handles different column names)
+    function extractStudioIdFromRentRecord(r) {
+      const candidates = [
+        r.studioId, r.StudioId,
+        r.location, r.Location,
+        r.unitId, r.UnitId,
+        r.flat, r.Flat,
+        r["Studio ID"], r["StudioId"], r["STUDIOID"]
+      ];
+      const raw = candidates.find(x => String(x ?? "").trim() !== "");
+      return String(raw ?? "").trim();
+    }
+
+    // Extract studioId from any studio row
+    function extractStudioIdFromStudioRow(s) {
+      const candidates = [
+        s.studioId, s.StudioId,
+        s.id, s.Id, s.ID,
+        s.location, s.Location,
+        s.unitId, s.UnitId,
+        s.flat, s.Flat,
+        s["Studio ID"], s["StudioId"], s["STUDIOID"]
+      ];
+      const raw = candidates.find(x => String(x ?? "").trim() !== "");
+      return String(raw ?? "").trim();
+    }
+
+    // Determine if a rent record counts as "paid" for month/year
+    function isPaidRecordForPeriod(r, month, year) {
+      const m = Number(r.month ?? r.Month ?? r.rentMonth ?? r.RentMonth ?? 0) || monthNameToNumber(r.month ?? r.Month ?? "");
+      const y = Number(r.year ?? r.Year ?? r.rentYear ?? r.RentYear ?? 0);
+
+      // If API already returns only selected month/year, accept even if m/y missing.
+      const monthOk = (!m || m === Number(month));
+      const yearOk  = (!y || y === Number(year));
+      if (!monthOk || !yearOk) return false;
+
+      const status = normalizeStatus(r.status ?? r.Status);
+      const received = String(r.receivedDate ?? r.ReceivedDate ?? r.paymentDate ?? r.PaymentDate ?? "").trim();
+      const amount = Number(r.amount ?? r.Amount ?? 0);
+
+      // paid if: status paid OR received date exists OR amount > 0
+      return (status === "paid") || !!received || (isFinite(amount) && amount > 0);
+    }
+
+    // ---- Core FIX: compute unpaid from Studios sheet vs RentRecords sheet
+    function computeUnpaidStudios(studios, rentRecords, month, year) {
+      const paidSet = new Set();
+
+      for (const r of (rentRecords || [])) {
+        if (!isPaidRecordForPeriod(r, month, year)) continue;
+        const sid = extractStudioIdFromRentRecord(r);
+        const key = normalizeKey(sid);
+        if (key) paidSet.add(key);
+      }
+
+      const unpaid = [];
+      for (const s of (studios || [])) {
+        const sid = extractStudioIdFromStudioRow(s);
+        const key = normalizeKey(sid);
+        if (!key) continue;
+
+        // Optional ignore inactive studios
+        const activeFlag = String(s.active ?? s.Active ?? s.status ?? s.Status ?? "active").toLowerCase();
+        if (activeFlag.includes("inactive") || activeFlag.includes("closed")) continue;
+
+        if (!paidSet.has(key)) {
+          unpaid.push({
+            studioId: sid,
+            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
+            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "",
+            owner: s.owner ?? s.Owner ?? s["Owner"] ?? "",
+            contact: s.contact ?? s.Contact ?? s["Contact"] ?? s["Mobile"] ?? "",
+            rent: Number(s.rent ?? s.Rent ?? s["Rent"] ?? s["Monthly Rent"] ?? s["TenantRent"] ?? s.TenantRent ?? 0),
+            type: s.type ?? s.Type ?? s["Property Type"] ?? s.Property ?? ""
+          });
+        }
+      }
+
+      // Sort by studioId for clarity
+      unpaid.sort((a, b) => String(a.studioId).localeCompare(String(b.studioId)));
+
+      const totalAmount = unpaid.reduce((a, b) => a + (Number(b.rent) || 0), 0);
+      return { studios: unpaid, totalUnpaid: unpaid.length, totalAmount };
+    }
+
+    // ---- API wrappers (use existing api.* if available; else fallback to Apps Script actions)
+    async function apiGetStudios() {
+      const api = getAPI();
+      if (api && typeof api.getStudios === "function") return await api.getStudios();
+
+      // Fallback: Apps Script action "getStudios"
+      // Expect payload: { ok:true, studios:[...] }
+      const p = await callAppsScript("getStudios", {});
+      return p.studios || p.data || [];
+    }
+
+    async function apiGetRentRecords(month, year) {
+      const api = getAPI();
+      if (api && typeof api.getRentRecords === "function") return await api.getRentRecords({ month, year });
+
+      // Fallback: Apps Script action "getRentRecords"
+      // Expect payload: { ok:true, records:[...] } or {rentRecords:[...]}
+      const p = await callAppsScript("getRentRecords", { month, year });
+      return p.records || p.rentRecords || p.data || [];
+    }
+
+    async function apiAddRentPayment(payload) {
+      const api = getAPI();
+      if (api && typeof api.addRentPayment === "function") return await api.addRentPayment(payload);
+
+      // Fallback: Apps Script action "addRentPayment"
+      // Note: if your Apps Script needs POST, tell me—I'll update it.
+      const p = await callAppsScript("addRentPayment", payload);
+      return p;
+    }
+
+    async function apiGetPaymentHistory(studioId) {
+      const api = getAPI();
+      if (api && typeof api.getPaymentHistory === "function") return await api.getPaymentHistory({ studioId });
+
+      // Fallback: Apps Script action "getPaymentHistory"
+      const p = await callAppsScript("getPaymentHistory", { studioId });
+      return p.history || p.records || p.data || [];
+    }
+
+    async function apiSendReminder(studioId, month, year) {
+      const api = getAPI();
+      if (api && typeof api.sendReminder === "function") return await api.sendReminder({ studioId, month, year });
+
+      const p = await callAppsScript("sendReminder", { studioId, month, year });
+      return p;
+    }
+
+    async function apiSendBulkReminder(month, year) {
+      const api = getAPI();
+      if (api && typeof api.sendBulkReminder === "function") return await api.sendBulkReminder({ month, year });
+
+      const p = await callAppsScript("sendBulkReminder", { month, year });
+      return p;
+    }
+
+    async function apiExportCsv(month, year) {
+      const api = getAPI();
+      if (api && typeof api.exportCsv === "function") return await api.exportCsv({ month, year });
+
+      const p = await callAppsScript("exportCsv", { month, year });
+      return p.csv || "";
+    }
+
+    // ---- Renderers
+    function renderPropertyFilter() {
+      const sel = $("propertyFilter");
+
+      // derive unit list from studios
+      const units = (State.studios || [])
+        .map(s => String(s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "").trim())
+        .filter(u => !!u);
+
+      const unique = Array.from(new Set(units)).sort((a, b) => a.localeCompare(b));
+
+      sel.innerHTML = [`<option value="all">All Units</option>`]
+        .concat(unique.map(u => `<option value="${u}">${u}</option>`))
+        .join("");
+    }
+
+    function renderStudioSelect() {
+      const sel = $("studioSelect");
+      const onlyUnpaid = $("onlyUnpaidChk").checked;
+
+      const list = onlyUnpaid
+        ? (State.unpaid.studios || [])
+        : (State.studios || []).map(s => ({
+            studioId: extractStudioIdFromStudioRow(s),
+            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
+            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "—",
+          }));
+
+      sel.innerHTML = list.length
+        ? list.map(s => `<option value="${String(s.studioId).replace(/"/g, "&quot;")}">${s.studioId} • ${s.unit || ""} • ${s.tenant || "—"}</option>`).join("")
+        : `<option value="">No studios available</option>`;
+
+      if (!sel.value && list.length) sel.value = list[0].studioId;
+    }
+
+    function renderUnpaidPanel() {
+      const month = Number($("entryMonth").value);
+      const year = Number($("entryYear").value);
+
+      $("unpaidTitle").textContent = `Unpaid Studios for ${month}/${year}:`;
+      $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
+
+      $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
+      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
+
+      // sidebar badge
+      rentBadge.textContent = String(State.unpaid.totalUnpaid || 0);
+
+      const list = State.unpaid.studios || [];
+      if (!list.length) { $("unpaidList").textContent = "No unpaid studios for this period."; return; }
+
+      const lines = list.map(s => {
+        const nm = s.tenant ? String(s.tenant) : "Vacant/Unknown";
+        const unit = s.unit ? ` (${s.unit})` : "";
+        const contact = s.contact ? `Contact: ${s.contact}` : "Contact: —";
+        const rent = toMoney(s.rent, "AED");
+        const type = s.type ? ` • ${s.type}` : "";
+        return `${s.studioId}${unit} - ${nm}${type}\nRent: ${rent}\n${contact}\n`;
+      });
+
+      $("unpaidList").textContent = lines.join("\n");
+    }
+
+    function renderSummary() {
+      const rows = State.records || [];
+      const received = rows
+        .filter(r => normalizeStatus(r.status || r.Status) === "paid")
+        .reduce((a, b) => a + Number(b.amount ?? b.Amount ?? 0), 0);
+
+      const due = State.unpaid.totalAmount || 0;
+
+      const overdueCount = rows.filter(r => normalizeStatus(r.status || r.Status) === "overdue").length;
+      const pendingWeek = rows.filter(r => normalizeStatus(r.status || r.Status) === "pending").length;
+
+      $("sumReceived").textContent = toMoney(received, "AED");
+      $("sumDue").textContent = toMoney(due, "AED");
+      $("sumOverdue").textContent = String(overdueCount);
+      $("sumPending").textContent = String(pendingWeek);
+    }
+
+    function applyFilters() {
+      const q = ($("searchInput").value || "").trim().toLowerCase();
+      const statusFilter = $("statusFilter").value;
+      const unitFilter = $("propertyFilter").value;
+
+      State.filtered = (State.records || []).filter(r => {
+        const tenant = String(r.tenant || r.Tenant || "");
+        const unit = String(r.unit || r.Unit || "");
+        const owner = String(r.owner || r.Owner || "");
+        const contact = String(r.contact || r.Contact || "");
+        const notes = String(r.notes || r.Notes || "");
+        const hay = `${tenant} ${unit} ${owner} ${contact} ${notes}`.toLowerCase();
+
+        const status = normalizeStatus(r.status || r.Status);
+
+        const matchesQ = !q || hay.includes(q);
+        const matchesStatus = statusFilter === "all" || status === statusFilter;
+        const matchesUnit = unitFilter === "all" || unit === unitFilter;
+
+        return matchesQ && matchesStatus && matchesUnit;
+      });
+
+      State.page = 1;
+    }
+
+    function renderTable() {
+      const tbody = $("rentRecordsTbody");
+      tbody.innerHTML = "";
+
+      const total = (State.filtered || []).length;
+      const start = (State.page - 1) * State.pageSize;
+      const end = Math.min(start + State.pageSize, total);
+      const pageRows = (State.filtered || []).slice(start, end);
+
+      pageRows.forEach(r => {
+        const tenant = String(r.tenant || r.Tenant || "—");
+        const unit = String(r.unit || r.Unit || "—");
+        const dueDate = String(r.dueDate || r.DueDate || "—");
+        const amount = Number(r.amount ?? r.Amount ?? 0);
+        const receivedDate = String(r.receivedDate || r.ReceivedDate || r.paymentDate || r.PaymentDate || "—");
+        const method = String(r.method || r.PaymentMethod || r.Method || "—");
+        const status = normalizeStatus(r.status || r.Status);
+        const notes = String(r.notes || r.Notes || "");
+        const studioId = extractStudioIdFromRentRecord(r);
+
+        const tr = document.createElement("tr");
+        tr.dataset.studioId = studioId;
+
+        tr.innerHTML = `
+          <td>
+            <div class="tenant-info">
+              <div class="tenant-avatar">${initials(tenant)}</div>
+              <div>
+                <div style="font-weight:1000;">${tenant}</div>
+                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${studioId || "—"}</div>
+              </div>
+            </div>
+          </td>
+          <td><strong>${unit}</strong></td>
+          <td>${dueDate}</td>
+          <td>${toMoney(amount, "AED")}</td>
+          <td>${receivedDate || "—"}</td>
+          <td>${method || "—"}</td>
+          <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
+          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${notes.replaceAll('"', '&quot;')}">${notes || "—"}</td>
+          <td>
+            <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
+              <i class="fas fa-arrow-right"></i> Select
+            </button>
+            <button class="action-btn" data-action="remind" title="Send reminder (hook)">
+              <i class="fas fa-envelope"></i> Remind
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      $("pageInfo").textContent = total
+        ? `Showing ${start + 1}–${end} of ${total} records`
+        : `Showing 0–0 of 0 records`;
+
+      $("prevBtn").disabled = State.page <= 1;
+      $("nextBtn").disabled = end >= total;
+    }
+
+    function renderHistory(history) {
+      const tbody = $("historyTbody");
+      tbody.innerHTML = "";
+
+      const rows = Array.isArray(history) ? history : [];
+      if (!rows.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
+        return;
+      }
+
+      rows.forEach(h => {
+        const paymentDate = String(h.paymentDate || h.PaymentDate || "—");
+        const amount = Number(h.amount ?? h.Amount ?? 0);
+        const maintenance = Number(h.maintenance ?? h.Maintenance ?? 0);
+        const month = String(h.month ?? h.Month ?? "—");
+        const year = String(h.year ?? h.Year ?? "—");
+        const method = String(h.method ?? h.Method ?? h.PaymentMethod ?? "—");
+        const notes = String(h.notes || h.Notes || "");
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${paymentDate}</td>
+          <td>${toMoney(amount, "AED")}</td>
+          <td>${toMoney(maintenance, "AED")}</td>
+          <td>${month}</td>
+          <td>${year}</td>
+          <td>${method}</td>
+          <td>${notes || "—"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function refreshHistory() {
+      const studioId = $("studioSelect").value;
+      if (!studioId) { renderHistory([]); return; }
+      const history = await apiGetPaymentHistory(studioId);
+      renderHistory(history);
+    }
+
+    async function refreshForPeriod() {
+      const { month, year } = getSelectedMonthYear();
+
+      // 1) Load studios (ALL)
+      const studios = await apiGetStudios();
+      State.studios = Array.isArray(studios) ? studios : [];
+
+      // 2) Load rent records for selected month/year
+      const records = await apiGetRentRecords(month, year);
+      State.records = Array.isArray(records) ? records : [];
+
+      // 3) Compute unpaid
+      State.unpaid = computeUnpaidStudios(State.studios, State.records, month, year);
+
+      // 4) Render
+      renderPropertyFilter();
+      renderUnpaidPanel();
+      renderStudioSelect();
+
+      applyFilters();
+      renderSummary();
+      renderTable();
+    }
+
+    function validateEntry() {
+      const studioId = $("studioSelect").value;
+      const paymentDate = $("paymentDate").value;
+      const amount = Number($("amountInput").value);
+      if (!studioId) return "Please select a Studio ID.";
+      if (!paymentDate) return "Please select a Payment Date.";
+      if (!isFinite(amount) || amount <= 0) return "Please enter a valid Amount > 0.";
+      return "";
+    }
+
+    async function recordPayment() {
+      const err = validateEntry();
+      if (err) { setError(err); showToast("Validation failed", err); return; }
+      setError("");
+
+      const payload = {
+        studioId: $("studioSelect").value,
+        month: Number($("entryMonth").value),
+        year: Number($("entryYear").value),
+        paymentDate: $("paymentDate").value,
+        amount: Number($("amountInput").value),
+        maintenance: Number($("maintenanceInput").value || 0),
+        method: ($("paymentMethod").value || "Cash"),
+        notes: ($("notesInput").value || "").trim()
+      };
+
+      try {
+        setLoading(true);
+        await apiAddRentPayment(payload);
+        setLoading(false);
+
+        showToast("Payment recorded", `${payload.studioId} • ${payload.month}/${payload.year}`);
+
+        syncFilterMonthYear();
+        await refreshForPeriod();
+        await refreshHistory();
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Failed to record payment.");
+      }
+    }
+
+    async function sendReminder(studioId) {
+      const month = Number($("entryMonth").value);
+      const year = Number($("entryYear").value);
+
+      try {
+        setLoading(true);
+        await apiSendReminder(studioId, month, year);
+        setLoading(false);
+        showToast("Reminder triggered", `${studioId} • ${month}/${year}`);
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Failed to send reminder.");
+      }
+    }
+
+    async function sendBulkReminder() {
+      const month = Number($("entryMonth").value);
+      const year = Number($("entryYear").value);
+
+      try {
+        setLoading(true);
+        const res = await apiSendBulkReminder(month, year);
+        setLoading(false);
+        showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${month}/${year}`);
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Failed to send bulk reminders.");
+      }
+    }
+
+    async function exportCsv() {
+      const { month, year } = getSelectedMonthYear();
+
+      try {
+        setLoading(true);
+        const csv = await apiExportCsv(month, year);
+
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `rent-records_${year}-${pad2(month)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        setLoading(false);
+        showToast("Exported CSV", `rent-records_${year}-${pad2(month)}.csv`);
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Export failed.");
+      }
+    }
+
+    function clearForm() {
+      $("amountInput").value = "";
+      $("maintenanceInput").value = "";
+      $("notesInput").value = "";
+      $("paymentMethod").value = "Cash";
+      $("paymentDate").valueAsDate = new Date();
+      showToast("Cleared", "Entry form reset");
+    }
+
+    function toggleEntry() {
+      const body = $("entryBody");
+      const btn = $("toggleEntryBtn");
+      const isHidden = body.style.display === "none";
+      body.style.display = isHidden ? "" : "none";
+      btn.innerHTML = isHidden
+        ? `<i class="fas fa-chevron-up"></i> Collapse`
+        : `<i class="fas fa-chevron-down"></i> Expand`;
+    }
+
+    function applyAndRender() {
+      applyFilters();
+      renderTable();
+    }
+
+    // ---- Events (kept)
+    $("searchInput").addEventListener("input", applyAndRender);
+    $("statusFilter").addEventListener("change", applyAndRender);
+    $("propertyFilter").addEventListener("change", applyAndRender);
+
+    $("monthFilter").addEventListener("change", async () => {
+      syncEntryMonthYear();
+      await refreshForPeriod();
+      await refreshHistory();
+    });
+    $("yearFilter").addEventListener("change", async () => {
+      syncEntryMonthYear();
+      await refreshForPeriod();
+      await refreshHistory();
+    });
+
+    $("entryMonth").addEventListener("change", async () => {
+      syncFilterMonthYear();
+      await refreshForPeriod();
+      await refreshHistory();
+    });
+    $("entryYear").addEventListener("change", async () => {
+      syncFilterMonthYear();
+      await refreshForPeriod();
+      await refreshHistory();
+    });
+
+    $("onlyUnpaidChk").addEventListener("change", () => renderStudioSelect());
+    $("studioSelect").addEventListener("change", () => refreshHistory());
+
+    $("recordPaymentBtn").addEventListener("click", recordPayment);
+    $("emailReminderBtn").addEventListener("click", () => sendReminder($("studioSelect").value));
+    $("bulkReminderBtn").addEventListener("click", sendBulkReminder);
+
+    $("historyRefreshBtn").addEventListener("click", refreshHistory);
+    $("clearFormBtn").addEventListener("click", clearForm);
+    $("toggleEntryBtn").addEventListener("click", toggleEntry);
+
+    $("syncBtn").addEventListener("click", async () => {
+      try {
+        setError("");
+        setLoading(true);
+        await refreshForPeriod();
+        await refreshHistory();
+        setLoading(false);
+        showToast("Refreshed", "Live data updated");
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Refresh failed.");
+      }
+    });
+
+    $("exportBtn").addEventListener("click", exportCsv);
+
+    $("prevBtn").addEventListener("click", () => {
+      if (State.page <= 1) return;
+      State.page -= 1;
+      renderTable();
+    });
+
+    $("nextBtn").addEventListener("click", () => {
+      const total = (State.filtered || []).length;
+      const maxPage = Math.max(1, Math.ceil(total / State.pageSize));
+      if (State.page >= maxPage) return;
+      State.page += 1;
+      renderTable();
+    });
+
+    $("rentRecordsTbody").addEventListener("click", async (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const tr = btn.closest("tr");
+      const studioId = tr?.dataset?.studioId || "";
+      const action = btn.dataset.action;
+
+      if (action === "select" && studioId) {
+        $("studioSelect").value = studioId;
+        await refreshHistory();
+        showToast("Selected", studioId);
+        $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+
+      if (action === "remind" && studioId) {
+        await sendReminder(studioId);
+      }
+    });
+
+    $("openInSheetBtn").addEventListener("click", () => {
+      const api = getAPI();
+      const url = (api && api.sheetUrl) || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
+      if (!url) {
+        showToast("Sheet link not set", "Add SHEET_URL in app-config.js");
+        return;
+      }
+      window.open(url, "_blank", "noopener,noreferrer");
+    });
+
+    $("openEntryBtn").addEventListener("click", () => {
+      $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
+      const body = $("entryBody");
+      if (body.style.display === "none") toggleEntry();
+    });
+
+    // ---- Init
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        setError("");
+        setLoading(true);
+
+        fillMonthSelect($("monthFilter"));
+        fillMonthSelect($("entryMonth"));
+        fillYearSelect($("yearFilter"), new Date().getFullYear());
+        fillYearSelect($("entryYear"), new Date().getFullYear());
+
+        const now = new Date();
+        $("monthFilter").value = String(now.getMonth() + 1);
+        $("yearFilter").value = String(now.getFullYear());
+        syncEntryMonthYear();
+        $("paymentDate").valueAsDate = new Date();
+
+        await refreshForPeriod();
+        await refreshHistory();
+
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Initialization failed.");
+      }
+    });
+  </script>
+</body>
+</html>
