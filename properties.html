@@ -1369,12 +1369,17 @@
      * API
      ******************************************************************/
     
+    // Constants for fetch configuration
+    const CACHE_BUST_PARAM = '_cb';
+    const BASE_RETRY_DELAY_MS = 1000;
+    const RESPONSE_PREVIEW_LENGTH = 250;
+    
     /**
      * Network status detection
      * Checks if the browser reports being online
      */
     function isOnline(){
-      return navigator.onLine !== false;
+      return navigator.onLine;
     }
 
     /**
@@ -1425,7 +1430,7 @@
           console.log(`[PropertyPilot] Fetch attempt ${attempt + 1}/${maxRetries} for ${url}`);
           
           // Add cache-busting parameter to prevent mobile caching issues
-          const cacheBustUrl = url + (url.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
+          const cacheBustUrl = url + (url.includes('?') ? '&' : '?') + `${CACHE_BUST_PARAM}=${Date.now()}`;
           
           const response = await fetchWithTimeout(cacheBustUrl, options, timeoutMs);
           console.log(`[PropertyPilot] Fetch successful on attempt ${attempt + 1}, status: ${response.status}`);
@@ -1438,7 +1443,7 @@
           // Don't retry if it's the last attempt
           if(attempt < maxRetries - 1){
             // Exponential backoff: 1s, 2s, 4s
-            const delayMs = Math.pow(2, attempt) * 1000;
+            const delayMs = Math.pow(2, attempt) * BASE_RETRY_DELAY_MS;
             console.log(`[PropertyPilot] Retrying in ${delayMs}ms...`);
             await new Promise(resolve => setTimeout(resolve, delayMs));
           }
@@ -1489,14 +1494,14 @@
           console.log("[PropertyPilot] JSON parsed successfully");
         }
         catch { 
-          console.error("[PropertyPilot] JSON parse failed, response:", txt.slice(0, 500));
+          console.error("[PropertyPilot] JSON parse failed, response:", txt.slice(0, RESPONSE_PREVIEW_LENGTH));
           throw new Error(
             "Server returned invalid data format.\n\n" +
             "This may indicate:\n" +
             "• Google Sheet is not properly shared\n" +
             "• API script needs to be redeployed\n" +
             "• Temporary server issue\n\n" +
-            "First 250 chars of response:\n" + txt.slice(0,250)
+            "First 250 chars of response:\n" + txt.slice(0, RESPONSE_PREVIEW_LENGTH)
           ); 
         }
 
@@ -1508,7 +1513,7 @@
             "• Refreshing the page\n" +
             "• Checking if the Google Sheet is accessible\n" +
             "• Contacting support if the issue persists\n\n" +
-            "Response: " + txt.slice(0,250)
+            "Response: " + txt.slice(0, RESPONSE_PREVIEW_LENGTH)
           );
         }
         
