@@ -46,7 +46,7 @@
       <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
       <a href="rent-records.html" class="nav-link active">
         <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">0</span>
+        <span class="nav-badge" id="rentBadge">3</span>
       </a>
     </div>
 
@@ -159,7 +159,7 @@
           <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
             <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (hook)">
               <i class="fas fa-envelope"></i> Email Unpaid (Bulk)
-            </button>
+            </sbutton>
             <button class="btn btn-danger" id="clearFormBtn" title="Clear entry form">
               <i class="fas fa-eraser"></i> Clear
             </button>
@@ -195,13 +195,14 @@
                 <option value="Cash">Cash</option>
                 <option value="Bank Transfer">Bank Transfer</option>
                 <option value="Cheque">Cheque</option>
+                <option value="Card">Card</option>
                 <option value="Other">Other</option>
               </select>
             </div>
 
             <div class="form-row">
               <label>Notes:</label>
-              <input class="control" id="notesInput" type="text" placeholder="e.g. transfer ref, partial, remarks…" />
+              <input class="control" id="notesInput" type="text" placeholder="e.g. Cash, transfer ref, partial…" />
             </div>
 
             <div class="form-actions">
@@ -214,7 +215,7 @@
             </div>
 
             <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:800;">
-              Tip: Unpaid is calculated by <b>Studios sheet MINUS RentRecords sheet</b> for selected month/year.
+              Tip: Unpaid = Studios sheet MINUS RentRecords sheet for selected month/year.
             </div>
           </div>
 
@@ -321,11 +322,20 @@
 
   <script>
     /*********************************************************************
-     * UNPAID FIX (Robust):
-     * Unpaid = Studios sheet (ALL) minus RentRecords (selected Month/Year)
+     * RENT RECORDS – CORRECT UNPAID LOGIC (matches your C# behavior)
      *
-     * Works even if StudioId column names differ.
+     * Unpaid Studios for selected Month/Year:
+     *  - Read Studios sheet: Studios[StudioId]
+     *  - Read RentRecords sheet: RentRecords[StudioId, Month, Year]
+     *  - PaidSet = StudioId where Month==selected AND Year==selected
+     *  - Unpaid = Studios - PaidSet
+     *
+     * Enrich unpaid display using Table sheet (Location == StudioId):
+     *  - TenantName, TenantContact, TenantRent, Property
+     *
+     * No UI/Design removed.
      *********************************************************************/
+
     const $ = (id) => document.getElementById(id);
 
     const ppLoading = $("ppLoading");
@@ -334,63 +344,132 @@
     const toast = $("toast");
     const toastMsg = $("toastMsg");
     const toastSub = $("toastSub");
-    const rentBadge = $("rentBadge");
 
     function showToast(message, sub) {
       toastMsg.textContent = message || "Done";
-      if (sub) { toastSub.style.display = ""; toastSub.textContent = sub; }
-      else { toastSub.style.display = "none"; toastSub.textContent = ""; }
+      if (sub) {
+        toastSub.style.display = "";
+        toastSub.textContent = sub;
+      } else {
+        toastSub.style.display = "none";
+        toastSub.textContent = "";
+      }
       toast.style.display = "flex";
       setTimeout(() => { toast.style.display = "none"; }, 2600);
     }
 
     function setLoading(on) { ppLoading.style.display = on ? "flex" : "none"; }
+
     function setError(msg) {
       if (!msg) { ppError.style.display = "none"; ppError.textContent = ""; return; }
       ppError.style.display = "block";
       ppError.textContent = msg;
     }
 
-    // Try to use your existing API object if present
-    function getAPI() {
-      return window.PropertyPilotApi || window.PropertyPilot || null;
-    }
+    /*********************************************************************
+     * SAFE API CLIENT (fallback if app-data.js doesn't expose functions)
+     *********************************************************************/
+    const API_FALLBACK = {
+      timeoutMs: 15000,
+      get apiUrl(){
+        return (window.APP_CONFIG && (window.APP_CONFIG.API_URL || window.APP_CONFIG.SCRIPT_URL)) || "";
+      },
+      async fetchWithTimeout(url, options = {}, timeoutMs = 15000){
+        const controller = new AbortController();
+        const t = setTimeout(() => controller.abort(), timeoutMs);
+        try{
+          return await fetch(url, {
+            ...options,
+            signal: controller.signal,
+            mode: "cors",
+            redirect: "follow",
+            cache: "no-store"
+          });
+        } finally { clearTimeout(t); }
+      },
+      async call(action, payload){
+        const base = this.apiUrl;
+        if(!base) throw new Error("API_URL missing in app-config.js (APP_CONFIG.API_URL).");
 
-    // App Script URL
-    function getApiUrl() {
-      return (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "";
-    }
+        const u = new URL(base);
+        u.searchParams.set("action", action);
+        u.searchParams.set("_ts", String(Date.now()));
 
-    async function callAppsScript(action, params) {
-      const urlBase = getApiUrl();
-      if (!urlBase) throw new Error("API_URL not set in app-config.js (APP_CONFIG.API_URL).");
+        // send payload as JSON in POST (preferred)
+        const res = await this.fetchWithTimeout(u.toString(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload || {})
+        }, this.timeoutMs);
 
-      const u = new URL(urlBase);
-      u.searchParams.set("action", action);
-      if (params && typeof params === "object") {
-        Object.keys(params).forEach(k => {
-          if (params[k] !== undefined && params[k] !== null) u.searchParams.set(k, String(params[k]));
-        });
+        const txt = await res.text();
+        const trimmed = (txt || "").trim();
+
+        // detect HTML (common when not public or auth redirect)
+        if(trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")){
+          throw new Error("API returned HTML instead of JSON. Fix Apps Script deployment: Execute as Me, Access: Anyone.");
+        }
+
+        let json;
+        try { json = JSON.parse(trimmed); }
+        catch { throw new Error("API did not return valid JSON. First 200 chars: " + trimmed.slice(0,200)); }
+
+        if(!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0,200)));
+        if(json && json.ok === false) throw new Error(json.error || "API returned ok=false");
+        return json;
       }
+    };
 
-      const res = await fetch(u.toString(), { method: "GET" });
-      const txt = await res.text();
+    function getAPI(){
+      // If your app-data.js exposes PropertyPilotApi, use it
+      if(window.PropertyPilotApi) return window.PropertyPilotApi;
+      if(window.PropertyPilot) return window.PropertyPilot;
 
-      let payload;
-      try { payload = JSON.parse(txt); }
-      catch { throw new Error("API did not return JSON.\n" + txt.slice(0, 250)); }
-
-      if (!res.ok) throw new Error("HTTP " + res.status + "\n" + txt.slice(0, 250));
-      if (payload && payload.ok === false) throw new Error(payload.error || "API returned ok=false");
-
-      return payload;
+      // Fallback minimal API (actions must exist on Apps Script)
+      return {
+        sheetUrl: (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "",
+        async getStudios(){
+          const r = await API_FALLBACK.call("getStudios", {});
+          return r.data || r.studios || r.rows || [];
+        },
+        async getTable(){
+          const r = await API_FALLBACK.call("getTable", {});
+          return r.data || r.table || r.rows || [];
+        },
+        async getRentRecords({month, year}){
+          const r = await API_FALLBACK.call("getRentRecords", { month, year });
+          return r.data || r.records || r.rows || [];
+        },
+        async addRentPayment(payload){
+          const r = await API_FALLBACK.call("addRentPayment", payload);
+          return r;
+        },
+        async getPaymentHistory({studioId}){
+          const r = await API_FALLBACK.call("getPaymentHistory", { studioId });
+          return r.data || r.history || r.rows || [];
+        },
+        async exportCsv({month, year}){
+          const r = await API_FALLBACK.call("exportCsv", { month, year });
+          return r.csv || "";
+        },
+        async sendReminder({studioId, month, year}){
+          const r = await API_FALLBACK.call("sendReminder", { studioId, month, year });
+          return r;
+        },
+        async sendBulkReminder({month, year}){
+          const r = await API_FALLBACK.call("sendBulkReminder", { month, year });
+          return r;
+        }
+      };
     }
 
     // ---- State
     const State = {
       records: [],
       filtered: [],
-      studios: [],
+      studios: [],     // from Studios sheet (StudioId list)
+      tableRows: [],   // from Table sheet (Location + tenant details)
+      tableMap: new Map(), // Location -> row
       unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
       page: 1,
       pageSize: 12,
@@ -399,45 +478,57 @@
     // ---- Helpers
     function pad2(n) { return String(n).padStart(2, "0"); }
 
-    // Strong normalization to match IDs reliably
-    function normalizeKey(v) {
-      return String(v ?? "")
-        .trim()
-        .toLowerCase()
-        .replace(/[\s\-_.]+/g, "");  // remove spaces/dashes/underscores/dots
+    function normStr(v){
+      return String(v ?? "").trim();
     }
 
-    function toMoney(n, currency) {
+    function normalizeId(v){
+      return normStr(v).toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function toNum(v){
+      const n = Number(v);
+      return isFinite(n) ? n : 0;
+    }
+
+    function toMoney(n, currency){
       const v = Number(n || 0);
       if (!isFinite(v)) return "—";
       return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
     }
 
-    function initials(name) {
-      const s = String(name || "").trim();
-      if (!s || s === "—" || s === "-") return "NA";
+    function initials(name){
+      const s = normStr(name);
+      if (!s) return "NA";
       return s.split(/\s+/).slice(0,2).map(p => (p[0] || "").toUpperCase()).join("");
     }
 
-    function normalizeStatus(s) {
-      const v = String(s || "").toLowerCase();
-      if (v === "paid") return "paid";
-      if (v === "overdue") return "overdue";
+    function monthName(m){
+      const names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      return names[(m-1)] || String(m);
+    }
+
+    function normalizeStatus(v){
+      const s = normStr(v).toLowerCase();
+      if(s === "paid") return "paid";
+      if(s === "overdue") return "overdue";
       return "pending";
     }
 
-    function monthNameToNumber(m) {
-      const v = String(m ?? "").trim().toLowerCase();
-      const map = {
-        january:1,february:2,march:3,april:4,may:5,june:6,
-        july:7,august:8,september:9,october:10,november:11,december:12
-      };
-      if (!v) return 0;
-      if (/^\d+$/.test(v)) return Number(v);
-      return map[v] || 0;
+    function parseDateToMonthYear(d){
+      const s = normStr(d);
+      if(!s) return null;
+
+      // ISO / Date object / excel-like
+      const dt = new Date(s);
+      if(!isNaN(dt.getTime())){
+        return { month: dt.getMonth() + 1, year: dt.getFullYear() };
+      }
+
+      return null;
     }
 
-    function fillMonthSelect(sel) {
+    function fillMonthSelect(sel){
       const months = [
         { v: 1, t: "January" }, { v: 2, t: "February" }, { v: 3, t: "March" }, { v: 4, t: "April" },
         { v: 5, t: "May" }, { v: 6, t: "June" }, { v: 7, t: "July" }, { v: 8, t: "August" },
@@ -446,274 +537,268 @@
       sel.innerHTML = months.map(m => `<option value="${m.v}">${m.t}</option>`).join("");
     }
 
-    function fillYearSelect(sel, baseYear) {
+    function fillYearSelect(sel, baseYear){
       const y = baseYear || new Date().getFullYear();
       const years = [];
-      for (let i = y - 3; i <= y + 2; i++) years.push(i);
+      for(let i = y - 3; i <= y + 2; i++) years.push(i);
       sel.innerHTML = years.map(v => `<option value="${v}">${v}</option>`).join("");
     }
 
-    function getSelectedMonthYear() {
+    function getSelectedMonthYear(){
       return { month: Number($("monthFilter").value), year: Number($("yearFilter").value) };
     }
 
-    function syncEntryMonthYear() {
+    function syncEntryMonthYear(){
       $("entryMonth").value = $("monthFilter").value;
       $("entryYear").value = $("yearFilter").value;
     }
-    function syncFilterMonthYear() {
+
+    function syncFilterMonthYear(){
       $("monthFilter").value = $("entryMonth").value;
       $("yearFilter").value = $("entryYear").value;
     }
 
-    // Extract studioId from any rent record row (handles different column names)
-    function extractStudioIdFromRentRecord(r) {
-      const candidates = [
-        r.studioId, r.StudioId,
-        r.location, r.Location,
-        r.unitId, r.UnitId,
-        r.flat, r.Flat,
-        r["Studio ID"], r["StudioId"], r["STUDIOID"]
-      ];
-      const raw = candidates.find(x => String(x ?? "").trim() !== "");
-      return String(raw ?? "").trim();
-    }
+    /*********************************************************************
+     * IMPORTANT FIX:
+     * PaidSet uses RentRecords sheet columns:
+     *  - StudioId
+     *  - Month
+     *  - Year
+     * (fallback: PaymentDate month/year)
+     *********************************************************************/
+    function buildPaidSetFromRentRecords(rentRecords, selectedMonth, selectedYear){
+      const paid = new Set();
+      const m = Number(selectedMonth);
+      const y = Number(selectedYear);
 
-    // Extract studioId from any studio row
-    function extractStudioIdFromStudioRow(s) {
-      const candidates = [
-        s.studioId, s.StudioId,
-        s.id, s.Id, s.ID,
-        s.location, s.Location,
-        s.unitId, s.UnitId,
-        s.flat, s.Flat,
-        s["Studio ID"], s["StudioId"], s["STUDIOID"]
-      ];
-      const raw = candidates.find(x => String(x ?? "").trim() !== "");
-      return String(raw ?? "").trim();
-    }
+      for(const r of (rentRecords || [])){
+        const sid = normalizeId(r.StudioId ?? r.studioId ?? r.Location ?? r.location ?? r["StudioId"] ?? "");
+        if(!sid) continue;
 
-    // Determine if a rent record counts as "paid" for month/year
-    function isPaidRecordForPeriod(r, month, year) {
-      const m = Number(r.month ?? r.Month ?? r.rentMonth ?? r.RentMonth ?? 0) || monthNameToNumber(r.month ?? r.Month ?? "");
-      const y = Number(r.year ?? r.Year ?? r.rentYear ?? r.RentYear ?? 0);
+        // Prefer explicit Month/Year columns
+        const rm = Number(r.Month ?? r.month ?? r["Month"] ?? 0);
+        const ry = Number(r.Year ?? r.year ?? r["Year"] ?? 0);
 
-      // If API already returns only selected month/year, accept even if m/y missing.
-      const monthOk = (!m || m === Number(month));
-      const yearOk  = (!y || y === Number(year));
-      if (!monthOk || !yearOk) return false;
+        let match = false;
+        if(rm && ry){
+          match = (rm === m && ry === y);
+        } else {
+          // fallback from PaymentDate
+          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
+          if(my) match = (my.month === m && my.year === y);
+        }
 
-      const status = normalizeStatus(r.status ?? r.Status);
-      const received = String(r.receivedDate ?? r.ReceivedDate ?? r.paymentDate ?? r.PaymentDate ?? "").trim();
-      const amount = Number(r.amount ?? r.Amount ?? 0);
-
-      // paid if: status paid OR received date exists OR amount > 0
-      return (status === "paid") || !!received || (isFinite(amount) && amount > 0);
-    }
-
-    // ---- Core FIX: compute unpaid from Studios sheet vs RentRecords sheet
-    function computeUnpaidStudios(studios, rentRecords, month, year) {
-      const paidSet = new Set();
-
-      for (const r of (rentRecords || [])) {
-        if (!isPaidRecordForPeriod(r, month, year)) continue;
-        const sid = extractStudioIdFromRentRecord(r);
-        const key = normalizeKey(sid);
-        if (key) paidSet.add(key);
+        if(match) paid.add(sid);
       }
+
+      return paid;
+    }
+
+    function buildTableMap(tableRows){
+      const map = new Map();
+      for(const row of (tableRows || [])){
+        const loc = normalizeId(row.Location ?? row.location ?? row.StudioId ?? row.studioId ?? "");
+        if(!loc) continue;
+        map.set(loc, row);
+      }
+      return map;
+    }
+
+    function computeUnpaidStudios(studioRows, rentRecords, tableMap, month, year){
+      const paidSet = buildPaidSetFromRentRecords(rentRecords, month, year);
+
+      // Studios sheet can be:
+      //  - [{StudioId:"z1"}] OR ["z1"] OR rows with "StudioId" only
+      const studioIds = [];
+      for(const s of (studioRows || [])){
+        const raw =
+          (typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? s.Location ?? s.location ?? ""));
+        const sid = normalizeId(raw);
+        if(sid) studioIds.push(sid);
+      }
+
+      // Deduplicate
+      const uniq = Array.from(new Set(studioIds)).sort((a,b)=>a.localeCompare(b));
 
       const unpaid = [];
-      for (const s of (studios || [])) {
-        const sid = extractStudioIdFromStudioRow(s);
-        const key = normalizeKey(sid);
-        if (!key) continue;
+      for(const sid of uniq){
+        if(paidSet.has(sid)) continue;
 
-        // Optional ignore inactive studios
-        const activeFlag = String(s.active ?? s.Active ?? s.status ?? s.Status ?? "active").toLowerCase();
-        if (activeFlag.includes("inactive") || activeFlag.includes("closed")) continue;
-
-        if (!paidSet.has(key)) {
-          unpaid.push({
-            studioId: sid,
-            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
-            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "",
-            owner: s.owner ?? s.Owner ?? s["Owner"] ?? "",
-            contact: s.contact ?? s.Contact ?? s["Contact"] ?? s["Mobile"] ?? "",
-            rent: Number(s.rent ?? s.Rent ?? s["Rent"] ?? s["Monthly Rent"] ?? s["TenantRent"] ?? s.TenantRent ?? 0),
-            type: s.type ?? s.Type ?? s["Property Type"] ?? s.Property ?? ""
-          });
-        }
+        const info = tableMap.get(sid) || {};
+        unpaid.push({
+          StudioId: sid,
+          TenantName: info.TenantName ?? info.tenantName ?? "",
+          TenantContact: info.TenantContact ?? info.tenantContact ?? "",
+          TenantRent: toNum(info.TenantRent ?? info.tenantRent ?? 0),
+          Property: info.Property ?? info.property ?? "",
+          Flat: info.Flat ?? info.flat ?? "",
+          OwnerName: info.OwnerName ?? info.ownerName ?? "",
+          OwnerContact: info.OwnerContact ?? info.ownerContact ?? ""
+        });
       }
 
-      // Sort by studioId for clarity
-      unpaid.sort((a, b) => String(a.studioId).localeCompare(String(b.studioId)));
-
-      const totalAmount = unpaid.reduce((a, b) => a + (Number(b.rent) || 0), 0);
+      const totalAmount = unpaid.reduce((a,b)=>a + toNum(b.TenantRent), 0);
       return { studios: unpaid, totalUnpaid: unpaid.length, totalAmount };
     }
 
-    // ---- API wrappers (use existing api.* if available; else fallback to Apps Script actions)
-    async function apiGetStudios() {
-      const api = getAPI();
-      if (api && typeof api.getStudios === "function") return await api.getStudios();
-
-      // Fallback: Apps Script action "getStudios"
-      // Expect payload: { ok:true, studios:[...] }
-      const p = await callAppsScript("getStudios", {});
-      return p.studios || p.data || [];
-    }
-
-    async function apiGetRentRecords(month, year) {
-      const api = getAPI();
-      if (api && typeof api.getRentRecords === "function") return await api.getRentRecords({ month, year });
-
-      // Fallback: Apps Script action "getRentRecords"
-      // Expect payload: { ok:true, records:[...] } or {rentRecords:[...]}
-      const p = await callAppsScript("getRentRecords", { month, year });
-      return p.records || p.rentRecords || p.data || [];
-    }
-
-    async function apiAddRentPayment(payload) {
-      const api = getAPI();
-      if (api && typeof api.addRentPayment === "function") return await api.addRentPayment(payload);
-
-      // Fallback: Apps Script action "addRentPayment"
-      // Note: if your Apps Script needs POST, tell me—I'll update it.
-      const p = await callAppsScript("addRentPayment", payload);
-      return p;
-    }
-
-    async function apiGetPaymentHistory(studioId) {
-      const api = getAPI();
-      if (api && typeof api.getPaymentHistory === "function") return await api.getPaymentHistory({ studioId });
-
-      // Fallback: Apps Script action "getPaymentHistory"
-      const p = await callAppsScript("getPaymentHistory", { studioId });
-      return p.history || p.records || p.data || [];
-    }
-
-    async function apiSendReminder(studioId, month, year) {
-      const api = getAPI();
-      if (api && typeof api.sendReminder === "function") return await api.sendReminder({ studioId, month, year });
-
-      const p = await callAppsScript("sendReminder", { studioId, month, year });
-      return p;
-    }
-
-    async function apiSendBulkReminder(month, year) {
-      const api = getAPI();
-      if (api && typeof api.sendBulkReminder === "function") return await api.sendBulkReminder({ month, year });
-
-      const p = await callAppsScript("sendBulkReminder", { month, year });
-      return p;
-    }
-
-    async function apiExportCsv(month, year) {
-      const api = getAPI();
-      if (api && typeof api.exportCsv === "function") return await api.exportCsv({ month, year });
-
-      const p = await callAppsScript("exportCsv", { month, year });
-      return p.csv || "";
-    }
-
-    // ---- Renderers
-    function renderPropertyFilter() {
+    /*********************************************************************
+     * Rendering
+     *********************************************************************/
+    function renderPropertyFilter(){
       const sel = $("propertyFilter");
 
-      // derive unit list from studios
-      const units = (State.studios || [])
-        .map(s => String(s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "").trim())
-        .filter(u => !!u);
-
-      const unique = Array.from(new Set(units)).sort((a, b) => a.localeCompare(b));
-
-      sel.innerHTML = [`<option value="all">All Units</option>`]
-        .concat(unique.map(u => `<option value="${u}">${u}</option>`))
-        .join("");
+      // Use Table sheet "Location" as unit IDs (since studios list doesn't have unit names)
+      const locations = Array.from(State.tableMap.keys()).sort((a,b)=>a.localeCompare(b));
+      const opts = [`<option value="all">All Units</option>`].concat(
+        locations.map(loc => `<option value="${loc}">${loc}</option>`)
+      );
+      sel.innerHTML = opts.join("");
     }
 
-    function renderStudioSelect() {
+    function renderStudioSelect(){
       const sel = $("studioSelect");
       const onlyUnpaid = $("onlyUnpaidChk").checked;
 
       const list = onlyUnpaid
-        ? (State.unpaid.studios || [])
-        : (State.studios || []).map(s => ({
-            studioId: extractStudioIdFromStudioRow(s),
-            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
-            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "—",
-          }));
+        ? (State.unpaid.studios || []).map(u => ({
+            id: u.StudioId,
+            tenant: u.TenantName || "—",
+            rent: u.TenantRent || 0
+          }))
+        : (State.studios || []).map(s => {
+            const id = (typeof s === "string") ? s : (s.StudioId ?? s.studioId ?? "");
+            const info = State.tableMap.get(normalizeId(id)) || {};
+            return { id: normalizeId(id), tenant: info.TenantName || "—", rent: toNum(info.TenantRent) };
+          });
 
       sel.innerHTML = list.length
-        ? list.map(s => `<option value="${String(s.studioId).replace(/"/g, "&quot;")}">${s.studioId} • ${s.unit || ""} • ${s.tenant || "—"}</option>`).join("")
+        ? list.map(x => `<option value="${x.id}">${x.id} • ${x.tenant} • ${toMoney(x.rent,"AED")}</option>`).join("")
         : `<option value="">No studios available</option>`;
 
-      if (!sel.value && list.length) sel.value = list[0].studioId;
+      if(!sel.value && list.length) sel.value = list[0].id;
     }
 
-    function renderUnpaidPanel() {
+    function renderUnpaidPanel(){
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
 
-      $("unpaidTitle").textContent = `Unpaid Studios for ${month}/${year}:`;
+      $("unpaidTitle").textContent = `Unpaid Studios for ${monthName(month)} ${year}`;
       $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
 
       $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
       $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
 
-      // sidebar badge
-      rentBadge.textContent = String(State.unpaid.totalUnpaid || 0);
-
       const list = State.unpaid.studios || [];
-      if (!list.length) { $("unpaidList").textContent = "No unpaid studios for this period."; return; }
+      if(!list.length){
+        $("unpaidList").textContent = "No unpaid studios for this period.";
+        return;
+      }
 
-      const lines = list.map(s => {
-        const nm = s.tenant ? String(s.tenant) : "Vacant/Unknown";
-        const unit = s.unit ? ` (${s.unit})` : "";
-        const contact = s.contact ? `Contact: ${s.contact}` : "Contact: —";
-        const rent = toMoney(s.rent, "AED");
-        const type = s.type ? ` • ${s.type}` : "";
-        return `${s.studioId}${unit} - ${nm}${type}\nRent: ${rent}\n${contact}\n`;
+      const lines = list.map(u => {
+        const tn = u.TenantName ? String(u.TenantName) : "Vacant/Unknown";
+        const contact = u.TenantContact ? `Contact: ${u.TenantContact}` : "Contact: —";
+        const rent = toMoney(u.TenantRent, "AED");
+        const prop = u.Property ? ` • ${u.Property}` : "";
+        return `${u.StudioId} - ${tn}${prop}\nRent: ${rent}\n${contact}\n`;
       });
 
       $("unpaidList").textContent = lines.join("\n");
     }
 
-    function renderSummary() {
-      const rows = State.records || [];
-      const received = rows
-        .filter(r => normalizeStatus(r.status || r.Status) === "paid")
-        .reduce((a, b) => a + Number(b.amount ?? b.Amount ?? 0), 0);
+    function buildDisplayRecords(month, year){
+      // Build per-studio status list for the selected month/year:
+      // - If in RentRecords: PAID (with amount, date)
+      // - Else: PENDING (due amount from Table.TenantRent)
+      const paidByStudio = new Map();
 
-      const due = State.unpaid.totalAmount || 0;
+      for(const r of (State.records || [])){
+        const sid = normalizeId(r.StudioId ?? r.studioId ?? "");
+        if(!sid) continue;
 
-      const overdueCount = rows.filter(r => normalizeStatus(r.status || r.Status) === "overdue").length;
-      const pendingWeek = rows.filter(r => normalizeStatus(r.status || r.Status) === "pending").length;
+        const rm = Number(r.Month ?? r.month ?? 0);
+        const ry = Number(r.Year ?? r.year ?? 0);
+
+        let match = false;
+        if(rm && ry) match = (rm === month && ry === year);
+        else {
+          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
+          if(my) match = (my.month === month && my.year === year);
+        }
+        if(!match) continue;
+
+        paidByStudio.set(sid, r);
+      }
+
+      const studioIds = Array.from(new Set(
+        (State.studios || []).map(s => normalizeId(typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? "")))
+      )).filter(Boolean).sort((a,b)=>a.localeCompare(b));
+
+      const rows = [];
+      for(const sid of studioIds){
+        const info = State.tableMap.get(sid) || {};
+        const tenant = info.TenantName ?? "—";
+        const rent = toNum(info.TenantRent ?? 0);
+
+        if(paidByStudio.has(sid)){
+          const pr = paidByStudio.get(sid);
+          rows.push({
+            studioId: sid,
+            tenant,
+            unit: sid,
+            dueDate: `01/${pad2(month)}/${year}`,
+            amount: toNum(pr.Amount ?? pr.amount ?? rent),
+            receivedDate: normStr(pr.PaymentDate ?? pr.paymentDate ?? ""),
+            method: normStr(pr.Method ?? pr.method ?? pr.PaymentMethod ?? $("paymentMethod")?.value ?? "—"),
+            status: "paid",
+            notes: normStr(pr.Notes ?? pr.notes ?? "")
+          });
+        } else {
+          rows.push({
+            studioId: sid,
+            tenant,
+            unit: sid,
+            dueDate: `01/${pad2(month)}/${year}`,
+            amount: rent,
+            receivedDate: "",
+            method: "",
+            status: rent > 0 ? "pending" : "pending",
+            notes: ""
+          });
+        }
+      }
+
+      return rows;
+    }
+
+    function renderSummary(){
+      const rows = State.displayRecords || [];
+      const received = rows.filter(r => r.status === "paid").reduce((a,b)=>a + toNum(b.amount), 0);
+      const due = rows.filter(r => r.status !== "paid").reduce((a,b)=>a + toNum(b.amount), 0);
+      const overdueCount = rows.filter(r => r.status === "overdue").length;
+      const pendingCount = rows.filter(r => r.status === "pending").length;
 
       $("sumReceived").textContent = toMoney(received, "AED");
       $("sumDue").textContent = toMoney(due, "AED");
       $("sumOverdue").textContent = String(overdueCount);
-      $("sumPending").textContent = String(pendingWeek);
+      $("sumPending").textContent = String(pendingCount);
+
+      // Badge = unpaid count
+      $("rentBadge").textContent = String(State.unpaid.totalUnpaid || 0);
     }
 
-    function applyFilters() {
-      const q = ($("searchInput").value || "").trim().toLowerCase();
+    function applyFilters(){
+      const q = normStr($("searchInput").value).toLowerCase();
       const statusFilter = $("statusFilter").value;
       const unitFilter = $("propertyFilter").value;
 
-      State.filtered = (State.records || []).filter(r => {
-        const tenant = String(r.tenant || r.Tenant || "");
-        const unit = String(r.unit || r.Unit || "");
-        const owner = String(r.owner || r.Owner || "");
-        const contact = String(r.contact || r.Contact || "");
-        const notes = String(r.notes || r.Notes || "");
-        const hay = `${tenant} ${unit} ${owner} ${contact} ${notes}`.toLowerCase();
-
-        const status = normalizeStatus(r.status || r.Status);
-
+      State.filtered = (State.displayRecords || []).filter(r => {
+        const hay = `${r.tenant} ${r.unit} ${r.studioId} ${r.notes}`.toLowerCase();
         const matchesQ = !q || hay.includes(q);
+
+        const status = normalizeStatus(r.status);
         const matchesStatus = statusFilter === "all" || status === statusFilter;
-        const matchesUnit = unitFilter === "all" || unit === unitFilter;
+
+        const matchesUnit = unitFilter === "all" || normalizeId(r.unit) === normalizeId(unitFilter);
 
         return matchesQ && matchesStatus && matchesUnit;
       });
@@ -721,7 +806,7 @@
       State.page = 1;
     }
 
-    function renderTable() {
+    function renderTable(){
       const tbody = $("rentRecordsTbody");
       tbody.innerHTML = "";
 
@@ -731,36 +816,27 @@
       const pageRows = (State.filtered || []).slice(start, end);
 
       pageRows.forEach(r => {
-        const tenant = String(r.tenant || r.Tenant || "—");
-        const unit = String(r.unit || r.Unit || "—");
-        const dueDate = String(r.dueDate || r.DueDate || "—");
-        const amount = Number(r.amount ?? r.Amount ?? 0);
-        const receivedDate = String(r.receivedDate || r.ReceivedDate || r.paymentDate || r.PaymentDate || "—");
-        const method = String(r.method || r.PaymentMethod || r.Method || "—");
-        const status = normalizeStatus(r.status || r.Status);
-        const notes = String(r.notes || r.Notes || "");
-        const studioId = extractStudioIdFromRentRecord(r);
-
+        const status = normalizeStatus(r.status);
         const tr = document.createElement("tr");
-        tr.dataset.studioId = studioId;
+        tr.dataset.studioId = r.studioId;
 
         tr.innerHTML = `
           <td>
             <div class="tenant-info">
-              <div class="tenant-avatar">${initials(tenant)}</div>
+              <div class="tenant-avatar">${initials(r.tenant)}</div>
               <div>
-                <div style="font-weight:1000;">${tenant}</div>
-                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${studioId || "—"}</div>
+                <div style="font-weight:1000;">${r.tenant || "—"}</div>
+                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${r.studioId || "—"}</div>
               </div>
             </div>
           </td>
-          <td><strong>${unit}</strong></td>
-          <td>${dueDate}</td>
-          <td>${toMoney(amount, "AED")}</td>
-          <td>${receivedDate || "—"}</td>
-          <td>${method || "—"}</td>
+          <td><strong>${r.unit || "—"}</strong></td>
+          <td>${r.dueDate || "—"}</td>
+          <td>${toMoney(r.amount, "AED")}</td>
+          <td>${r.receivedDate || "—"}</td>
+          <td>${r.method || "—"}</td>
           <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
-          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${notes.replaceAll('"', '&quot;')}">${notes || "—"}</td>
+          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${String(r.notes||"").replaceAll('"','&quot;')}">${r.notes || "—"}</td>
           <td>
             <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
               <i class="fas fa-arrow-right"></i> Select
@@ -770,7 +846,6 @@
             </button>
           </td>
         `;
-
         tbody.appendChild(tr);
       });
 
@@ -782,24 +857,24 @@
       $("nextBtn").disabled = end >= total;
     }
 
-    function renderHistory(history) {
+    function renderHistory(history){
       const tbody = $("historyTbody");
       tbody.innerHTML = "";
 
       const rows = Array.isArray(history) ? history : [];
-      if (!rows.length) {
+      if(!rows.length){
         tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
         return;
       }
 
       rows.forEach(h => {
-        const paymentDate = String(h.paymentDate || h.PaymentDate || "—");
-        const amount = Number(h.amount ?? h.Amount ?? 0);
-        const maintenance = Number(h.maintenance ?? h.Maintenance ?? 0);
-        const month = String(h.month ?? h.Month ?? "—");
-        const year = String(h.year ?? h.Year ?? "—");
-        const method = String(h.method ?? h.Method ?? h.PaymentMethod ?? "—");
-        const notes = String(h.notes || h.Notes || "");
+        const paymentDate = normStr(h.PaymentDate ?? h.paymentDate ?? "—");
+        const amount = toNum(h.Amount ?? h.amount ?? 0);
+        const maintenance = toNum(h.Maintenance ?? h.maintenance ?? 0);
+        const month = normStr(h.Month ?? h.month ?? "—");
+        const year = normStr(h.Year ?? h.year ?? "—");
+        const method = normStr(h.Method ?? h.method ?? h.PaymentMethod ?? "—");
+        const notes = normStr(h.Notes ?? h.notes ?? "");
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -808,122 +883,140 @@
           <td>${toMoney(maintenance, "AED")}</td>
           <td>${month}</td>
           <td>${year}</td>
-          <td>${method}</td>
+          <td>${method || "—"}</td>
           <td>${notes || "—"}</td>
         `;
         tbody.appendChild(tr);
       });
     }
 
-    async function refreshHistory() {
+    async function refreshHistory(){
+      const api = getAPI();
       const studioId = $("studioSelect").value;
-      if (!studioId) { renderHistory([]); return; }
-      const history = await apiGetPaymentHistory(studioId);
+      if(!studioId) { renderHistory([]); return; }
+      const history = await api.getPaymentHistory({ studioId });
       renderHistory(history);
     }
 
-    async function refreshForPeriod() {
+    async function refreshForPeriod(){
+      const api = getAPI();
       const { month, year } = getSelectedMonthYear();
 
-      // 1) Load studios (ALL)
-      const studios = await apiGetStudios();
-      State.studios = Array.isArray(studios) ? studios : [];
+      // 0) Load Studios + Table first (needed for unpaid)
+      const studiosRaw = await api.getStudios();
+      const tableRaw = (typeof api.getTable === "function") ? await api.getTable() : (await (api.getProperties?.() ?? [])); // fallback if you already use getProperties
 
-      // 2) Load rent records for selected month/year
-      const records = await apiGetRentRecords(month, year);
+      // Normalize Studios
+      State.studios = Array.isArray(studiosRaw) ? studiosRaw : [];
+
+      // Normalize Table
+      State.tableRows = Array.isArray(tableRaw) ? tableRaw : [];
+      State.tableMap = buildTableMap(State.tableRows);
+      renderPropertyFilter();
+
+      // 1) RentRecords for selected month/year
+      const records = await api.getRentRecords({ month, year });
       State.records = Array.isArray(records) ? records : [];
 
-      // 3) Compute unpaid
-      State.unpaid = computeUnpaidStudios(State.studios, State.records, month, year);
+      // 2) Compute unpaid (Studios - RentRecords)
+      State.unpaid = computeUnpaidStudios(State.studios, State.records, State.tableMap, month, year);
 
-      // 4) Render
-      renderPropertyFilter();
-      renderUnpaidPanel();
+      // 3) Studio dropdown should show unpaid (checkbox)
       renderStudioSelect();
+      renderUnpaidPanel();
+
+      // 4) Build table records for UI (paid + pending)
+      State.displayRecords = buildDisplayRecords(month, year);
 
       applyFilters();
       renderSummary();
       renderTable();
     }
 
-    function validateEntry() {
+    function validateEntry(){
       const studioId = $("studioSelect").value;
       const paymentDate = $("paymentDate").value;
-      const amount = Number($("amountInput").value);
-      if (!studioId) return "Please select a Studio ID.";
-      if (!paymentDate) return "Please select a Payment Date.";
-      if (!isFinite(amount) || amount <= 0) return "Please enter a valid Amount > 0.";
+      const amount = toNum($("amountInput").value);
+
+      if(!studioId) return "Please select a Studio ID.";
+      if(!paymentDate) return "Please select a Payment Date.";
+      if(!(amount > 0)) return "Please enter a valid Amount > 0.";
       return "";
     }
 
-    async function recordPayment() {
+    async function recordPayment(){
+      const api = getAPI();
       const err = validateEntry();
-      if (err) { setError(err); showToast("Validation failed", err); return; }
+      if(err){ setError(err); showToast("Validation failed", err); return; }
       setError("");
 
       const payload = {
-        studioId: $("studioSelect").value,
-        month: Number($("entryMonth").value),
-        year: Number($("entryYear").value),
-        paymentDate: $("paymentDate").value,
-        amount: Number($("amountInput").value),
-        maintenance: Number($("maintenanceInput").value || 0),
-        method: ($("paymentMethod").value || "Cash"),
-        notes: ($("notesInput").value || "").trim()
+        StudioId: $("studioSelect").value,
+        Month: Number($("entryMonth").value),
+        Year: Number($("entryYear").value),
+        PaymentDate: $("paymentDate").value,
+        Amount: toNum($("amountInput").value),
+        Maintenance: toNum($("maintenanceInput").value || 0),
+        Method: $("paymentMethod").value,
+        Notes: normStr($("notesInput").value),
       };
 
-      try {
+      try{
         setLoading(true);
-        await apiAddRentPayment(payload);
+        await api.addRentPayment(payload);
         setLoading(false);
 
-        showToast("Payment recorded", `${payload.studioId} • ${payload.month}/${payload.year}`);
+        showToast("Payment recorded", `${payload.StudioId} • ${monthName(payload.Month)} ${payload.Year}`);
 
         syncFilterMonthYear();
         await refreshForPeriod();
         await refreshHistory();
-      } catch (e) {
+
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Failed to record payment.");
       }
     }
 
-    async function sendReminder(studioId) {
+    async function sendReminder(studioId){
+      const api = getAPI();
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
 
-      try {
+      try{
         setLoading(true);
-        await apiSendReminder(studioId, month, year);
+        await api.sendReminder({ studioId, month, year });
         setLoading(false);
-        showToast("Reminder triggered", `${studioId} • ${month}/${year}`);
-      } catch (e) {
+        showToast("Reminder triggered", `${studioId} • ${monthName(month)} ${year}`);
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Failed to send reminder.");
       }
     }
 
-    async function sendBulkReminder() {
+    async function sendBulkReminder(){
+      const api = getAPI();
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
 
-      try {
+      try{
         setLoading(true);
-        const res = await apiSendBulkReminder(month, year);
+        const res = await api.sendBulkReminder({ month, year });
         setLoading(false);
-        showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${month}/${year}`);
-      } catch (e) {
+        showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${monthName(month)} ${year}`);
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Failed to send bulk reminders.");
       }
     }
 
-    async function exportCsv() {
+    async function exportCsv(){
+      const api = getAPI();
       const { month, year } = getSelectedMonthYear();
 
-      try {
+      try{
         setLoading(true);
-        const csv = await apiExportCsv(month, year);
+        const csv = await api.exportCsv({ month, year });
 
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -937,13 +1030,13 @@
 
         setLoading(false);
         showToast("Exported CSV", `rent-records_${year}-${pad2(month)}.csv`);
-      } catch (e) {
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Export failed.");
       }
     }
 
-    function clearForm() {
+    function clearForm(){
       $("amountInput").value = "";
       $("maintenanceInput").value = "";
       $("notesInput").value = "";
@@ -952,7 +1045,7 @@
       showToast("Cleared", "Entry form reset");
     }
 
-    function toggleEntry() {
+    function toggleEntry(){
       const body = $("entryBody");
       const btn = $("toggleEntryBtn");
       const isHidden = body.style.display === "none";
@@ -962,7 +1055,7 @@
         : `<i class="fas fa-chevron-down"></i> Expand`;
     }
 
-    function applyAndRender() {
+    function applyAndRender(){
       applyFilters();
       renderTable();
     }
@@ -1006,14 +1099,14 @@
     $("toggleEntryBtn").addEventListener("click", toggleEntry);
 
     $("syncBtn").addEventListener("click", async () => {
-      try {
+      try{
         setError("");
         setLoading(true);
         await refreshForPeriod();
         await refreshHistory();
         setLoading(false);
         showToast("Refreshed", "Live data updated");
-      } catch (e) {
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Refresh failed.");
       }
@@ -1022,7 +1115,7 @@
     $("exportBtn").addEventListener("click", exportCsv);
 
     $("prevBtn").addEventListener("click", () => {
-      if (State.page <= 1) return;
+      if(State.page <= 1) return;
       State.page -= 1;
       renderTable();
     });
@@ -1030,35 +1123,35 @@
     $("nextBtn").addEventListener("click", () => {
       const total = (State.filtered || []).length;
       const maxPage = Math.max(1, Math.ceil(total / State.pageSize));
-      if (State.page >= maxPage) return;
+      if(State.page >= maxPage) return;
       State.page += 1;
       renderTable();
     });
 
     $("rentRecordsTbody").addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-action]");
-      if (!btn) return;
+      if(!btn) return;
 
       const tr = btn.closest("tr");
       const studioId = tr?.dataset?.studioId || "";
       const action = btn.dataset.action;
 
-      if (action === "select" && studioId) {
+      if(action === "select" && studioId){
         $("studioSelect").value = studioId;
         await refreshHistory();
         showToast("Selected", studioId);
         $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
       }
 
-      if (action === "remind" && studioId) {
+      if(action === "remind" && studioId){
         await sendReminder(studioId);
       }
     });
 
     $("openInSheetBtn").addEventListener("click", () => {
       const api = getAPI();
-      const url = (api && api.sheetUrl) || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
-      if (!url) {
+      const url = api.sheetUrl || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
+      if(!url){
         showToast("Sheet link not set", "Add SHEET_URL in app-config.js");
         return;
       }
@@ -1068,12 +1161,12 @@
     $("openEntryBtn").addEventListener("click", () => {
       $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
       const body = $("entryBody");
-      if (body.style.display === "none") toggleEntry();
+      if(body.style.display === "none") toggleEntry();
     });
 
     // ---- Init
     window.addEventListener("DOMContentLoaded", async () => {
-      try {
+      try{
         setError("");
         setLoading(true);
 
@@ -1092,7 +1185,7 @@
         await refreshHistory();
 
         setLoading(false);
-      } catch (e) {
+      } catch(e){
         setLoading(false);
         setError(e?.message || "Initialization failed.");
       }
