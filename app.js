@@ -13,7 +13,7 @@
 */
 
 const OpalConfig = {
-  apiUrl: "PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE",
+  apiUrl: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
   apiKey: "API_KEY_VALUE",
   defaultCurrency: "QAR"
 };
