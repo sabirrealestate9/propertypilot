@@ -13,10 +13,11 @@
 */
 
 const OpalConfig = {
-  apiUrl: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
-  apiKey: "API_KEY_VALUE",
-  defaultCurrency: "QAR"
+  apiUrl: (window.APP_CONFIG && window.APP_CONFIG.API_URL) ? window.APP_CONFIG.API_URL : "",
+  apiKey: (window.APP_CONFIG && window.APP_CONFIG.API_KEY) ? window.APP_CONFIG.API_KEY : "",
+  defaultCurrency: "AED"
 };
+
 
 function qs(sel, root = document) { return root.querySelector(sel); }
 function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
