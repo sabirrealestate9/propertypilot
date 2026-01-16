@@ -1368,22 +1368,164 @@
     /******************************************************************
      * API
      ******************************************************************/
+    
+    /**
+     * Network status detection
+     * Checks if the browser reports being online
+     */
+    function isOnline(){
+      return navigator.onLine !== false;
+    }
+
+    /**
+     * Display network status warning
+     * Shows appropriate message if user is offline
+     */
+    function checkNetworkStatus(){
+      if(!isOnline()){
+        console.warn("[PropertyPilot] Network appears to be offline");
+        return false;
+      }
+      return true;
+    }
+
+    /**
+     * Fetch with timeout
+     * Wraps fetch with a timeout to prevent hanging on slow mobile networks
+     */
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 30000){
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      
+      try {
+        const response = await fetch(url, {
+          ...options,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return response;
+      } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+          throw new Error('Request timeout - please check your connection');
+        }
+        throw error;
+      }
+    }
+
+    /**
+     * Fetch with retry and exponential backoff
+     * Retries failed requests with increasing delays
+     */
+    async function fetchWithRetry(url, options = {}, maxRetries = 3, timeoutMs = 30000){
+      let lastError;
+      
+      for(let attempt = 0; attempt < maxRetries; attempt++){
+        try {
+          console.log(`[PropertyPilot] Fetch attempt ${attempt + 1}/${maxRetries} for ${url}`);
+          
+          // Add cache-busting parameter to prevent mobile caching issues
+          const cacheBustUrl = url + (url.includes('?') ? '&' : '?') + `_cb=${Date.now()}`;
+          
+          const response = await fetchWithTimeout(cacheBustUrl, options, timeoutMs);
+          console.log(`[PropertyPilot] Fetch successful on attempt ${attempt + 1}, status: ${response.status}`);
+          return response;
+          
+        } catch(error){
+          lastError = error;
+          console.error(`[PropertyPilot] Fetch attempt ${attempt + 1} failed:`, error.message);
+          
+          // Don't retry if it's the last attempt
+          if(attempt < maxRetries - 1){
+            // Exponential backoff: 1s, 2s, 4s
+            const delayMs = Math.pow(2, attempt) * 1000;
+            console.log(`[PropertyPilot] Retrying in ${delayMs}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+          }
+        }
+      }
+      
+      // All retries failed
+      throw lastError;
+    }
+
+    /**
+     * Main data fetch function with enhanced error handling for mobile
+     */
     async function fetchData(){
       showError("");
       showLoading(true);
 
+      console.log("[PropertyPilot] Starting data fetch...");
+      console.log("[PropertyPilot] User agent:", navigator.userAgent);
+      console.log("[PropertyPilot] Online status:", navigator.onLine);
+      console.log("[PropertyPilot] API URL:", CONFIG.API_URL);
+
       try{
-        const res = await fetch(CONFIG.API_URL, { method: "GET" });
+        // Check network connectivity first
+        if(!checkNetworkStatus()){
+          throw new Error(
+            "No internet connection detected.\n\n" +
+            "Please check:\n" +
+            "• Your device is connected to WiFi or mobile data\n" +
+            "• Airplane mode is turned off\n" +
+            "• Try refreshing the page once connected"
+          );
+        }
+
+        console.log("[PropertyPilot] Network check passed, attempting fetch with retry...");
+        
+        // Fetch with retry logic and timeout (30 seconds for mobile networks)
+        const res = await fetchWithRetry(CONFIG.API_URL, { method: "GET" }, 3, 30000);
+        
+        console.log("[PropertyPilot] Response received, reading text...");
         const txt = await res.text();
+        console.log("[PropertyPilot] Response text length:", txt.length);
+        console.log("[PropertyPilot] Response preview:", txt.slice(0, 200));
 
         let payload;
-        try { payload = JSON.parse(txt); }
-        catch { throw new Error("API did not return JSON.\nFirst 250 chars:\n" + txt.slice(0,250)); }
+        try { 
+          payload = JSON.parse(txt); 
+          console.log("[PropertyPilot] JSON parsed successfully");
+        }
+        catch { 
+          console.error("[PropertyPilot] JSON parse failed, response:", txt.slice(0, 500));
+          throw new Error(
+            "Server returned invalid data format.\n\n" +
+            "This may indicate:\n" +
+            "• Google Sheet is not properly shared\n" +
+            "• API script needs to be redeployed\n" +
+            "• Temporary server issue\n\n" +
+            "First 250 chars of response:\n" + txt.slice(0,250)
+          ); 
+        }
 
-        if(!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + txt.slice(0,250));
-        if(!payload.ok) throw new Error(payload.error || "API returned ok=false");
+        if(!res.ok){
+          console.error("[PropertyPilot] HTTP error:", res.status, res.statusText);
+          throw new Error(
+            `Server error (HTTP ${res.status}).\n\n` +
+            "Please try:\n" +
+            "• Refreshing the page\n" +
+            "• Checking if the Google Sheet is accessible\n" +
+            "• Contacting support if the issue persists\n\n" +
+            "Response: " + txt.slice(0,250)
+          );
+        }
+        
+        if(!payload.ok){
+          console.error("[PropertyPilot] API returned ok=false:", payload.error);
+          throw new Error(
+            payload.error || 
+            "API returned an error.\n\n" +
+            "Please verify:\n" +
+            "• The Google Sheet is accessible\n" +
+            "• You have proper permissions\n" +
+            "• Try refreshing the page"
+          );
+        }
 
         const arr = Array.isArray(payload.properties) ? payload.properties : [];
+        console.log("[PropertyPilot] Properties loaded:", arr.length);
         STATE.raw = arr.map(normalizeFromApi);
 
         STATE.sheetUrl = safeText(payload.sheetUrl || "");
@@ -1394,9 +1536,44 @@
         hydrateFilterOptions();
         updateSummary();
         applyFiltersAndRender(true);
+        
+        console.log("[PropertyPilot] Data fetch completed successfully");
 
       } catch(err){
-        showError((err && err.message) ? err.message : "Failed to load data.");
+        console.error("[PropertyPilot] Fetch failed with error:", err);
+        
+        // Enhanced error message for mobile users
+        let errorMsg = "Failed to load property data.\n\n";
+        
+        if(!isOnline()){
+          errorMsg += "⚠ No internet connection detected.\n\n" +
+                     "Please check your connection and try again.";
+        } else if(err.message.includes("timeout")){
+          errorMsg += "⏱ Request timed out.\n\n" +
+                     "This may be due to:\n" +
+                     "• Slow mobile network\n" +
+                     "• Server taking too long to respond\n\n" +
+                     "Please try:\n" +
+                     "• Switching to WiFi if on mobile data\n" +
+                     "• Refreshing the page\n" +
+                     "• Trying again in a moment";
+        } else if(err.message.includes("Failed to fetch") || err.message.includes("NetworkError")){
+          errorMsg += "🌐 Network error occurred.\n\n" +
+                     "This could be caused by:\n" +
+                     "• Firewall or security settings\n" +
+                     "• VPN or proxy issues\n" +
+                     "• Mobile browser restrictions\n\n" +
+                     "Please try:\n" +
+                     "• Disabling VPN temporarily\n" +
+                     "• Using a different network\n" +
+                     "• Opening in a different browser";
+        } else {
+          errorMsg += (err && err.message) ? err.message : "Unknown error occurred.";
+        }
+        
+        errorMsg += "\n\n📱 Mobile users: Check browser console for detailed logs.";
+        
+        showError(errorMsg);
         STATE.raw = [];
         updateSummary();
         applyFiltersAndRender(true);
