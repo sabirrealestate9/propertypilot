@@ -190,8 +190,19 @@
             </div>
 
             <div class="form-row">
+              <label>Payment Method:</label>
+              <select class="control" id="paymentMethod">
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Card">Card</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-row">
               <label>Notes:</label>
-              <input class="control" id="notesInput" type="text" placeholder="e.g. Cash, transfer ref, partial…" />
+              <input class="control" id="notesInput" type="text" placeholder="e.g. Transfer ref, partial, remarks…" />
             </div>
 
             <div class="form-actions">
@@ -245,6 +256,7 @@
                   <th>Maintenance</th>
                   <th>Month</th>
                   <th>Year</th>
+                  <th>Method</th>
                   <th>Notes</th>
                 </tr>
               </thead>
@@ -303,22 +315,18 @@
     </section>
   </main>
 
-  <!-- Your shared app files -->
+  <!-- Your shared app files (kept) -->
   <script src="app-config.js"></script>
   <script src="app.js"></script>
   <script src="app-data.js"></script>
 
   <script>
     /*********************************************************************
-     * FIX: Correct Unpaid Studios
-     * Unpaid = Studios sheet (ALL active studios) minus RentRecords sheet
-     * for selected Month/Year.
-     *
-     * This page now computes unpaid client-side using:
-     *  - api.getStudios()  (recommended) OR api.getProperties() fallback
-     *  - api.getRentRecords({month, year})
-     *
-     * No features removed.
+     * RENT-RECORDS.HTML (UPDATED)
+     * - Keeps design/structure unchanged
+     * - Adds a complete API fallback wrapper if app-data.js is missing APIs
+     * - Adds mobile-safe fetch + clear errors if HTML returned
+     * - Adds: record payment, fetch data, history, export CSV, reminders hooks
      *********************************************************************/
 
     const $ = (id) => document.getElementById(id);
@@ -329,6 +337,13 @@
     const toast = $("toast");
     const toastMsg = $("toastMsg");
     const toastSub = $("toastSub");
+
+    const CURRENCY = (window.APP_CONFIG && window.APP_CONFIG.CURRENCY) || "AED";
+    const API_URL =
+      (window.APP_CONFIG && (window.APP_CONFIG.API_URL || window.APP_CONFIG.GAS_WEBAPP_URL)) ||
+      ""; // If empty, your app-data.js must provide API functions
+
+    const FETCH_TIMEOUT_MS = 15000;
 
     function showToast(message, sub) {
       toastMsg.textContent = message || "Done";
@@ -349,21 +364,150 @@
       if (!msg) { ppError.style.display = "none"; ppError.textContent = ""; return; }
       ppError.style.display = "block";
       ppError.textContent = msg;
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // --------------------------
+    // Mobile-safe fetch helpers
+    // --------------------------
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, {
+          ...options,
+          signal: controller.signal,
+          mode: "cors",
+          redirect: "follow",
+          cache: "no-store"
+        });
+      } finally {
+        clearTimeout(t);
+      }
+    }
+
+    async function callApi(action, payload) {
+      if (!API_URL) {
+        throw new Error("API_URL not configured. Add API_URL in app-config.js or provide window.PropertyPilotApi in app-data.js.");
+      }
+
+      // Use POST JSON by default (recommended for Apps Script)
+      const url = new URL(API_URL);
+      url.searchParams.set("_ts", String(Date.now())); // cache buster
+
+      const res = await fetchWithTimeout(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...(payload || {}) })
+      }, FETCH_TIMEOUT_MS);
+
+      const text = await res.text();
+      const trimmed = (text || "").trim();
+
+      // detect HTML redirect page (common on mobile if GAS not public)
+      const looksLikeHtml =
+        trimmed.startsWith("<!DOCTYPE") ||
+        trimmed.startsWith("<html") ||
+        trimmed.includes("<head") ||
+        trimmed.includes("<body");
+
+      if (looksLikeHtml) {
+        throw new Error(
+          "API returned HTML instead of JSON.\n\n" +
+          "Most common cause: Google Apps Script Web App is not public (mobile gets redirected).\n\n" +
+          "Fix:\n" +
+          "Apps Script → Deploy → New deployment → Web app\n" +
+          "Execute as: Me\n" +
+          "Who has access: Anyone\n" +
+          "Use the NEW /exec URL in app-config.js as API_URL."
+        );
+      }
+
+      let json;
+      try { json = JSON.parse(trimmed); }
+      catch {
+        throw new Error("API did not return valid JSON.\n\nFirst 250 chars:\n" + trimmed.slice(0, 250));
+      }
+
+      if (!res.ok) throw new Error(`API error: HTTP ${res.status}\n` + (json.error || trimmed.slice(0, 250)));
+      if (json && json.ok === false) throw new Error(json.error || "API returned ok=false");
+      return json;
+    }
+
+    // --------------------------
+    // API getter (uses your app-data.js if present, otherwise fallback to GAS)
+    // --------------------------
     function getAPI() {
-      return window.PropertyPilotApi || window.PropertyPilot;
+      const existing = window.PropertyPilotApi || window.PropertyPilot;
+      if (existing) return existing;
+
+      // Provide fallback API wrapper (no design changes)
+      const api = {
+        sheetUrl: (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "",
+
+        async getStudios() {
+          const r = await callApi("getStudios", {});
+          return r.studios || r.data || [];
+        },
+
+        async getProperties() {
+          // fallback if you store studios in a "Table" sheet
+          const r = await callApi("getProperties", {});
+          return r.properties || r.data || [];
+        },
+
+        async getRentRecords({ month, year }) {
+          const r = await callApi("getRentRecords", { month, year });
+          return r.records || r.rentRecords || r.data || [];
+        },
+
+        async getPaymentHistory({ studioId }) {
+          const r = await callApi("getPaymentHistory", { studioId });
+          return r.history || r.records || r.data || [];
+        },
+
+        async addRentPayment(payload) {
+          // payload: studioId, month, year, paymentDate, amount, maintenance, notes, method
+          const r = await callApi("addRentPayment", payload);
+          return r;
+        },
+
+        async exportCsv({ month, year }) {
+          const r = await callApi("exportCsv", { month, year });
+          // expecting { csv: "..." }
+          return r.csv || "";
+        },
+
+        async sendReminder({ studioId, month, year }) {
+          const r = await callApi("sendReminder", { studioId, month, year });
+          return r;
+        },
+
+        async sendBulkReminder({ month, year }) {
+          const r = await callApi("sendBulkReminder", { month, year });
+          return r;
+        },
+
+        async markPaid({ studioId, month, year }) {
+          const r = await callApi("markPaid", { studioId, month, year });
+          return r;
+        }
+      };
+
+      window.PropertyPilotApi = api;
+      return api;
     }
 
     // ---- State
     const State = {
       records: [],
       filtered: [],
-      studios: [],      // <-- Studios sheet data (or fallback)
-      properties: [],   // kept (if you use elsewhere)
+      studios: [],      // Studios sheet data (or fallback)
+      properties: [],   // kept
       unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
       page: 1,
       pageSize: 12,
+      selectedRowStudioId: ""
     };
 
     // ---- Helpers
@@ -373,13 +517,17 @@
       return String(v ?? "")
         .trim()
         .toLowerCase()
-        .replace(/\s+/g, " "); // collapse multiple spaces
+        .replace(/\s+/g, " ");
     }
 
     function toMoney(n, currency) {
       const v = Number(n || 0);
       if (!isFinite(v)) return "—";
-      return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
+      try {
+        return new Intl.NumberFormat("en-AE", { style: "currency", currency: currency || "AED" }).format(v);
+      } catch {
+        return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
+      }
     }
 
     function initials(name) {
@@ -429,8 +577,6 @@
     function computeUnpaidStudios(studios, rentRecords, month, year) {
       const paidSet = new Set();
 
-      // Treat studio as PAID if there is any RentRecords row for month/year with:
-      // - matching StudioId AND (Status=paid OR ReceivedDate/PaymentDate exists OR Amount>0)
       for (const r of (rentRecords || [])) {
         const rMonth = Number(r.month ?? r.Month ?? r.rentMonth ?? r.RentMonth ?? month);
         const rYear  = Number(r.year ?? r.Year ?? r.rentYear ?? r.RentYear ?? year);
@@ -450,22 +596,23 @@
 
       const unpaid = [];
       for (const s of (studios || [])) {
-        const sid = normalizeId(s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? "");
-      if (!sid) continue;
+        const sid = normalizeId(
+          s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? s.Location ?? ""
+        );
+        if (!sid) continue;
 
-        // OPTIONAL: ignore inactive studios if sheet has a status column
         const activeFlag = String(s.active ?? s.Active ?? s.status ?? s.Status ?? "active").toLowerCase();
         if (activeFlag.includes("inactive") || activeFlag.includes("closed")) continue;
 
         if (!paidSet.has(sid)) {
           unpaid.push({
-            studioId: s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? "",
-            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
-            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "",
-            owner: s.owner ?? s.Owner ?? s["Owner"] ?? "",
-            contact: s.contact ?? s.Contact ?? s["Contact"] ?? s["Mobile"] ?? "",
-            rent: Number(s.rent ?? s.Rent ?? s["Rent"] ?? s["Monthly Rent"] ?? 0),
-            type: s.type ?? s.Type ?? s["Property Type"] ?? ""
+            studioId: s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? s.Location ?? "",
+            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? s.Flat ?? "",
+            tenant: s.tenant ?? s.Tenant ?? s.TenantName ?? s["Tenant"] ?? "",
+            owner: s.owner ?? s.Owner ?? s.OwnerName ?? s["Owner"] ?? "",
+            contact: s.contact ?? s.Contact ?? s.TenantContact ?? s["Contact"] ?? s["Mobile"] ?? "",
+            rent: Number(s.rent ?? s.Rent ?? s.TenantRent ?? s["Rent"] ?? s["Monthly Rent"] ?? 0),
+            type: s.type ?? s.Type ?? s.Property ?? s["Property Type"] ?? ""
           });
         }
       }
@@ -477,11 +624,16 @@
     // ---- Renderers
     function renderPropertyFilter() {
       const sel = $("propertyFilter");
+
+      // Prefer unique units
+      const units = (State.studios || []).map(p => String(
+        p.unit ?? p.Unit ?? p.unitName ?? p["Unit"] ?? p["Unit Name"] ?? p.Flat ?? p.Location ?? ""
+      ).trim()).filter(Boolean);
+
+      const uniqueUnits = Array.from(new Set(units)).sort((a,b)=>a.localeCompare(b));
+
       const list = [`<option value="all">All Units</option>`].concat(
-        (State.studios || []).map(p => {
-          const unit = String(p.unit ?? p.Unit ?? p.unitName ?? p["Unit"] ?? p["Unit Name"] ?? "").trim();
-          return `<option value="${unit}">${unit || "—"}</option>`;
-        })
+        uniqueUnits.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`)
       );
       sel.innerHTML = list.join("");
     }
@@ -493,16 +645,16 @@
       const list = onlyUnpaid
         ? (State.unpaid.studios || [])
         : (State.studios || []).map(s => ({
-            studioId: s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? "",
-            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? "",
-            tenant: s.tenant ?? s.Tenant ?? s["Tenant"] ?? "—",
+            studioId: s.studioId ?? s.StudioId ?? s.unitId ?? s.UnitId ?? s.ID ?? s.Id ?? s["Studio ID"] ?? s.Location ?? "",
+            unit: s.unit ?? s.Unit ?? s.unitName ?? s["Unit"] ?? s["Unit Name"] ?? s.Flat ?? "",
+            tenant: s.tenant ?? s.Tenant ?? s.TenantName ?? s["Tenant"] ?? "—",
           }));
 
       sel.innerHTML = list.length
-        ? list.map(s => `<option value="${s.studioId}">${s.studioId} • ${s.unit || ""} • ${s.tenant || "—"}</option>`).join("")
+        ? list.map(s => `<option value="${escapeHtml(s.studioId)}">${escapeHtml(s.studioId)} • ${escapeHtml(s.unit || "")} • ${escapeHtml(s.tenant || "—")}</option>`).join("")
         : `<option value="">No studios available</option>`;
 
-      if (!sel.value && list.length) sel.value = list[0].studioId;
+      if (!sel.value && list.length) sel.value = String(list[0].studioId || "");
     }
 
     function renderUnpaidPanel() {
@@ -513,7 +665,7 @@
       $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
 
       $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
-      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
+      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, CURRENCY)}`;
 
       const list = State.unpaid.studios || [];
       if (!list.length) { $("unpaidList").textContent = "No unpaid studios for this period."; return; }
@@ -522,7 +674,7 @@
         const nm = s.tenant ? String(s.tenant) : "Vacant/Unknown";
         const unit = s.unit ? ` (${s.unit})` : "";
         const contact = s.contact ? `Contact: ${s.contact}` : "Contact: —";
-        const rent = toMoney(s.rent, "AED");
+        const rent = toMoney(s.rent, CURRENCY);
         const type = s.type ? ` • ${s.type}` : "";
         return `${s.studioId}${unit} - ${nm}${type}\nRent: ${rent}\n${contact}\n`;
       });
@@ -541,10 +693,26 @@
         .reduce((a, b) => a + Number(b.amount ?? b.Amount ?? 0), 0);
 
       const overdueCount = rows.filter(r => normalizeStatus(r.status || r.Status) === "overdue").length;
-      const pendingWeek = rows.filter(r => normalizeStatus(r.status || r.Status) === "pending").length;
 
-      $("sumReceived").textContent = toMoney(received, "QAR");
-      $("sumDue").textContent = toMoney(due, "QAR");
+      // "Pending This Week" - if your sheet has dueDate, count within next 7 days; else use pending count
+      const now = new Date();
+      const in7 = new Date(now.getTime() + 7*24*60*60*1000);
+
+      let pendingWeek = 0;
+      for (const r of rows) {
+        const st = normalizeStatus(r.status || r.Status);
+        if (st !== "pending") continue;
+
+        const dd = String(r.dueDate || r.DueDate || "").trim();
+        if (!dd) { pendingWeek++; continue; }
+
+        const d = new Date(dd);
+        if (!isNaN(d.getTime()) && d >= now && d <= in7) pendingWeek++;
+        else if (isNaN(d.getTime())) pendingWeek++;
+      }
+
+      $("sumReceived").textContent = toMoney(received, CURRENCY);
+      $("sumDue").textContent = toMoney(due, CURRENCY);
       $("sumOverdue").textContent = String(overdueCount);
       $("sumPending").textContent = String(pendingWeek);
     }
@@ -555,10 +723,10 @@
       const unitFilter = $("propertyFilter").value;
 
       State.filtered = (State.records || []).filter(r => {
-        const tenant = String(r.tenant || r.Tenant || "");
-        const unit = String(r.unit || r.Unit || "");
-        const owner = String(r.owner || r.Owner || "");
-        const contact = String(r.contact || r.Contact || "");
+        const tenant = String(r.tenant || r.Tenant || r.TenantName || "");
+        const unit = String(r.unit || r.Unit || r.Flat || r.Location || "");
+        const owner = String(r.owner || r.Owner || r.OwnerName || "");
+        const contact = String(r.contact || r.Contact || r.TenantContact || "");
         const notes = String(r.notes || r.Notes || "");
         const hay = `${tenant} ${unit} ${owner} ${contact} ${notes}`.toLowerCase();
 
@@ -584,15 +752,15 @@
       const pageRows = (State.filtered || []).slice(start, end);
 
       pageRows.forEach(r => {
-        const tenant = String(r.tenant || r.Tenant || "—");
-        const unit = String(r.unit || r.Unit || "—");
+        const tenant = String(r.tenant || r.Tenant || r.TenantName || "—");
+        const unit = String(r.unit || r.Unit || r.Flat || r.Location || "—");
         const dueDate = String(r.dueDate || r.DueDate || "—");
         const amount = Number(r.amount ?? r.Amount ?? 0);
         const receivedDate = String(r.receivedDate || r.ReceivedDate || r.paymentDate || r.PaymentDate || "—");
-        const method = String(r.method || r.PaymentMethod || "—");
+        const method = String(r.method || r.PaymentMethod || r.paymentMethod || "—");
         const status = normalizeStatus(r.status || r.Status);
         const notes = String(r.notes || r.Notes || "");
-        const studioId = String(r.studioId || r.StudioId || r.unitId || r.UnitId || "");
+        const studioId = String(r.studioId || r.StudioId || r.unitId || r.UnitId || r.Location || "");
 
         const tr = document.createElement("tr");
         tr.dataset.studioId = studioId;
@@ -600,20 +768,20 @@
         tr.innerHTML = `
           <td>
             <div class="tenant-info">
-              <div class="tenant-avatar">${initials(tenant)}</div>
+              <div class="tenant-avatar">${escapeHtml(initials(tenant))}</div>
               <div>
-                <div style="font-weight:1000;">${tenant}</div>
-                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${studioId || "—"}</div>
+                <div style="font-weight:1000;">${escapeHtml(tenant)}</div>
+                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${escapeHtml(studioId || "—")}</div>
               </div>
             </div>
           </td>
-          <td><strong>${unit}</strong></td>
-          <td>${dueDate}</td>
-          <td>${toMoney(amount, "QAR")}</td>
-          <td>${receivedDate || "—"}</td>
-          <td>${method || "—"}</td>
-          <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
-          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${notes.replaceAll('"', '&quot;')}">${notes || "—"}</td>
+          <td><strong>${escapeHtml(unit)}</strong></td>
+          <td>${escapeHtml(dueDate)}</td>
+          <td>${escapeHtml(toMoney(amount, CURRENCY))}</td>
+          <td>${escapeHtml(receivedDate || "—")}</td>
+          <td>${escapeHtml(method || "—")}</td>
+          <td><span class="status-badge ${escapeHtml(status)}">${escapeHtml(status.toUpperCase())}</span></td>
+          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escapeAttr(notes)}">${escapeHtml(notes || "—")}</td>
           <td>
             <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
               <i class="fas fa-arrow-right"></i> Select
@@ -633,6 +801,10 @@
 
       $("prevBtn").disabled = State.page <= 1;
       $("nextBtn").disabled = end >= total;
+
+      // badge = unpaid count (visual)
+      const badge = $("rentBadge");
+      if (badge) badge.textContent = String(State.unpaid.totalUnpaid || 0);
     }
 
     function renderHistory(history) {
@@ -641,7 +813,7 @@
 
       const rows = Array.isArray(history) ? history : [];
       if (!rows.length) {
-        tbody.innerHTML = `<tr><td colspan="6" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
         return;
       }
 
@@ -651,16 +823,18 @@
         const maintenance = Number(h.maintenance ?? h.Maintenance ?? 0);
         const month = String(h.month ?? h.Month ?? "—");
         const year = String(h.year ?? h.Year ?? "—");
+        const method = String(h.method || h.PaymentMethod || h.paymentMethod || "—");
         const notes = String(h.notes || h.Notes || "");
 
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${paymentDate}</td>
-          <td>${toMoney(amount, "AED")}</td>
-          <td>${toMoney(maintenance, "AED")}</td>
-          <td>${month}</td>
-          <td>${year}</td>
-          <td>${notes || "—"}</td>
+          <td>${escapeHtml(paymentDate)}</td>
+          <td>${escapeHtml(toMoney(amount, CURRENCY))}</td>
+          <td>${escapeHtml(toMoney(maintenance, CURRENCY))}</td>
+          <td>${escapeHtml(month)}</td>
+          <td>${escapeHtml(year)}</td>
+          <td>${escapeHtml(method)}</td>
+          <td>${escapeHtml(notes || "—")}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -674,22 +848,39 @@
       renderHistory(history);
     }
 
+    // Ensures record list has normalized fields used by UI
+    function normalizeRentRecordRow(r) {
+      const studioId = String(r.studioId ?? r.StudioId ?? r.unitId ?? r.UnitId ?? r.Location ?? "").trim();
+      const unit = String(r.unit ?? r.Unit ?? r.Flat ?? r.Location ?? "").trim();
+
+      return {
+        studioId,
+        unit,
+        tenant: r.tenant ?? r.Tenant ?? r.TenantName ?? "",
+        owner: r.owner ?? r.Owner ?? r.OwnerName ?? "",
+        contact: r.contact ?? r.Contact ?? r.TenantContact ?? "",
+        dueDate: r.dueDate ?? r.DueDate ?? r.Due ?? "",
+        amount: Number(r.amount ?? r.Amount ?? 0),
+        receivedDate: r.receivedDate ?? r.ReceivedDate ?? r.paymentDate ?? r.PaymentDate ?? "",
+        method: r.method ?? r.PaymentMethod ?? r.paymentMethod ?? "",
+        status: r.status ?? r.Status ?? "pending",
+        notes: r.notes ?? r.Notes ?? ""
+      };
+    }
+
     async function refreshForPeriod() {
       const api = getAPI();
       const { month, year } = getSelectedMonthYear();
 
       // 1) RentRecords for selected month/year
-      const records = await api.getRentRecords({ month, year });
-      State.records = Array.isArray(records) ? records : [];
-      applyFilters();
-      renderSummary();
-      renderTable();
+      const recordsRaw = await api.getRentRecords({ month, year });
+      const records = Array.isArray(recordsRaw) ? recordsRaw.map(normalizeRentRecordRow) : [];
+      State.records = records;
 
       // 2) Load studios list from Studios sheet (preferred)
-      //    If not implemented, fallback to getProperties (still works)
       let studios = [];
       if (typeof api.getStudios === "function") {
-        studios = await api.getStudios(); // <-- should read Studios sheet
+        studios = await api.getStudios();
       } else if (typeof api.getProperties === "function") {
         studios = await api.getProperties();
       }
@@ -703,6 +894,10 @@
 
       renderUnpaidPanel();
       renderStudioSelect();
+
+      applyFilters();
+      renderSummary();
+      renderTable();
     }
 
     function validateEntry() {
@@ -730,14 +925,25 @@
         amount: Number($("amountInput").value),
         maintenance: Number($("maintenanceInput").value || 0),
         notes: ($("notesInput").value || "").trim(),
-        method: "Cash"
+        method: ($("paymentMethod").value || "Cash").trim()
       };
 
       try {
         setLoading(true);
-        await api.addRentPayment(payload);
-        setLoading(false);
 
+        // Optional: avoid duplicates - if API supports it, it can reject duplicates.
+        // Client-side soft check: if already paid in current loaded list, warn.
+        const alreadyPaid = (State.records || []).some(r =>
+          normalizeId(r.studioId) === normalizeId(payload.studioId) &&
+          normalizeStatus(r.status) === "paid"
+        );
+        if (alreadyPaid) {
+          showToast("Note", "This studio already shows as PAID for selected month/year. Recording again will create another entry.");
+        }
+
+        await api.addRentPayment(payload);
+
+        setLoading(false);
         showToast("Payment recorded", `${payload.studioId} • ${payload.month}/${payload.year}`);
 
         syncFilterMonthYear();
@@ -753,6 +959,11 @@
       const api = getAPI();
       const month = Number($("entryMonth").value);
       const year = Number($("entryYear").value);
+
+      if (!studioId) {
+        showToast("Select a studio", "Please select a Studio ID first.");
+        return;
+      }
 
       try {
         setLoading(true);
@@ -789,6 +1000,12 @@
         setLoading(true);
         const csv = await api.exportCsv({ month, year });
 
+        if (!csv) {
+          setLoading(false);
+          showToast("No CSV returned", "Your API must return { csv: \"...\" }");
+          return;
+        }
+
         const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -811,6 +1028,7 @@
       $("amountInput").value = "";
       $("maintenanceInput").value = "";
       $("notesInput").value = "";
+      $("paymentMethod").value = "Cash";
       $("paymentDate").valueAsDate = new Date();
       showToast("Cleared", "Entry form reset");
     }
@@ -830,7 +1048,20 @@
       renderTable();
     }
 
-    // ---- Events (kept)
+    // ---- HTML escaping (safety)
+    function escapeHtml(str){
+      return String(str ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+    function escapeAttr(str){
+      return escapeHtml(str).replace(/`/g,"&#096;");
+    }
+
+    // ---- Events (kept + upgraded)
     $("searchInput").addEventListener("input", applyAndRender);
     $("statusFilter").addEventListener("change", applyAndRender);
     $("propertyFilter").addEventListener("change", applyAndRender);
@@ -898,6 +1129,7 @@
       renderTable();
     });
 
+    // Row actions + select highlight
     $("rentRecordsTbody").addEventListener("click", async (e) => {
       const btn = e.target.closest("button[data-action]");
       if (!btn) return;
@@ -918,6 +1150,36 @@
       }
     });
 
+    // Mark Paid (optional hook) - will call API if implemented
+    $("markPaidBtn").addEventListener("click", async () => {
+      try {
+        const api = getAPI();
+        const { month, year } = getSelectedMonthYear();
+        const studioId = $("studioSelect").value;
+
+        if (!studioId) {
+          showToast("Select a studio", "Choose a Studio ID then click Mark Paid.");
+          return;
+        }
+
+        if (typeof api.markPaid !== "function") {
+          showToast("Not configured", "Implement markPaid action in API (optional).");
+          return;
+        }
+
+        setLoading(true);
+        await api.markPaid({ studioId, month, year });
+        setLoading(false);
+
+        showToast("Marked paid", `${studioId} • ${month}/${year}`);
+        await refreshForPeriod();
+        await refreshHistory();
+      } catch (e) {
+        setLoading(false);
+        setError(e?.message || "Mark Paid failed.");
+      }
+    });
+
     $("openInSheetBtn").addEventListener("click", () => {
       const api = getAPI();
       const url = api.sheetUrl || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
@@ -932,6 +1194,18 @@
       $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
       const body = $("entryBody");
       if (body.style.display === "none") toggleEntry();
+    });
+
+    // Keyboard convenience: Enter to record (when focus is in amount/notes)
+    ["amountInput","maintenanceInput","notesInput"].forEach(id=>{
+      const el = $(id);
+      if (!el) return;
+      el.addEventListener("keydown", (e)=>{
+        if (e.key === "Enter") {
+          e.preventDefault();
+          recordPayment();
+        }
+      });
     });
 
     // ---- Init
@@ -951,6 +1225,7 @@
         syncEntryMonthYear();
         $("paymentDate").valueAsDate = new Date();
 
+        // If API_URL is missing but app-data.js provides API, this will still work
         await refreshForPeriod();
         await refreshHistory();
 
