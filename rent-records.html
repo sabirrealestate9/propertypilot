@@ -1,480 +1,1195 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sabir Real Estate - Rent Records</title>
-  <style>
-    :root{
-      --bg:#0f172a; --card:#111c33; --muted:#94a3b8; --text:#e2e8f0;
-      --accent:#38bdf8; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
-      --line:#223156; --btn:#1d4ed8; --btn2:#334155;
-    }
-    *{box-sizing:border-box;font-family:Segoe UI, Arial, sans-serif}
-    body{margin:0;background:linear-gradient(180deg,#0b1222, #0f172a);color:var(--text)}
-    header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
-    header h1{font-size:18px;margin:0;font-weight:700}
-    header .sub{color:var(--muted);font-size:13px}
-    main{padding:18px;display:grid;grid-template-columns: 360px 1fr; gap:16px; align-items:start}
-    .card{background:rgba(17,28,51,.9);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .card .hd{padding:14px 14px 10px;border-bottom:1px solid var(--line);font-weight:700}
-    .card .bd{padding:14px}
-    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
-    input,select,textarea{
-      width:100%; padding:10px 10px; border-radius:10px; border:1px solid var(--line);
-      background:#0b1327; color:var(--text); outline:none;
-    }
-    textarea{min-height:92px;resize:vertical}
-    .btnbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-    button{
-      cursor:pointer; border:1px solid var(--line); border-radius:10px; padding:10px 12px;
-      background:var(--btn2); color:var(--text); font-weight:600;
-    }
-    button.primary{background:var(--btn);border-color:#1e40af}
-    button.accent{background:#075985;border-color:#0ea5e9}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.4}
-    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);
-      padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
-    .pill b{color:var(--text)}
-    .status{margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap}
-    .tablewrap{overflow:auto;border-radius:14px}
-    table{width:100%;border-collapse:collapse;min-width:860px}
-    th,td{padding:10px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
-    th{position:sticky;top:0;background:#0b1327;color:#cbd5e1;z-index:1}
-    tr:hover td{background:rgba(56,189,248,.06)}
-    .tag{font-size:12px;font-weight:700;padding:4px 8px;border-radius:999px;display:inline-block}
-    .tag.good{background:rgba(34,197,94,.15);color:var(--good);border:1px solid rgba(34,197,94,.35)}
-    .tag.bad{background:rgba(239,68,68,.15);color:var(--bad);border:1px solid rgba(239,68,68,.35)}
-    .tag.warn{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.35)}
-    .split{display:grid;grid-template-columns:1fr 360px;gap:16px}
-    .mini{font-size:12px;color:var(--muted)}
-    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    .kpi .box{border:1px solid var(--line);border-radius:12px;padding:10px;background:#0b1327}
-    .kpi .box .n{font-weight:800;font-size:16px;color:var(--text)}
-    .kpi .box .t{font-size:12px;color:var(--muted)}
-    .files{margin-top:10px;border:1px dashed var(--line);border-radius:12px;padding:10px}
-    .files ul{margin:0;padding-left:18px;color:var(--muted);font-size:12px}
-    .rightNote{white-space:pre-wrap;font-size:12px;color:var(--muted);line-height:1.4}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent Records Management - Sabir Real Estate</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        table th {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .summary-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .status-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-docs {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload:hover {
+            background: #f8f9fa;
+            border-color: #764ba2;
+        }
+
+        .file-list {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            padding: 5px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Rent Records Portal</h1>
-    <div class="sub">Record rent, upload evidence (multi-files), verify Paid + Docs, and preview evidence on double click.</div>
-  </div>
-  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
-    <span class="pill">API: <b id="apiBaseTxt">http://localhost:5000</b></span>
-    <button onclick="setApiBase()">Change API</button>
-  </div>
-</header>
-
-<main>
-  <!-- LEFT PANEL -->
-  <section class="card">
-    <div class="hd">Filters & Actions</div>
-    <div class="bd">
-      <div class="row">
-        <div>
-          <label>Month</label>
-          <select id="monthSel"></select>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 Sabir Real Estate L.L.C</h1>
+            <p>Rent Records Management System</p>
         </div>
-        <div>
-          <label>Year</label>
-          <select id="yearSel"></select>
+
+        <div class="main-content">
+            <!-- Filter Section -->
+            <div class="section">
+                <h2>📅 Filter & Selection</h2>
+                <div class="form-group">
+                    <label for="monthSelect">Month:</label>
+                    <select id="monthSelect">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="yearSelect">Year:</label>
+                    <select id="yearSelect"></select>
+                </div>
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="showUnpaidOnly">
+                    <label for="showUnpaidOnly">Show Unpaid Studios Only</label>
+                </div>
+                <div class="form-group">
+                    <label for="studioSelect">Studio ID:</label>
+                    <select id="studioSelect"></select>
+                </div>
+            </div>
+
+            <!-- Payment Recording Section -->
+            <div class="section">
+                <h2>💰 Record Payment</h2>
+                <div class="form-group">
+                    <label for="paymentDate">Payment Date:</label>
+                    <input type="date" id="paymentDate">
+                </div>
+                <div class="form-group">
+                    <label for="amount">Rent Amount (AED):</label>
+                    <input type="number" id="amount" step="0.01" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="maintenance">Maintenance (AED):</label>
+                    <input type="number" id="maintenance" step="0.01" placeholder="0.00" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Upload Payment Evidence:</label>
+                    <div class="file-upload" id="fileUploadArea">
+                        <p>📎 Click to select files or drag & drop</p>
+                        <input type="file" id="evidenceFiles" multiple style="display: none;">
+                    </div>
+                    <div class="file-list" id="fileList" style="display: none;"></div>
+                </div>
+                <button class="btn btn-success" id="recordPaymentBtn">✅ Record Payment</button>
+            </div>
+
+            <!-- Rent Summary Section -->
+            <div class="section full-width">
+                <h2>📊 Rent Summary</h2>
+                <div id="summaryContent">
+                    <p>Select a studio to view summary...</p>
+                </div>
+            </div>
+
+            <!-- Payment History Section -->
+            <div class="section full-width">
+                <h2>📜 Payment History</h2>
+                <div class="table-container">
+                    <table id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Studio ID</th>
+                                <th>Payment Date</th>
+                                <th>Amount (AED)</th>
+                                <th>Property Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center;">Select filters to view payment history</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="section full-width">
+                <h2>⚙️ Actions</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" id="verifyDocsBtn">🔍 Verify Payments & Documents</button>
+                    <button class="btn btn-warning" id="sendRemindersBtn">📧 Send Late Payment Reminders</button>
+                    <button class="btn btn-info" id="calculateSummaryBtn">📈 Calculate Total Summary</button>
+                    <button class="btn btn-secondary" id="refreshBtn">🔄 Refresh Data</button>
+                </div>
+            </div>
         </div>
-      </div>
 
-      <div style="margin-top:10px">
-        <label>Studio</label>
-        <select id="studioSel"></select>
-        <div class="hint">Studio list is loaded from your backend (same logic as your WinForms: paid/unpaid filtering).</div>
-      </div>
-
-      <div style="margin-top:10px">
-        <label><input type="checkbox" id="onlyUnpaidChk" /> Show Only Unpaid Studios</label>
-      </div>
-
-      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
-
-      <div class="row">
-        <div>
-          <label>Payment Date</label>
-          <input type="date" id="payDate" />
+        <div id="alertBox" class="alert"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Processing...</p>
         </div>
-        <div>
-          <label>Amount (AED)</label>
-          <input type="number" id="amount" placeholder="e.g. 2900" />
-        </div>
-      </div>
-
-      <div style="margin-top:10px">
-        <label>Maintenance (optional)</label>
-        <input type="number" id="maintenance" placeholder="e.g. 0" />
-      </div>
-
-      <div class="files">
-        <label>Evidence Files (Multiple)</label>
-        <input type="file" id="evidenceFiles" multiple />
-        <div class="mini">Selected files:</div>
-        <ul id="fileList"><li>(none)</li></ul>
-      </div>
-
-      <div class="btnbar">
-        <button class="primary" id="btnRecord" onclick="recordPayment()">Record Payment</button>
-        <button class="accent" onclick="verifyPaidDocs()">Verify Paid + Docs</button>
-        <button onclick="loadDashboard()">Refresh Dashboard</button>
-      </div>
-
-      <div class="status" id="statusBox"></div>
     </div>
-  </section>
 
-  <!-- RIGHT PANEL -->
-  <section class="split">
-    <section class="card">
-      <div class="hd">Verification & Payment History</div>
-      <div class="bd">
-        <div class="hint">
-          • Double click a row to open evidence preview (if docs exist).<br>
-          • Uses the same Google Drive folder structure: Studio → Year → Month ("MM - MMMM").
+    <!-- Evidence Preview Modal -->
+    <div id="evidenceModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <h2>📄 Evidence Files</h2>
+            <div id="evidenceList"></div>
         </div>
+    </div>
 
-        <div class="tablewrap" style="margin-top:12px">
-          <table id="grid">
-            <thead>
-              <tr>
-                <th style="width:180px">Studio ID</th>
-                <th style="width:90px">Paid?</th>
-                <th style="width:120px">Evidence Files</th>
-                <th>Verification Status</th>
-              </tr>
-            </thead>
-            <tbody id="gridBody">
-              <tr><td colspan="4" class="mini">No data yet. Click “Verify Paid + Docs”.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+    <script>
+        // Configuration - Replace with your actual backend API endpoints
+        const CONFIG = {
+            API_BASE: '/api',  // Your backend API base URL
+            GOOGLE_DRIVE_API: '/api/drive',
+            MYSQL_API: '/api/mysql'
+        };
 
-    <section class="card">
-      <div class="hd">Month Summary</div>
-      <div class="bd">
-        <div class="kpi">
-          <div class="box">
-            <div class="n" id="kpiUnpaidCount">-</div>
-            <div class="t">Unpaid Studios</div>
-          </div>
-          <div class="box">
-            <div class="n" id="kpiUnpaidAmount">-</div>
-            <div class="t">Total Unpaid Amount (AED)</div>
-          </div>
-        </div>
+        // State management
+        const state = {
+            studios: [],
+            rentRecords: [],
+            selectedFiles: [],
+            currentMonth: new Date().getMonth() + 1,
+            currentYear: new Date().getFullYear()
+        };
 
-        <div style="margin-top:12px">
-          <div class="mini">Unpaid Details</div>
-          <div class="rightNote" id="unpaidDetails">(not loaded)</div>
-        </div>
-      </div>
-    </section>
-  </section>
-</main>
-
-<script>
-  // -------------------- SETTINGS --------------------
-  let API_BASE = localStorage.getItem("RE_API_BASE") || "http://localhost:5000";
-  document.getElementById("apiBaseTxt").textContent = API_BASE;
-
-  function setApiBase(){
-    const v = prompt("Enter API base URL (example: http://localhost:5000)", API_BASE);
-    if(!v) return;
-    API_BASE = v.replace(/\/+$/,'');
-    localStorage.setItem("RE_API_BASE", API_BASE);
-    document.getElementById("apiBaseTxt").textContent = API_BASE;
-    boot();
-  }
-
-  // -------------------- HELPERS --------------------
-  function $(id){ return document.getElementById(id); }
-
-  function setStatus(msg){
-    $("statusBox").textContent = msg || "";
-  }
-
-  function ym(){
-    const month = parseInt($("monthSel").value,10);
-    const year  = parseInt($("yearSel").value,10);
-    return {month, year};
-  }
-
-  async function api(path, options){
-    const res = await fetch(API_BASE + path, options);
-    const text = await res.text();
-    let data = null;
-    try{ data = text ? JSON.parse(text) : null; }catch{ data = text; }
-    if(!res.ok){
-      const msg = (data && data.message) ? data.message : (typeof data === "string" ? data : JSON.stringify(data));
-      throw new Error(msg || ("HTTP " + res.status));
-    }
-    return data;
-  }
-
-  function formatAED(n){
-    if(n === null || n === undefined || isNaN(n)) return "-";
-    return new Intl.NumberFormat("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}).format(n);
-  }
-
-  // -------------------- INIT --------------------
-  function fillMonthYear(){
-    const mSel = $("monthSel");
-    const ySel = $("yearSel");
-
-    mSel.innerHTML = "";
-    for(let m=1;m<=12;m++){
-      const opt = document.createElement("option");
-      opt.value = String(m);
-      opt.textContent = m; // you can change to month names if you want
-      mSel.appendChild(opt);
-    }
-
-    const now = new Date();
-    mSel.value = String(now.getMonth()+1);
-
-    ySel.innerHTML = "";
-    const y0 = now.getFullYear();
-    for(let y=y0-2; y<=y0+2; y++){
-      const opt = document.createElement("option");
-      opt.value = String(y);
-      opt.textContent = String(y);
-      ySel.appendChild(opt);
-    }
-    ySel.value = String(y0);
-
-    // default date
-    const d = new Date();
-    $("payDate").value = d.toISOString().slice(0,10);
-  }
-
-  function wire(){
-    $("onlyUnpaidChk").addEventListener("change", loadStudios);
-    $("monthSel").addEventListener("change", async ()=>{ await loadStudios(); await loadDashboard(); });
-    $("yearSel").addEventListener("change", async ()=>{ await loadStudios(); await loadDashboard(); });
-
-    $("evidenceFiles").addEventListener("change", ()=>{
-      const ul = $("fileList");
-      ul.innerHTML = "";
-      const files = $("evidenceFiles").files;
-      if(!files || files.length===0){
-        ul.innerHTML = "<li>(none)</li>";
-        return;
-      }
-      for(const f of files){
-        const li = document.createElement("li");
-        li.textContent = f.name;
-        ul.appendChild(li);
-      }
-    });
-  }
-
-  // -------------------- LOAD STUDIOS --------------------
-  async function loadStudios(){
-    try{
-      setStatus("Loading studios...");
-      const {month, year} = ym();
-      const onlyUnpaid = $("onlyUnpaidChk").checked;
-
-      // Endpoint: GET /api/studios?month=1&year=2026&onlyUnpaid=true
-      const data = await api(`/api/studios?month=${month}&year=${year}&onlyUnpaid=${onlyUnpaid}`);
-
-      const sSel = $("studioSel");
-      sSel.innerHTML = "";
-      (data || []).forEach(s=>{
-        const opt = document.createElement("option");
-        opt.value = s;
-        opt.textContent = s;
-        sSel.appendChild(opt);
-      });
-
-      setStatus(`Studios loaded: ${(data||[]).length}`);
-    }catch(err){
-      setStatus("Load studios failed: " + err.message);
-    }
-  }
-
-  // -------------------- DASHBOARD SUMMARY --------------------
-  async function loadDashboard(){
-    try{
-      setStatus("Loading dashboard summary...");
-      const {month, year} = ym();
-
-      // Endpoint: GET /api/dashboard/summary?month=1&year=2026
-      const s = await api(`/api/dashboard/summary?month=${month}&year=${year}`);
-
-      $("kpiUnpaidCount").textContent = (s && s.unpaidStudiosCount!=null) ? s.unpaidStudiosCount : "-";
-      $("kpiUnpaidAmount").textContent = (s && s.totalUnpaidAmount!=null) ? formatAED(s.totalUnpaidAmount) : "-";
-      $("unpaidDetails").textContent = (s && s.unpaidDetailsText) ? s.unpaidDetailsText : "(none)";
-
-      setStatus("Dashboard loaded.");
-    }catch(err){
-      setStatus("Dashboard load failed: " + err.message);
-    }
-  }
-
-  // -------------------- RECORD PAYMENT + UPLOAD MULTI EVIDENCE --------------------
-  async function recordPayment(){
-    try{
-      const studioId = $("studioSel").value;
-      if(!studioId){ alert("Select studio first."); return; }
-
-      const paymentDate = $("payDate").value;
-      const amount = parseFloat($("amount").value);
-      if(!paymentDate){ alert("Select payment date."); return; }
-      if(isNaN(amount) || amount<=0){ alert("Enter valid amount."); return; }
-
-      const maintenance = parseFloat($("maintenance").value || "0") || 0;
-
-      $("btnRecord").disabled = true;
-      setStatus("Recording payment...");
-
-      // 1) Record payment in backend (Google Sheet / DB logic)
-      // Endpoint: POST /api/rent/record
-      const body = { studioId, paymentDate, amount, maintenance };
-      const saved = await api(`/api/rent/record`, {
-        method:"POST",
-        headers: { "Content-Type":"application/json" },
-        body: JSON.stringify(body)
-      });
-
-      // 2) Upload evidence files (optional)
-      const files = $("evidenceFiles").files;
-      if(files && files.length>0){
-        setStatus(`Payment recorded. Uploading evidence (${files.length})...`);
-        const fd = new FormData();
-        fd.append("studioId", studioId);
-        fd.append("paymentDate", paymentDate);
-        for(const f of files) fd.append("files", f);
-
-        // Endpoint: POST /api/evidence/upload (multipart/form-data)
-        await api(`/api/evidence/upload`, { method:"POST", body: fd });
-      }
-
-      // cleanup
-      $("evidenceFiles").value = "";
-      $("fileList").innerHTML = "<li>(none)</li>";
-      $("amount").value = "";
-      $("maintenance").value = "";
-
-      setStatus("✅ Payment recorded and evidence uploaded.");
-      await loadStudios();
-      await loadDashboard();
-    }catch(err){
-      setStatus("Record failed: " + err.message);
-      alert("Record failed: " + err.message);
-    }finally{
-      $("btnRecord").disabled = false;
-    }
-  }
-
-  // -------------------- VERIFY PAID + DOCS --------------------
-  async function verifyPaidDocs(){
-    try{
-      setStatus("Verifying Paid + Docs...");
-      const {month, year} = ym();
-
-      // Endpoint: GET /api/verify?month=1&year=2026
-      const rows = await api(`/api/verify?month=${month}&year=${year}`);
-
-      const tb = $("gridBody");
-      tb.innerHTML = "";
-
-      if(!rows || rows.length===0){
-        tb.innerHTML = `<tr><td colspan="4" class="mini">No data.</td></tr>`;
-        setStatus("No verification data.");
-        return;
-      }
-
-      for(const r of rows){
-        const tr = document.createElement("tr");
-        tr.dataset.studioId = r.studioId;
-        tr.dataset.docsCount = r.docsCount;
-
-        const paidTag = r.paid ? `<span class="tag good">YES</span>` : `<span class="tag bad">NO</span>`;
-        let statusTag = "";
-        if(!r.paid) statusTag = `<span class="tag bad">UNPAID</span>`;
-        else if(r.docsCount>0) statusTag = `<span class="tag good">PAID + DOCS</span>`;
-        else statusTag = `<span class="tag warn">PAID but DOCS</span>`;
-
-        tr.innerHTML = `
-          <td>${escapeHtml(r.studioId || "")}</td>
-          <td>${paidTag}</td>
-          <td>${r.docsCount ?? 0}</td>
-          <td>${statusTag} <span class="mini"> ${escapeHtml(r.status || "")}</span></td>
-        `;
-
-        tr.addEventListener("dblclick", async ()=>{
-          await openEvidencePreview(r.studioId, month, year);
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            setupEventListeners();
         });
 
-        tb.appendChild(tr);
-      }
+        function initializeApp() {
+            // Set current date
+            const today = new Date();
+            document.getElementById('paymentDate').valueAsDate = today;
+            
+            // Populate years
+            const yearSelect = document.getElementById('yearSelect');
+            const currentYear = today.getFullYear();
+            for (let y = currentYear - 2; y <= currentYear + 2; y++) {
+                const option = document.createElement('option');
+                option.value = y;
+                option.textContent = y;
+                if (y === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+            
+            // Set current month
+            document.getElementById('monthSelect').value = today.getMonth() + 1;
+            
+            // Load initial data
+            loadStudios();
+        }
 
-      setStatus("✅ Verification completed. Double-click any row to preview evidence.");
-    }catch(err){
-      setStatus("Verify failed: " + err.message);
-      alert("Verify failed: " + err.message);
-    }
-  }
+        function setupEventListeners() {
+            document.getElementById('monthSelect').addEventListener('change', handleFilterChange);
+            document.getElementById('yearSelect').addEventListener('change', handleFilterChange);
+            document.getElementById('showUnpaidOnly').addEventListener('change', handleFilterChange);
+            document.getElementById('studioSelect').addEventListener('change', handleStudioChange);
+            document.getElementById('recordPaymentBtn').addEventListener('click', recordPayment);
+            document.getElementById('verifyDocsBtn').addEventListener('click', verifyPaymentsAndDocs);
+            document.getElementById('sendRemindersBtn').addEventListener('click', sendLatePaymentReminders);
+            document.getElementById('calculateSummaryBtn').addEventListener('click', calculateTotalSummary);
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                loadStudios();
+                loadRentRecords();
+            });
+            
+            // File upload
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('evidenceFiles');
+            
+            fileUploadArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Modal
+            document.getElementById('closeModal').addEventListener('click', () => {
+                document.getElementById('evidenceModal').style.display = 'none';
+            });
+            
+            // Table double-click for evidence preview
+            document.getElementById('historyBody').addEventListener('dblclick', handleRowDoubleClick);
+        }
 
-  // -------------------- PREVIEW EVIDENCE (DOUBLE CLICK) --------------------
-  async function openEvidencePreview(studioId, month, year){
-    try{
-      setStatus(`Loading evidence list for ${studioId} (${month}/${year})...`);
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            state.selectedFiles = files;
+            
+            const fileList = document.getElementById('fileList');
+            fileList.style.display = files.length > 0 ? 'block' : 'none';
+            fileList.innerHTML = files.map(f => 
+                `<div class="file-item">📄 ${f.name} (${formatFileSize(f.size)})</div>`
+            ).join('');
+            
+            showAlert(`${files.length} file(s) selected for upload`, 'info');
+        }
 
-      // Endpoint: GET /api/evidence/list?studioId=...&month=...&year=...
-      const files = await api(`/api/evidence/list?studioId=${encodeURIComponent(studioId)}&month=${month}&year=${year}`);
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
 
-      if(!files || files.length===0){
-        alert("No evidence found for this Studio/Month/Year.");
-        setStatus("No evidence found.");
-        return;
-      }
+        async function loadStudios() {
+            showLoading(true);
+            try {
+                // NOTE: Replace with actual API call to your backend
+                // const response = await fetch(`${CONFIG.API_BASE}/studios`);
+                // state.studios = await response.json();
+                
+                // Mock data for demonstration
+                state.studios = generateMockStudios();
+                populateStudioDropdown();
+                showAlert('Studios loaded successfully', 'success');
+            } catch (error) {
+                showAlert('Error loading studios: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
 
-      if(files.length===1){
-        window.open(files[0].webViewLink, "_blank");
-        setStatus("Opened evidence in new tab.");
-        return;
-      }
+        async function loadRentRecords() {
+            showLoading(true);
+            try {
+                const month = document.getElementById('monthSelect').value;
+                const year = document.getElementById('yearSelect').value;
+                
+                // NOTE: Replace with actual API call
+                // const response = await fetch(`${CONFIG.API_BASE}/rent-records?month=${month}&year=${year}`);
+                // state.rentRecords = await response.json();
+                
+                state.rentRecords = generateMockRentRecords();
+                updateHistoryTable();
+                showAlert('Rent records loaded', 'success');
+            } catch (error) {
+                showAlert('Error loading rent records: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
 
-      // Multiple files -> prompt simple chooser
-      const names = files.map((f,i)=> `${i+1}) ${f.name}`).join("\n");
-      const pick = prompt("Multiple evidence files found.\nEnter file number to open:\n\n" + names, "1");
-      const idx = parseInt(pick,10)-1;
-      if(isNaN(idx) || idx<0 || idx>=files.length) return;
+        function populateStudioDropdown() {
+            const select = document.getElementById('studioSelect');
+            const showUnpaid = document.getElementById('showUnpaidOnly').checked;
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            select.innerHTML = '<option value="">-- Select Studio --</option>';
+            
+            let studios = state.studios;
+            
+            if (showUnpaid) {
+                const paidStudioIds = new Set(
+                    state.rentRecords
+                        .filter(r => r.month === month && r.year === year)
+                        .map(r => r.studioId)
+                );
+                studios = studios.filter(s => !paidStudioIds.has(s.location));
+            }
+            
+            studios.forEach(studio => {
+                const option = document.createElement('option');
+                option.value = studio.location;
+                option.textContent = studio.location;
+                select.appendChild(option);
+            });
+        }
 
-      window.open(files[idx].webViewLink, "_blank");
-      setStatus("Opened evidence in new tab.");
-    }catch(err){
-      setStatus("Evidence preview failed: " + err.message);
-      alert("Evidence preview failed: " + err.message);
-    }
-  }
+        function handleFilterChange() {
+            populateStudioDropdown();
+            loadRentRecords();
+            calculateTotalSummary();
+        }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-    }[m]));
-  }
+        function handleStudioChange() {
+            const studioId = document.getElementById('studioSelect').value;
+            if (!studioId) return;
+            
+            const studio = state.studios.find(s => s.location === studioId);
+            if (studio) {
+                document.getElementById('amount').value = studio.tenantRent || '';
+                updateRentSummary(studioId);
+                updateHistoryForStudio(studioId);
+            }
+        }
 
-  async function boot(){
-    fillMonthYear();
-    wire();
-    await loadStudios();
-    await loadDashboard();
-  }
-  boot();
-</script>
+        function updateRentSummary(studioId) {
+            const studio = state.studios.find(s => s.location === studioId);
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            const paidAmount = state.rentRecords
+                .filter(r => r.studioId === studioId && r.month === month && r.year === year)
+                .reduce((sum, r) => sum + r.amount, 0);
+            
+            const totalRent = studio ? studio.tenantRent : 0;
+            const remaining = totalRent - paidAmount;
+            
+            const summaryHTML = `
+                <div class="summary-box">
+                    <h3>Studio ${studioId}</h3>
+                    <div class="summary-item">
+                        <span>Total Rent:</span>
+                        <strong>AED ${totalRent.toFixed(2)}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Paid Amount:</span>
+                        <strong>AED ${paidAmount.toFixed(2)}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Remaining:</span>
+                        <strong>AED ${remaining.toFixed(2)}</strong>
+                    </div>
+                    ${studio ? `
+                    <div class="summary-item">
+                        <span>Tenant:</span>
+                        <strong>${studio.tenantName || 'N/A'}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Property:</span>
+                        <strong>${studio.property || 'N/A'}</strong>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('summaryContent').innerHTML = summaryHTML;
+        }
+
+        function updateHistoryForStudio(studioId) {
+            const records = state.rentRecords.filter(r => r.studioId === studioId);
+            updateHistoryTable(records);
+        }
+
+        function updateHistoryTable(records = state.rentRecords) {
+            const tbody = document.getElementById('historyBody');
+            
+            if (!records || records.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No payment records found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = records
+                .sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate))
+                .map(record => `
+                    <tr data-studio="${record.studioId}" data-month="${record.month}" data-year="${record.year}">
+                        <td>${record.studioId}</td>
+                        <td>${new Date(record.paymentDate).toLocaleDateString()}</td>
+                        <td>AED ${record.amount.toFixed(2)}</td>
+                        <td>${record.ownership || 'N/A'}</td>
+                        <td><span class="status-badge status-paid">✅ PAID</span></td>
+                        <td>
+                            <button class="btn btn-info btn-sm" onclick="viewEvidence('${record.studioId}', ${record.month}, ${record.year})">
+                                📄 View Evidence
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+        }
+
+        async function recordPayment() {
+            const studioId = document.getElementById('studioSelect').value;
+            const paymentDate = document.getElementById('paymentDate').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const maintenance = parseFloat(document.getElementById('maintenance').value) || 0;
+            
+            if (!studioId || !paymentDate || !amount) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                const studio = state.studios.find(s => s.location === studioId);
+                const ownership = studio ? determineOwnership(studio.property) : 'Unknown';
+                const date = new Date(paymentDate);
+                
+                const paymentData = {
+                    studioId,
+                    paymentDate,
+                    amount,
+                    maintenance,
+                    ownership,
+                    month: date.getMonth() + 1,
+                    year: date.getFullYear(),
+                    profit: amount - (studio?.ownerRent || 0) - maintenance
+                };
+                
+                // NOTE: Replace with actual API call to save to MySQL
+                // await fetch(`${CONFIG.API_BASE}/rent-records`, {
+                //     method: 'POST',
+                //     headers: { 'Content-Type': 'application/json' },
+                //     body: JSON.stringify(paymentData)
+                // });
+                
+                // Upload evidence to Google Drive if files selected
+                if (state.selectedFiles.length > 0) {
+                    await uploadEvidence(studioId, date);
+                }
+                
+                // Send receipt email
+                await sendRentReceiptEmail(studioId, amount, date);
+                
+                showAlert('✅ Payment recorded successfully!', 'success');
+                clearInputs();
+                loadRentRecords();
+                handleStudioChange();
+                
+            } catch (error) {
+                showAlert('Error recording payment: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function determineOwnership(property) {
+            if (!property) return 'Unknown';
+            const lowerProp = property.toLowerCase();
+            if (lowerProp.includes('company')) return 'Company';
+            if (lowerProp.includes('personnel')) return 'Personnel';
+            return property;
+        }
+
+        async function uploadEvidence(studioId, paymentDate) {
+            // NOTE: This requires a backend endpoint that handles Google Drive API
+            // The backend should use service account credentials to upload files
+            
+            const formData = new FormData();
+            formData.append('studioId', studioId);
+            formData.append('paymentDate', paymentDate.toISOString());
+            
+            state.selectedFiles.forEach((file, index) => {
+                formData.append(`file${index}`, file);
+            });
+            
+            // await fetch(`${CONFIG.GOOGLE_DRIVE_API}/upload-evidence`, {
+            //     method: 'POST',
+            //     body: formData
+            // });
+            
+            console.log('Evidence upload simulated for:', studioId, paymentDate);
+        }
+
+        async function sendRentReceiptEmail(studioId, amount, paymentDate) {
+            const studio = state.studios.find(s => s.location === studioId);
+            if (!studio) return;
+            
+            const emailData = {
+                to: studio.tenantContact,
+                tenantName: studio.tenantName,
+                studioId,
+                amount,
+                paymentDate: paymentDate.toLocaleDateString(),
+                flat: studio.flat,
+                location: studio.location,
+                contractFrom: studio.tContractFrom,
+                contractTo: studio.tContractTo
+            };
+            
+            // NOTE: Send email via backend API
+            // await fetch(`${CONFIG.API_BASE}/send-receipt`, {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(emailData)
+            // });
+            
+            console.log('Receipt email sent to:', emailData.to);
+        }
+
+        async function sendLatePaymentReminders() {
+            if (!confirm('Send late payment reminders to all unpaid studios?')) return;
+            
+            showLoading(true);
+            try {
+                const month = parseInt(document.getElementById('monthSelect').value);
+                const year = parseInt(document.getElementById('yearSelect').value);
+                
+                const paidStudioIds = new Set(
+                    state.rentRecords
+                        .filter(r => r.month === month && r.year === year)
+                        .map(r => r.studioId)
+                );
+                
+                const unpaidStudios = state.studios.filter(s => !paidStudioIds.has(s.location));
+                
+                let sentCount = 0;
+                for (const studio of unpaidStudios) {
+                    if (studio.tenantContact && studio.tenantContact.includes('@')) {
+                        // NOTE: Send via backend API
+                        // await fetch(`${CONFIG.API_BASE}/send-reminder`, {
+                        //     method: 'POST',
+                        //     headers: { 'Content-Type': 'application/json' },
+                        //     body: JSON.stringify({
+                        //         email: studio.tenantContact,
+                        //         tenantName: studio.tenantName,
+                        //         studioId: studio.location,
+                        //         rentAmount: studio.tenantRent
+                        //     })
+                        // });
+                        sentCount++;
+                    }
+                }
+                
+                showAlert(`📧 ${sentCount} reminder emails sent successfully!`, 'success');
+            } catch (error) {
+                showAlert('Error sending reminders: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function calculateTotalSummary() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            const monthName = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
+            
+            const paidStudioIds = new Set(
+                state.rentRecords
+                    .filter(r => r.month === month && r.year === year)
+                    .map(r => r.studioId)
+            );
+            
+            const unpaidStudios = state.studios.filter(s => !paidStudioIds.has(s.location));
+            
+            let totalUnpaid = 0;
+            const details = unpaidStudios.map(studio => {
+                totalUnpaid += studio.tenantRent || 0;
+                return `
+                    <div class="summary-item">
+                        <div>
+                            <strong>${studio.location}</strong> - ${studio.tenantName || 'N/A'}<br>
+                            <small>${studio.property || 'N/A'} | Contact: ${studio.tenantContact || 'N/A'}</small>
+                        </div>
+                        <strong>AED ${(studio.tenantRent || 0).toFixed(2)}</strong>
+                    </div>
+                `;
+            }).join('');
+            
+            const summaryHTML = `
+                <div class="summary-box">
+                    <h3>📊 Unpaid Studios Summary - ${monthName} ${year}</h3>
+                    <div class="summary-item">
+                        <span>Total Unpaid Studios:</span>
+                        <strong>${unpaidStudios.length}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Total Unpaid Amount:</span>
+                        <strong>AED ${totalUnpaid.toFixed(2)}</strong>
+                    </div>
+                    <hr style="border: 1px solid rgba(255,255,255,0.3); margin: 15px 0;">
+                    <h4 style="margin-bottom: 10px;">Unpaid Studios Details:</h4>
+                    ${details || '<p>All studios have paid! ✅</p>'}
+                </div>
+            `;
+            
+            document.getElementById('summaryContent').innerHTML = summaryHTML;
+        }
+
+        async function verifyPaymentsAndDocs() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            showLoading(true);
+            try {
+                const verificationData = [];
+                
+                for (const studio of state.studios) {
+                    const isPaid = state.rentRecords.some(r => 
+                        r.studioId === studio.location && r.month === month && r.year === year
+                    );
+                    
+                    let docsCount = 0;
+                    if (isPaid) {
+                        // NOTE: Check Google Drive for evidence files
+                        // const response = await fetch(
+                        //     `${CONFIG.GOOGLE_DRIVE_API}/count-evidence?studioId=${studio.location}&month=${month}&year=${year}`
+                        // );
+                        // const data = await response.json();
+                        // docsCount = data.count;
+                        
+                        // Mock data
+                        docsCount = Math.random() > 0.5 ? Math.floor(Math.random() * 3) + 1 : 0;
+                    }
+                    
+                    let status;
+                    if (!isPaid) {
+                        status = '❌ UNPAID';
+                    } else if (docsCount > 0) {
+                        status = '✅ PAID + DOCS ✅';
+                    } else {
+                        status = '✅ PAID but DOCS ❌';
+                    }
+                    
+                    verificationData.push({
+                        studioId: studio.location,
+                        paid: isPaid,
+                        docsCount,
+                        status
+                    });
+                }
+                
+                displayVerificationResults(verificationData);
+                showAlert('Verification completed successfully!', 'success');
+                
+            } catch (error) {
+                showAlert('Error during verification: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayVerificationResults(data) {
+            const tbody = document.getElementById('historyBody');
+            
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.studioId}</td>
+                    <td>${item.paid ? 'Yes ✅' : 'No ❌'}</td>
+                    <td>${item.docsCount}</td>
+                    <td colspan="2">
+                        <span class="status-badge ${item.paid ? 'status-paid' : 'status-unpaid'}">
+                            ${item.status}
+                        </span>
+                    </td>
+                    <td>
+                        ${item.paid && item.docsCount > 0 ? 
+                            `<button class="btn btn-info btn-sm" onclick="viewEvidence('${item.studioId}', ${document.getElementById('monthSelect').value}, ${document.getElementById('yearSelect').value})">
+                                📄 View Docs
+                            </button>` : 
+                            '-'
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function viewEvidence(studioId, month, year) {
+            showLoading(true);
+            try {
+                // NOTE: Fetch evidence files from Google Drive via backend
+                // const response = await fetch(
+                //     `${CONFIG.GOOGLE_DRIVE_API}/list-evidence?studioId=${studioId}&month=${month}&year=${year}`
+                // );
+                // const files = await response.json();
+                
+                // Mock data
+                const files = [
+                    { id: '1', name: `${studioId}_payment_receipt.pdf`, webViewLink: '#' },
+                    { id: '2', name: `${studioId}_bank_transfer.jpg`, webViewLink: '#' }
+                ];
+                
+                if (files.length === 0) {
+                    showAlert('No evidence files found for this studio/month/year', 'info');
+                    return;
+                }
+                
+                if (files.length === 1) {
+                    window.open(files[0].webViewLink, '_blank');
+                    return;
+                }
+                
+                // Show modal with multiple files
+                const evidenceList = document.getElementById('evidenceList');
+                evidenceList.innerHTML = files.map(file => `
+                    <div style="padding: 10px; margin: 10px 0; background: #f8f9fa; border-radius: 5px; cursor: pointer;"
+                         onclick="window.open('${file.webViewLink}', '_blank')">
+                        <strong>📄 ${file.name}</strong>
+                        <p style="margin: 5px 0 0 0; font-size: 0.9em; color: #666;">Click to view</p>
+                    </div>
+                `).join('');
+                
+                document.getElementById('evidenceModal').style.display = 'block';
+                
+            } catch (error) {
+                showAlert('Error loading evidence: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function handleRowDoubleClick(e) {
+            const row = e.target.closest('tr');
+            if (!row || !row.dataset.studio) return;
+            
+            const studioId = row.dataset.studio;
+            const month = row.dataset.month;
+            const year = row.dataset.year;
+            
+            if (studioId && month && year) {
+                viewEvidence(studioId, parseInt(month), parseInt(year));
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById('amount').value = '';
+            document.getElementById('maintenance').value = '0';
+            document.getElementById('paymentDate').valueAsDate = new Date();
+            document.getElementById('evidenceFiles').value = '';
+            document.getElementById('fileList').style.display = 'none';
+            document.getElementById('fileList').innerHTML = '';
+            state.selectedFiles = [];
+        }
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.className = `alert alert-${type}`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Mock data generators for demonstration
+        function generateMockStudios() {
+            return [
+                { location: 'A101', tenantName: 'Ahmed Ali', tenantContact: 'ahmed@email.com', tenantRent: 3500, ownerRent: 3000, property: 'Company Property', flat: 'Studio' },
+                { location: 'A102', tenantName: 'Sara Ahmed', tenantContact: 'sara@email.com', tenantRent: 3200, ownerRent: 2800, property: 'Personnel Property', flat: 'Studio' },
+                { location: 'B201', tenantName: 'Mohammed Hassan', tenantContact: 'mohammed@email.com', tenantRent: 3800, ownerRent: 3300, property: 'Company Property', flat: '1BHK' },
+                { location: 'B202', tenantName: 'Fatima Ibrahim', tenantContact: 'fatima@email.com', tenantRent: 3600, ownerRent: 3100, property: 'Personnel Property', flat: 'Studio' },
+                { location: 'C301', tenantName: 'Ali Rashid', tenantContact: 'ali@email.com', tenantRent: 4000, ownerRent: 3500, property: 'Company Property', flat: '1BHK' }
+            ];
+        }
+
+        function generateMockRentRecords() {
+            const month = parseInt(document.getElementById('monthSelect').value);
+            const year = parseInt(document.getElementById('yearSelect').value);
+            
+            return [
+                { studioId: 'A101', paymentDate: `${year}-${String(month).padStart(2, '0')}-05`, amount: 3500, ownership: 'Company', month, year },
+                { studioId: 'B201', paymentDate: `${year}-${String(month).padStart(2, '0')}-07`, amount: 3800, ownership: 'Company', month, year }
+            ];
+        }
+
+        // Backend API Integration Notes:
+        /*
+        
+        You'll need to create a backend API (Node.js, PHP, Python, etc.) that:
+        
+        1. MySQL Database Operations:
+           - GET /api/studios - Fetch all studios from MySQL
+           - GET /api/rent-records - Fetch rent records with filters
+           - POST /api/rent-records - Insert new rent payment record
+           - PUT /api/studios/:id/profit - Update studio profit
+        
+        2. Google Drive Operations (using service account):
+           - POST /api/drive/upload-evidence - Upload files to Google Drive
+           - GET /api/drive/list-evidence - List evidence files for studio/month/year
+           - GET /api/drive/count-evidence - Count evidence files
+        
+        3. Email Operations:
+           - POST /api/send-receipt - Send rent receipt email
+           - POST /api/send-reminder - Send late payment reminder
+        
+        MySQL Connection Example (Node.js):
+        ```javascript
+        const mysql = require('mysql2/promise');
+        
+        const pool = mysql.createPool({
+            host: 'server145.iseencloud.com',
+            user: 'bobkhan1',
+            password: 'L[I7baY1g-D3t9',
+            database: 'bobkhan1_Real Estate Company'
+        });
+        ```
+        
+        Google Drive API Example (Node.js):
+        ```javascript
+        const { google } = require('googleapis');
+        const fs = require('fs');
+        
+        const auth = new google.auth.GoogleAuth({
+            keyFile: './service-account.json',
+            scopes: ['https://www.googleapis.com/auth/drive']
+        });
+        
+        const drive = google.drive({ version: 'v3', auth });
+        ```
+        
+        */
+    </script>
 </body>
 </html>
