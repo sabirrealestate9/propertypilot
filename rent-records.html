@@ -1,1125 +1,480 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rent Records - Sabir Amin Real Estate Company LLC</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-
-  <!-- IMPORTANT: Absolute URL + cache-bust to ensure GitHub Pages applies styling -->
-  <link rel="stylesheet" href="https://sabirrealestate9.github.io/propertypilot/app.css?v=20260117" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sabir Real Estate - Rent Records</title>
+  <style>
+    :root{
+      --bg:#0f172a; --card:#111c33; --muted:#94a3b8; --text:#e2e8f0;
+      --accent:#38bdf8; --good:#22c55e; --warn:#f59e0b; --bad:#ef4444;
+      --line:#223156; --btn:#1d4ed8; --btn2:#334155;
+    }
+    *{box-sizing:border-box;font-family:Segoe UI, Arial, sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#0b1222, #0f172a);color:var(--text)}
+    header{padding:18px 22px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:center}
+    header h1{font-size:18px;margin:0;font-weight:700}
+    header .sub{color:var(--muted);font-size:13px}
+    main{padding:18px;display:grid;grid-template-columns: 360px 1fr; gap:16px; align-items:start}
+    .card{background:rgba(17,28,51,.9);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card .hd{padding:14px 14px 10px;border-bottom:1px solid var(--line);font-weight:700}
+    .card .bd{padding:14px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+    input,select,textarea{
+      width:100%; padding:10px 10px; border-radius:10px; border:1px solid var(--line);
+      background:#0b1327; color:var(--text); outline:none;
+    }
+    textarea{min-height:92px;resize:vertical}
+    .btnbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    button{
+      cursor:pointer; border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+      background:var(--btn2); color:var(--text); font-weight:600;
+    }
+    button.primary{background:var(--btn);border-color:#1e40af}
+    button.accent{background:#075985;border-color:#0ea5e9}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.4}
+    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);
+      padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .pill b{color:var(--text)}
+    .status{margin-top:10px;font-size:12px;color:var(--muted);white-space:pre-wrap}
+    .tablewrap{overflow:auto;border-radius:14px}
+    table{width:100%;border-collapse:collapse;min-width:860px}
+    th,td{padding:10px 10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}
+    th{position:sticky;top:0;background:#0b1327;color:#cbd5e1;z-index:1}
+    tr:hover td{background:rgba(56,189,248,.06)}
+    .tag{font-size:12px;font-weight:700;padding:4px 8px;border-radius:999px;display:inline-block}
+    .tag.good{background:rgba(34,197,94,.15);color:var(--good);border:1px solid rgba(34,197,94,.35)}
+    .tag.bad{background:rgba(239,68,68,.15);color:var(--bad);border:1px solid rgba(239,68,68,.35)}
+    .tag.warn{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.35)}
+    .split{display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .mini{font-size:12px;color:var(--muted)}
+    .kpi{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .kpi .box{border:1px solid var(--line);border-radius:12px;padding:10px;background:#0b1327}
+    .kpi .box .n{font-weight:800;font-size:16px;color:var(--text)}
+    .kpi .box .t{font-size:12px;color:var(--muted)}
+    .files{margin-top:10px;border:1px dashed var(--line);border-radius:12px;padding:10px}
+    .files ul{margin:0;padding-left:18px;color:var(--muted);font-size:12px}
+    .rightNote{white-space:pre-wrap;font-size:12px;color:var(--muted);line-height:1.4}
+  </style>
 </head>
-
 <body>
-
-  <!-- Loading + Error (kept) -->
-  <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
-    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
-      <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
-      <span style="font-size:14px;color:#37474f;font-weight:800;">Loading live data…</span>
-    </div>
+<header>
+  <div>
+    <h1>Rent Records Portal</h1>
+    <div class="sub">Record rent, upload evidence (multi-files), verify Paid + Docs, and preview evidence on double click.</div>
   </div>
-
-  <div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;font-weight:800;"></div>
-
-  <!-- Toast (kept) -->
-  <div class="toast" id="toast" style="position:fixed;right:18px;bottom:18px;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,0.06);box-shadow:0 10px 24px rgba(0,0,0,0.10);z-index:9999;max-width:520px;">
-    <i class="fas fa-circle-check" style="color:#00bcd4;"></i>
-    <div>
-      <div class="msg" id="toastMsg" style="font-size:13px;font-weight:800;color:#263238;">Done</div>
-      <div class="sub" id="toastSub" style="display:none;font-size:12px;font-weight:700;color:#546e7a;margin-top:2px;"></div>
-    </div>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+    <span class="pill">API: <b id="apiBaseTxt">http://localhost:5000</b></span>
+    <button onclick="setApiBase()">Change API</button>
   </div>
+</header>
 
-  <!-- Sidebar (same structure) -->
-  <nav class="sidebar">
-    <div class="logo">
-      <div class="logo-icon"><i class="fas fa-gem"></i></div>
-      <span class="logo-text">Opal</span>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Main</div>
-      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
-      <a href="rent-records.html" class="nav-link active">
-        <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">3</span>
-      </a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Finance</div>
-      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
-      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
-      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Reports</div>
-      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">System</div>
-      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <main class="main-content">
-    <header class="page-header">
-      <div class="page-title">
-        <h1>Rent Records</h1>
-        <p>Track rent payments, unpaid studios, payment history, and reminders (Google Sheet integrated).</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
-        <button class="btn btn-secondary" id="syncBtn"><i class="fas fa-rotate"></i> Refresh</button>
-        <button class="btn btn-primary" id="openEntryBtn"><i class="fas fa-plus"></i> Record Monthly Rent</button>
-      </div>
-    </header>
-
-    <!-- Summary Strip (kept) -->
-    <section class="summary-strip" aria-label="Monthly summary">
-      <div class="summary-card income">
-        <div class="summary-value" id="sumReceived">—</div>
-        <div class="summary-label">Total Received (Selected Month)</div>
-      </div>
-      <div class="summary-card due">
-        <div class="summary-value" id="sumDue">—</div>
-        <div class="summary-label">Total Due (Selected Month)</div>
-      </div>
-      <div class="summary-card overdue">
-        <div class="summary-value" id="sumOverdue">—</div>
-        <div class="summary-label">Overdue Studios</div>
-      </div>
-      <div class="summary-card pending">
-        <div class="summary-value" id="sumPending">—</div>
-        <div class="summary-label">Pending This Week</div>
-      </div>
-    </section>
-
-    <!-- Filters (kept) -->
-    <section class="filters-bar" aria-label="Filters">
-      <div class="filters-left">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input id="searchInput" type="text" placeholder="Search tenant / unit / owner / contact…" />
-        </div>
-
-        <select class="filter-select" id="statusFilter">
-          <option value="all">All Status</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="overdue">Overdue</option>
-        </select>
-
-        <select class="filter-select" id="propertyFilter">
-          <option value="all">All Units</option>
-        </select>
-      </div>
-
-      <div class="filters-right">
-        <select class="filter-select" id="monthFilter"></select>
-        <select class="filter-select" id="yearFilter"></select>
-      </div>
-    </section>
-
-    <!-- Rent Entry (kept) -->
-    <section class="card" aria-label="Record monthly rent" id="rentEntryCard">
-      <div class="card-header">
+<main>
+  <!-- LEFT PANEL -->
+  <section class="card">
+    <div class="hd">Filters & Actions</div>
+    <div class="bd">
+      <div class="row">
         <div>
-          <div class="card-title"><i class="fas fa-pen-to-square"></i> Record Monthly Rent</div>
-          <div class="card-sub">Post a rent payment to Google Sheet, view unpaid studios, and see payment history.</div>
+          <label>Month</label>
+          <select id="monthSel"></select>
         </div>
-        <div class="split-actions">
-          <div class="checkbox" title="Show only unpaid studios in the Studio list">
-            <input type="checkbox" id="onlyUnpaidChk" checked />
-            <span>Show Only Unpaid Studios</span>
-          </div>
-          <button class="btn btn-secondary" id="toggleEntryBtn" title="Collapse / Expand">
-            <i class="fas fa-chevron-up"></i> Collapse
-          </button>
-        </div>
-      </div>
-
-      <div class="card-body" id="entryBody">
-        <div class="entry-top" style="margin-bottom:12px;">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Month:</label>
-            <select class="filter-select" id="entryMonth"></select>
-
-            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Year:</label>
-            <select class="filter-select" id="entryYear"></select>
-          </div>
-
-          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (hook)">
-              <i class="fas fa-envelope"></i> Email Unpaid (Bulk)
-            </button>
-            <button class="btn btn-danger" id="clearFormBtn" title="Clear entry form">
-              <i class="fas fa-eraser"></i> Clear
-            </button>
-          </div>
-        </div>
-
-        <div class="rent-entry-grid">
-          <!-- Left: Entry Form -->
-          <div class="entry-form">
-            <div class="form-row">
-              <label>Studio ID:</label>
-              <select class="control" id="studioSelect"></select>
-            </div>
-
-            <div class="form-row">
-              <label>Payment Date:</label>
-              <input class="control" id="paymentDate" type="date" />
-            </div>
-
-            <div class="form-row">
-              <label>Amount:</label>
-              <input class="control" id="amountInput" type="number" step="0.01" placeholder="e.g. 2600" />
-            </div>
-
-            <div class="form-row">
-              <label>Maintenance:</label>
-              <input class="control" id="maintenanceInput" type="number" step="0.01" placeholder="optional" />
-            </div>
-
-            <div class="form-row">
-              <label>Payment Method:</label>
-              <select class="control" id="paymentMethod">
-                <option value="Cash">Cash</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Cheque">Cheque</option>
-                <option value="Card">Card</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div class="form-row">
-              <label>Notes:</label>
-              <input class="control" id="notesInput" type="text" placeholder="e.g. Cash, transfer ref, partial…" />
-            </div>
-
-            <div class="form-actions">
-              <button class="btn btn-primary" id="recordPaymentBtn">
-                <i class="fas fa-circle-check"></i> Record Payment
-              </button>
-              <button class="btn btn-secondary" id="emailReminderBtn">
-                <i class="fas fa-envelope"></i> Email Reminder
-              </button>
-            </div>
-
-            <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:800;">
-              Tip: Unpaid = Studios sheet MINUS RentRecords sheet for selected month/year.
-            </div>
-          </div>
-
-          <!-- Right: Unpaid Panel -->
-          <div class="unpaid-panel">
-            <div class="unpaid-head">
-              <div class="unpaid-title" id="unpaidTitle">Unpaid Studios for —</div>
-              <div class="unpaid-meta" id="unpaidMeta">—</div>
-            </div>
-
-            <div class="unpaid-stats">
-              <div id="unpaidCount">Total Unpaid Studios: —</div>
-              <div id="unpaidAmount">Total Unpaid Amount: —</div>
-            </div>
-
-            <div class="unpaid-list" id="unpaidList">Loading…</div>
-          </div>
-        </div>
-
-        <!-- Payment History (kept) -->
-        <div style="height:14px;"></div>
-        <div class="card" style="border-radius: var(--radius-lg);">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Payment History</div>
-              <div class="card-sub">History for selected studio (latest first)</div>
-            </div>
-            <button class="btn btn-secondary" id="historyRefreshBtn">
-              <i class="fas fa-rotate"></i> Refresh History
-            </button>
-          </div>
-          <div class="table-container">
-            <table style="min-width: 760px;">
-              <thead>
-                <tr>
-                  <th>Payment Date</th>
-                  <th>Amount</th>
-                  <th>Maintenance</th>
-                  <th>Month</th>
-                  <th>Year</th>
-                  <th>Method</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody id="historyTbody"></tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Rent Records Table (kept) -->
-    <section class="card" aria-label="Rent records table" style="margin-top:16px;">
-      <div class="card-header">
         <div>
-          <div class="card-title"><i class="fas fa-table"></i> Rent Records</div>
-          <div class="card-sub">Filtered by status / unit / month-year • Live data from Google Sheet</div>
-        </div>
-        <div class="split-actions">
-          <button class="btn btn-secondary" id="markPaidBtn" title="Mark selected row as paid (hook)">
-            <i class="fas fa-check"></i> Mark Paid
-          </button>
-          <button class="btn btn-secondary" id="openInSheetBtn" title="Open Sheet (requires link in app-config)">
-            <i class="fas fa-up-right-from-square"></i> Open Sheet
-          </button>
+          <label>Year</label>
+          <select id="yearSel"></select>
         </div>
       </div>
 
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Tenant</th>
-              <th>Unit</th>
-              <th>Due Date</th>
-              <th>Amount</th>
-              <th>Received Date</th>
-              <th>Payment Method</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="rentRecordsTbody"></tbody>
-        </table>
+      <div style="margin-top:10px">
+        <label>Studio</label>
+        <select id="studioSel"></select>
+        <div class="hint">Studio list is loaded from your backend (same logic as your WinForms: paid/unpaid filtering).</div>
       </div>
 
-      <div class="pagination">
-        <div class="pagination-info" id="pageInfo">Showing 0–0 of 0 records</div>
-        <div class="pagination-controls">
-          <button class="pagination-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
-          <button class="pagination-btn active" id="pageBtn">1</button>
-          <button class="pagination-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+      <div style="margin-top:10px">
+        <label><input type="checkbox" id="onlyUnpaidChk" /> Show Only Unpaid Studios</label>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:14px 0">
+
+      <div class="row">
+        <div>
+          <label>Payment Date</label>
+          <input type="date" id="payDate" />
+        </div>
+        <div>
+          <label>Amount (AED)</label>
+          <input type="number" id="amount" placeholder="e.g. 2900" />
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>Maintenance (optional)</label>
+        <input type="number" id="maintenance" placeholder="e.g. 0" />
+      </div>
+
+      <div class="files">
+        <label>Evidence Files (Multiple)</label>
+        <input type="file" id="evidenceFiles" multiple />
+        <div class="mini">Selected files:</div>
+        <ul id="fileList"><li>(none)</li></ul>
+      </div>
+
+      <div class="btnbar">
+        <button class="primary" id="btnRecord" onclick="recordPayment()">Record Payment</button>
+        <button class="accent" onclick="verifyPaidDocs()">Verify Paid + Docs</button>
+        <button onclick="loadDashboard()">Refresh Dashboard</button>
+      </div>
+
+      <div class="status" id="statusBox"></div>
+    </div>
+  </section>
+
+  <!-- RIGHT PANEL -->
+  <section class="split">
+    <section class="card">
+      <div class="hd">Verification & Payment History</div>
+      <div class="bd">
+        <div class="hint">
+          • Double click a row to open evidence preview (if docs exist).<br>
+          • Uses the same Google Drive folder structure: Studio → Year → Month ("MM - MMMM").
+        </div>
+
+        <div class="tablewrap" style="margin-top:12px">
+          <table id="grid">
+            <thead>
+              <tr>
+                <th style="width:180px">Studio ID</th>
+                <th style="width:90px">Paid?</th>
+                <th style="width:120px">Evidence Files</th>
+                <th>Verification Status</th>
+              </tr>
+            </thead>
+            <tbody id="gridBody">
+              <tr><td colspan="4" class="mini">No data yet. Click “Verify Paid + Docs”.</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
-  </main>
 
-  <!-- Your shared app files -->
-  <script src="app-config.js"></script>
-  <script src="app.js"></script>
-  <script src="app-data.js"></script>
+    <section class="card">
+      <div class="hd">Month Summary</div>
+      <div class="bd">
+        <div class="kpi">
+          <div class="box">
+            <div class="n" id="kpiUnpaidCount">-</div>
+            <div class="t">Unpaid Studios</div>
+          </div>
+          <div class="box">
+            <div class="n" id="kpiUnpaidAmount">-</div>
+            <div class="t">Total Unpaid Amount (AED)</div>
+          </div>
+        </div>
 
-  <script>
-    /*********************************************************************
-     * RENT RECORDS – CORRECT UNPAID LOGIC (matches your C# behavior)
-     *********************************************************************/
+        <div style="margin-top:12px">
+          <div class="mini">Unpaid Details</div>
+          <div class="rightNote" id="unpaidDetails">(not loaded)</div>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
 
-    const $ = (id) => document.getElementById(id);
+<script>
+  // -------------------- SETTINGS --------------------
+  let API_BASE = localStorage.getItem("RE_API_BASE") || "http://localhost:5000";
+  document.getElementById("apiBaseTxt").textContent = API_BASE;
 
-    const ppLoading = $("ppLoading");
-    const ppError = $("ppError");
+  function setApiBase(){
+    const v = prompt("Enter API base URL (example: http://localhost:5000)", API_BASE);
+    if(!v) return;
+    API_BASE = v.replace(/\/+$/,'');
+    localStorage.setItem("RE_API_BASE", API_BASE);
+    document.getElementById("apiBaseTxt").textContent = API_BASE;
+    boot();
+  }
 
-    const toast = $("toast");
-    const toastMsg = $("toastMsg");
-    const toastSub = $("toastSub");
+  // -------------------- HELPERS --------------------
+  function $(id){ return document.getElementById(id); }
 
-    function showToast(message, sub) {
-      toastMsg.textContent = message || "Done";
-      if (sub) {
-        toastSub.style.display = "";
-        toastSub.textContent = sub;
-      } else {
-        toastSub.style.display = "none";
-        toastSub.textContent = "";
+  function setStatus(msg){
+    $("statusBox").textContent = msg || "";
+  }
+
+  function ym(){
+    const month = parseInt($("monthSel").value,10);
+    const year  = parseInt($("yearSel").value,10);
+    return {month, year};
+  }
+
+  async function api(path, options){
+    const res = await fetch(API_BASE + path, options);
+    const text = await res.text();
+    let data = null;
+    try{ data = text ? JSON.parse(text) : null; }catch{ data = text; }
+    if(!res.ok){
+      const msg = (data && data.message) ? data.message : (typeof data === "string" ? data : JSON.stringify(data));
+      throw new Error(msg || ("HTTP " + res.status));
+    }
+    return data;
+  }
+
+  function formatAED(n){
+    if(n === null || n === undefined || isNaN(n)) return "-";
+    return new Intl.NumberFormat("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}).format(n);
+  }
+
+  // -------------------- INIT --------------------
+  function fillMonthYear(){
+    const mSel = $("monthSel");
+    const ySel = $("yearSel");
+
+    mSel.innerHTML = "";
+    for(let m=1;m<=12;m++){
+      const opt = document.createElement("option");
+      opt.value = String(m);
+      opt.textContent = m; // you can change to month names if you want
+      mSel.appendChild(opt);
+    }
+
+    const now = new Date();
+    mSel.value = String(now.getMonth()+1);
+
+    ySel.innerHTML = "";
+    const y0 = now.getFullYear();
+    for(let y=y0-2; y<=y0+2; y++){
+      const opt = document.createElement("option");
+      opt.value = String(y);
+      opt.textContent = String(y);
+      ySel.appendChild(opt);
+    }
+    ySel.value = String(y0);
+
+    // default date
+    const d = new Date();
+    $("payDate").value = d.toISOString().slice(0,10);
+  }
+
+  function wire(){
+    $("onlyUnpaidChk").addEventListener("change", loadStudios);
+    $("monthSel").addEventListener("change", async ()=>{ await loadStudios(); await loadDashboard(); });
+    $("yearSel").addEventListener("change", async ()=>{ await loadStudios(); await loadDashboard(); });
+
+    $("evidenceFiles").addEventListener("change", ()=>{
+      const ul = $("fileList");
+      ul.innerHTML = "";
+      const files = $("evidenceFiles").files;
+      if(!files || files.length===0){
+        ul.innerHTML = "<li>(none)</li>";
+        return;
       }
-      toast.style.display = "flex";
-      setTimeout(() => { toast.style.display = "none"; }, 2600);
-    }
-
-    function setLoading(on) { ppLoading.style.display = on ? "flex" : "none"; }
-
-    function setError(msg) {
-      if (!msg) { ppError.style.display = "none"; ppError.textContent = ""; return; }
-      ppError.style.display = "block";
-      ppError.textContent = msg;
-    }
-
-    /*********************************************************************
-     * SAFE API CLIENT (fallback if app-data.js doesn't expose functions)
-     *********************************************************************/
-    const API_FALLBACK = {
-      timeoutMs: 15000,
-      get apiUrl(){
-        return (window.APP_CONFIG && (window.APP_CONFIG.API_URL || window.APP_CONFIG.SCRIPT_URL)) || "";
-      },
-      async fetchWithTimeout(url, options = {}, timeoutMs = 15000){
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), timeoutMs);
-        try{
-          return await fetch(url, {
-            ...options,
-            signal: controller.signal,
-            mode: "cors",
-            redirect: "follow",
-            cache: "no-store"
-          });
-        } finally { clearTimeout(t); }
-      },
-      async call(action, payload){
-        const base = this.apiUrl;
-        if(!base) throw new Error("API_URL missing in app-config.js (APP_CONFIG.API_URL).");
-
-        const u = new URL(base);
-        u.searchParams.set("action", action);
-        u.searchParams.set("_ts", String(Date.now()));
-
-        const res = await this.fetchWithTimeout(u.toString(), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload || {})
-        }, this.timeoutMs);
-
-        const txt = await res.text();
-        const trimmed = (txt || "").trim();
-
-        if(trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")){
-          throw new Error("API returned HTML instead of JSON. Fix Apps Script deployment: Execute as Me, Access: Anyone.");
-        }
-
-        let json;
-        try { json = JSON.parse(trimmed); }
-        catch { throw new Error("API did not return valid JSON. First 200 chars: " + trimmed.slice(0,200)); }
-
-        if(!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0,200)));
-        if(json && json.ok === false) throw new Error(json.error || "API returned ok=false");
-        return json;
+      for(const f of files){
+        const li = document.createElement("li");
+        li.textContent = f.name;
+        ul.appendChild(li);
       }
-    };
+    });
+  }
 
-    function getAPI(){
-      if(window.PropertyPilotApi) return window.PropertyPilotApi;
-      if(window.PropertyPilot) return window.PropertyPilot;
-
-      return {
-        sheetUrl: (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "",
-        async getStudios(){
-          const r = await API_FALLBACK.call("getStudios", {});
-          return r.data || r.studios || r.rows || [];
-        },
-        async getTable(){
-          const r = await API_FALLBACK.call("getTable", {});
-          return r.data || r.table || r.rows || [];
-        },
-        async getRentRecords({month, year}){
-          const r = await API_FALLBACK.call("getRentRecords", { month, year });
-          return r.data || r.records || r.rows || [];
-        },
-        async addRentPayment(payload){
-          return await API_FALLBACK.call("addRentPayment", payload);
-        },
-        async getPaymentHistory({studioId}){
-          const r = await API_FALLBACK.call("getPaymentHistory", { studioId });
-          return r.data || r.history || r.rows || [];
-        },
-        async exportCsv({month, year}){
-          const r = await API_FALLBACK.call("exportCsv", { month, year });
-          return r.csv || "";
-        },
-        async sendReminder({studioId, month, year}){
-          return await API_FALLBACK.call("sendReminder", { studioId, month, year });
-        },
-        async sendBulkReminder({month, year}){
-          return await API_FALLBACK.call("sendBulkReminder", { month, year });
-        }
-      };
-    }
-
-    const State = {
-      records: [],
-      filtered: [],
-      studios: [],
-      tableRows: [],
-      tableMap: new Map(),
-      unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
-      page: 1,
-      pageSize: 12,
-    };
-
-    function pad2(n) { return String(n).padStart(2, "0"); }
-    function normStr(v){ return String(v ?? "").trim(); }
-    function normalizeId(v){ return normStr(v).toLowerCase().replace(/\s+/g, " "); }
-    function toNum(v){ const n = Number(v); return isFinite(n) ? n : 0; }
-    function toMoney(n, currency){
-      const v = Number(n || 0);
-      if (!isFinite(v)) return "—";
-      return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
-    }
-    function initials(name){
-      const s = normStr(name);
-      if (!s) return "NA";
-      return s.split(/\s+/).slice(0,2).map(p => (p[0] || "").toUpperCase()).join("");
-    }
-    function monthName(m){
-      const names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      return names[(m-1)] || String(m);
-    }
-    function normalizeStatus(v){
-      const s = normStr(v).toLowerCase();
-      if(s === "paid") return "paid";
-      if(s === "overdue") return "overdue";
-      return "pending";
-    }
-    function parseDateToMonthYear(d){
-      const s = normStr(d);
-      if(!s) return null;
-      const dt = new Date(s);
-      if(!isNaN(dt.getTime())){
-        return { month: dt.getMonth() + 1, year: dt.getFullYear() };
-      }
-      return null;
-    }
-
-    function fillMonthSelect(sel){
-      const months = [
-        { v: 1, t: "January" }, { v: 2, t: "February" }, { v: 3, t: "March" }, { v: 4, t: "April" },
-        { v: 5, t: "May" }, { v: 6, t: "June" }, { v: 7, t: "July" }, { v: 8, t: "August" },
-        { v: 9, t: "September" }, { v: 10, t: "October" }, { v: 11, t: "November" }, { v: 12, t: "December" },
-      ];
-      sel.innerHTML = months.map(m => `<option value="${m.v}">${m.t}</option>`).join("");
-    }
-
-    function fillYearSelect(sel, baseYear){
-      const y = baseYear || new Date().getFullYear();
-      const years = [];
-      for(let i = y - 3; i <= y + 2; i++) years.push(i);
-      sel.innerHTML = years.map(v => `<option value="${v}">${v}</option>`).join("");
-    }
-
-    function getSelectedMonthYear(){
-      return { month: Number($("monthFilter").value), year: Number($("yearFilter").value) };
-    }
-
-    function syncEntryMonthYear(){
-      $("entryMonth").value = $("monthFilter").value;
-      $("entryYear").value = $("yearFilter").value;
-    }
-
-    function syncFilterMonthYear(){
-      $("monthFilter").value = $("entryMonth").value;
-      $("yearFilter").value = $("entryYear").value;
-    }
-
-    function buildPaidSetFromRentRecords(rentRecords, selectedMonth, selectedYear){
-      const paid = new Set();
-      const m = Number(selectedMonth);
-      const y = Number(selectedYear);
-
-      for(const r of (rentRecords || [])){
-        const sid = normalizeId(r.StudioId ?? r.studioId ?? r.Location ?? r.location ?? r["StudioId"] ?? "");
-        if(!sid) continue;
-
-        const rm = Number(r.Month ?? r.month ?? r["Month"] ?? 0);
-        const ry = Number(r.Year ?? r.year ?? r["Year"] ?? 0);
-
-        let match = false;
-        if(rm && ry){
-          match = (rm === m && ry === y);
-        } else {
-          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
-          if(my) match = (my.month === m && my.year === y);
-        }
-
-        if(match) paid.add(sid);
-      }
-
-      return paid;
-    }
-
-    function buildTableMap(tableRows){
-      const map = new Map();
-      for(const row of (tableRows || [])){
-        const loc = normalizeId(row.Location ?? row.location ?? row.StudioId ?? row.studioId ?? "");
-        if(!loc) continue;
-        map.set(loc, row);
-      }
-      return map;
-    }
-
-    function computeUnpaidStudios(studioRows, rentRecords, tableMap, month, year){
-      const paidSet = buildPaidSetFromRentRecords(rentRecords, month, year);
-
-      const studioIds = [];
-      for(const s of (studioRows || [])){
-        const raw = (typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? s.Location ?? s.location ?? ""));
-        const sid = normalizeId(raw);
-        if(sid) studioIds.push(sid);
-      }
-
-      const uniq = Array.from(new Set(studioIds)).sort((a,b)=>a.localeCompare(b));
-
-      const unpaid = [];
-      for(const sid of uniq){
-        if(paidSet.has(sid)) continue;
-
-        const info = tableMap.get(sid) || {};
-        unpaid.push({
-          StudioId: sid,
-          TenantName: info.TenantName ?? info.tenantName ?? "",
-          TenantContact: info.TenantContact ?? info.tenantContact ?? "",
-          TenantRent: toNum(info.TenantRent ?? info.tenantRent ?? 0),
-          Property: info.Property ?? info.property ?? "",
-          Flat: info.Flat ?? info.flat ?? "",
-          OwnerName: info.OwnerName ?? info.ownerName ?? "",
-          OwnerContact: info.OwnerContact ?? info.ownerContact ?? ""
-        });
-      }
-
-      const totalAmount = unpaid.reduce((a,b)=>a + toNum(b.TenantRent), 0);
-      return { studios: unpaid, totalUnpaid: unpaid.length, totalAmount };
-    }
-
-    function renderPropertyFilter(){
-      const sel = $("propertyFilter");
-      const locations = Array.from(State.tableMap.keys()).sort((a,b)=>a.localeCompare(b));
-      const opts = [`<option value="all">All Units</option>`].concat(
-        locations.map(loc => `<option value="${loc}">${loc}</option>`)
-      );
-      sel.innerHTML = opts.join("");
-    }
-
-    function renderStudioSelect(){
-      const sel = $("studioSelect");
+  // -------------------- LOAD STUDIOS --------------------
+  async function loadStudios(){
+    try{
+      setStatus("Loading studios...");
+      const {month, year} = ym();
       const onlyUnpaid = $("onlyUnpaidChk").checked;
 
-      const list = onlyUnpaid
-        ? (State.unpaid.studios || []).map(u => ({
-            id: u.StudioId,
-            tenant: u.TenantName || "—",
-            rent: u.TenantRent || 0
-          }))
-        : (State.studios || []).map(s => {
-            const id = (typeof s === "string") ? s : (s.StudioId ?? s.studioId ?? "");
-            const info = State.tableMap.get(normalizeId(id)) || {};
-            return { id: normalizeId(id), tenant: info.TenantName || "—", rent: toNum(info.TenantRent) };
-          });
+      // Endpoint: GET /api/studios?month=1&year=2026&onlyUnpaid=true
+      const data = await api(`/api/studios?month=${month}&year=${year}&onlyUnpaid=${onlyUnpaid}`);
 
-      sel.innerHTML = list.length
-        ? list.map(x => `<option value="${x.id}">${x.id} • ${x.tenant} • ${toMoney(x.rent,"AED")}</option>`).join("")
-        : `<option value="">No studios available</option>`;
+      const sSel = $("studioSel");
+      sSel.innerHTML = "";
+      (data || []).forEach(s=>{
+        const opt = document.createElement("option");
+        opt.value = s;
+        opt.textContent = s;
+        sSel.appendChild(opt);
+      });
 
-      if(!sel.value && list.length) sel.value = list[0].id;
+      setStatus(`Studios loaded: ${(data||[]).length}`);
+    }catch(err){
+      setStatus("Load studios failed: " + err.message);
     }
+  }
 
-    function renderUnpaidPanel(){
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
+  // -------------------- DASHBOARD SUMMARY --------------------
+  async function loadDashboard(){
+    try{
+      setStatus("Loading dashboard summary...");
+      const {month, year} = ym();
 
-      $("unpaidTitle").textContent = `Unpaid Studios for ${monthName(month)} ${year}`;
-      $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
+      // Endpoint: GET /api/dashboard/summary?month=1&year=2026
+      const s = await api(`/api/dashboard/summary?month=${month}&year=${year}`);
 
-      $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
-      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
+      $("kpiUnpaidCount").textContent = (s && s.unpaidStudiosCount!=null) ? s.unpaidStudiosCount : "-";
+      $("kpiUnpaidAmount").textContent = (s && s.totalUnpaidAmount!=null) ? formatAED(s.totalUnpaidAmount) : "-";
+      $("unpaidDetails").textContent = (s && s.unpaidDetailsText) ? s.unpaidDetailsText : "(none)";
 
-      const list = State.unpaid.studios || [];
-      if(!list.length){
-        $("unpaidList").textContent = "No unpaid studios for this period.";
+      setStatus("Dashboard loaded.");
+    }catch(err){
+      setStatus("Dashboard load failed: " + err.message);
+    }
+  }
+
+  // -------------------- RECORD PAYMENT + UPLOAD MULTI EVIDENCE --------------------
+  async function recordPayment(){
+    try{
+      const studioId = $("studioSel").value;
+      if(!studioId){ alert("Select studio first."); return; }
+
+      const paymentDate = $("payDate").value;
+      const amount = parseFloat($("amount").value);
+      if(!paymentDate){ alert("Select payment date."); return; }
+      if(isNaN(amount) || amount<=0){ alert("Enter valid amount."); return; }
+
+      const maintenance = parseFloat($("maintenance").value || "0") || 0;
+
+      $("btnRecord").disabled = true;
+      setStatus("Recording payment...");
+
+      // 1) Record payment in backend (Google Sheet / DB logic)
+      // Endpoint: POST /api/rent/record
+      const body = { studioId, paymentDate, amount, maintenance };
+      const saved = await api(`/api/rent/record`, {
+        method:"POST",
+        headers: { "Content-Type":"application/json" },
+        body: JSON.stringify(body)
+      });
+
+      // 2) Upload evidence files (optional)
+      const files = $("evidenceFiles").files;
+      if(files && files.length>0){
+        setStatus(`Payment recorded. Uploading evidence (${files.length})...`);
+        const fd = new FormData();
+        fd.append("studioId", studioId);
+        fd.append("paymentDate", paymentDate);
+        for(const f of files) fd.append("files", f);
+
+        // Endpoint: POST /api/evidence/upload (multipart/form-data)
+        await api(`/api/evidence/upload`, { method:"POST", body: fd });
+      }
+
+      // cleanup
+      $("evidenceFiles").value = "";
+      $("fileList").innerHTML = "<li>(none)</li>";
+      $("amount").value = "";
+      $("maintenance").value = "";
+
+      setStatus("✅ Payment recorded and evidence uploaded.");
+      await loadStudios();
+      await loadDashboard();
+    }catch(err){
+      setStatus("Record failed: " + err.message);
+      alert("Record failed: " + err.message);
+    }finally{
+      $("btnRecord").disabled = false;
+    }
+  }
+
+  // -------------------- VERIFY PAID + DOCS --------------------
+  async function verifyPaidDocs(){
+    try{
+      setStatus("Verifying Paid + Docs...");
+      const {month, year} = ym();
+
+      // Endpoint: GET /api/verify?month=1&year=2026
+      const rows = await api(`/api/verify?month=${month}&year=${year}`);
+
+      const tb = $("gridBody");
+      tb.innerHTML = "";
+
+      if(!rows || rows.length===0){
+        tb.innerHTML = `<tr><td colspan="4" class="mini">No data.</td></tr>`;
+        setStatus("No verification data.");
         return;
       }
 
-      const lines = list.map(u => {
-        const tn = u.TenantName ? String(u.TenantName) : "Vacant/Unknown";
-        const contact = u.TenantContact ? `Contact: ${u.TenantContact}` : "Contact: —";
-        const rent = toMoney(u.TenantRent, "AED");
-        const prop = u.Property ? ` • ${u.Property}` : "";
-        return `${u.StudioId} - ${tn}${prop}\nRent: ${rent}\n${contact}\n`;
-      });
-
-      $("unpaidList").textContent = lines.join("\n");
-    }
-
-    function buildDisplayRecords(month, year){
-      const paidByStudio = new Map();
-
-      for(const r of (State.records || [])){
-        const sid = normalizeId(r.StudioId ?? r.studioId ?? "");
-        if(!sid) continue;
-
-        const rm = Number(r.Month ?? r.month ?? 0);
-        const ry = Number(r.Year ?? r.year ?? 0);
-
-        let match = false;
-        if(rm && ry) match = (rm === month && ry === year);
-        else {
-          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
-          if(my) match = (my.month === month && my.year === year);
-        }
-        if(!match) continue;
-
-        paidByStudio.set(sid, r);
-      }
-
-      const studioIds = Array.from(new Set(
-        (State.studios || []).map(s => normalizeId(typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? "")))
-      )).filter(Boolean).sort((a,b)=>a.localeCompare(b));
-
-      const rows = [];
-      for(const sid of studioIds){
-        const info = State.tableMap.get(sid) || {};
-        const tenant = info.TenantName ?? "—";
-        const rent = toNum(info.TenantRent ?? 0);
-
-        if(paidByStudio.has(sid)){
-          const pr = paidByStudio.get(sid);
-          rows.push({
-            studioId: sid,
-            tenant,
-            unit: sid,
-            dueDate: `01/${pad2(month)}/${year}`,
-            amount: toNum(pr.Amount ?? pr.amount ?? rent),
-            receivedDate: normStr(pr.PaymentDate ?? pr.paymentDate ?? ""),
-            method: normStr(pr.Method ?? pr.method ?? pr.PaymentMethod ?? $("paymentMethod")?.value ?? "—"),
-            status: "paid",
-            notes: normStr(pr.Notes ?? pr.notes ?? "")
-          });
-        } else {
-          rows.push({
-            studioId: sid,
-            tenant,
-            unit: sid,
-            dueDate: `01/${pad2(month)}/${year}`,
-            amount: rent,
-            receivedDate: "",
-            method: "",
-            status: "pending",
-            notes: ""
-          });
-        }
-      }
-
-      return rows;
-    }
-
-    function renderSummary(){
-      const rows = State.displayRecords || [];
-      const received = rows.filter(r => r.status === "paid").reduce((a,b)=>a + toNum(b.amount), 0);
-      const due = rows.filter(r => r.status !== "paid").reduce((a,b)=>a + toNum(b.amount), 0);
-      const overdueCount = rows.filter(r => r.status === "overdue").length;
-      const pendingCount = rows.filter(r => r.status === "pending").length;
-
-      $("sumReceived").textContent = toMoney(received, "AED");
-      $("sumDue").textContent = toMoney(due, "AED");
-      $("sumOverdue").textContent = String(overdueCount);
-      $("sumPending").textContent = String(pendingCount);
-
-      $("rentBadge").textContent = String(State.unpaid.totalUnpaid || 0);
-    }
-
-    function applyFilters(){
-      const q = normStr($("searchInput").value).toLowerCase();
-      const statusFilter = $("statusFilter").value;
-      const unitFilter = $("propertyFilter").value;
-
-      State.filtered = (State.displayRecords || []).filter(r => {
-        const hay = `${r.tenant} ${r.unit} ${r.studioId} ${r.notes}`.toLowerCase();
-        const matchesQ = !q || hay.includes(q);
-
-        const status = normalizeStatus(r.status);
-        const matchesStatus = statusFilter === "all" || status === statusFilter;
-
-        const matchesUnit = unitFilter === "all" || normalizeId(r.unit) === normalizeId(unitFilter);
-
-        return matchesQ && matchesStatus && matchesUnit;
-      });
-
-      State.page = 1;
-    }
-
-    function renderTable(){
-      const tbody = $("rentRecordsTbody");
-      tbody.innerHTML = "";
-
-      const total = (State.filtered || []).length;
-      const start = (State.page - 1) * State.pageSize;
-      const end = Math.min(start + State.pageSize, total);
-      const pageRows = (State.filtered || []).slice(start, end);
-
-      pageRows.forEach(r => {
-        const status = normalizeStatus(r.status);
+      for(const r of rows){
         const tr = document.createElement("tr");
         tr.dataset.studioId = r.studioId;
+        tr.dataset.docsCount = r.docsCount;
+
+        const paidTag = r.paid ? `<span class="tag good">YES</span>` : `<span class="tag bad">NO</span>`;
+        let statusTag = "";
+        if(!r.paid) statusTag = `<span class="tag bad">UNPAID</span>`;
+        else if(r.docsCount>0) statusTag = `<span class="tag good">PAID + DOCS</span>`;
+        else statusTag = `<span class="tag warn">PAID but DOCS</span>`;
 
         tr.innerHTML = `
-          <td>
-            <div class="tenant-info">
-              <div class="tenant-avatar">${initials(r.tenant)}</div>
-              <div>
-                <div style="font-weight:1000;">${r.tenant || "—"}</div>
-                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${r.studioId || "—"}</div>
-              </div>
-            </div>
-          </td>
-          <td><strong>${r.unit || "—"}</strong></td>
-          <td>${r.dueDate || "—"}</td>
-          <td>${toMoney(r.amount, "AED")}</td>
-          <td>${r.receivedDate || "—"}</td>
-          <td>${r.method || "—"}</td>
-          <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
-          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${String(r.notes||"").replaceAll('"','&quot;')}">${r.notes || "—"}</td>
-          <td>
-            <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
-              <i class="fas fa-arrow-right"></i> Select
-            </button>
-            <button class="action-btn" data-action="remind" title="Send reminder (hook)">
-              <i class="fas fa-envelope"></i> Remind
-            </button>
-          </td>
+          <td>${escapeHtml(r.studioId || "")}</td>
+          <td>${paidTag}</td>
+          <td>${r.docsCount ?? 0}</td>
+          <td>${statusTag} <span class="mini"> ${escapeHtml(r.status || "")}</span></td>
         `;
-        tbody.appendChild(tr);
-      });
 
-      $("pageInfo").textContent = total
-        ? `Showing ${start + 1}–${end} of ${total} records`
-        : `Showing 0–0 of 0 records`;
+        tr.addEventListener("dblclick", async ()=>{
+          await openEvidencePreview(r.studioId, month, year);
+        });
 
-      $("prevBtn").disabled = State.page <= 1;
-      $("nextBtn").disabled = end >= total;
+        tb.appendChild(tr);
+      }
+
+      setStatus("✅ Verification completed. Double-click any row to preview evidence.");
+    }catch(err){
+      setStatus("Verify failed: " + err.message);
+      alert("Verify failed: " + err.message);
     }
+  }
 
-    function renderHistory(history){
-      const tbody = $("historyTbody");
-      tbody.innerHTML = "";
+  // -------------------- PREVIEW EVIDENCE (DOUBLE CLICK) --------------------
+  async function openEvidencePreview(studioId, month, year){
+    try{
+      setStatus(`Loading evidence list for ${studioId} (${month}/${year})...`);
 
-      const rows = Array.isArray(history) ? history : [];
-      if(!rows.length){
-        tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
+      // Endpoint: GET /api/evidence/list?studioId=...&month=...&year=...
+      const files = await api(`/api/evidence/list?studioId=${encodeURIComponent(studioId)}&month=${month}&year=${year}`);
+
+      if(!files || files.length===0){
+        alert("No evidence found for this Studio/Month/Year.");
+        setStatus("No evidence found.");
         return;
       }
 
-      rows.forEach(h => {
-        const paymentDate = normStr(h.PaymentDate ?? h.paymentDate ?? "—");
-        const amount = toNum(h.Amount ?? h.amount ?? 0);
-        const maintenance = toNum(h.Maintenance ?? h.maintenance ?? 0);
-        const month = normStr(h.Month ?? h.month ?? "—");
-        const year = normStr(h.Year ?? h.year ?? "—");
-        const method = normStr(h.Method ?? h.method ?? h.PaymentMethod ?? "—");
-        const notes = normStr(h.Notes ?? h.notes ?? "");
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${paymentDate}</td>
-          <td>${toMoney(amount, "AED")}</td>
-          <td>${toMoney(maintenance, "AED")}</td>
-          <td>${month}</td>
-          <td>${year}</td>
-          <td>${method || "—"}</td>
-          <td>${notes || "—"}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function refreshHistory(){
-      const api = getAPI();
-      const studioId = $("studioSelect").value;
-      if(!studioId) { renderHistory([]); return; }
-      const history = await api.getPaymentHistory({ studioId });
-      renderHistory(history);
-    }
-
-    async function refreshForPeriod(){
-      const api = getAPI();
-      const { month, year } = getSelectedMonthYear();
-
-      const studiosRaw = await api.getStudios();
-      const tableRaw = (typeof api.getTable === "function") ? await api.getTable() : (await (api.getProperties?.() ?? []));
-
-      State.studios = Array.isArray(studiosRaw) ? studiosRaw : [];
-
-      State.tableRows = Array.isArray(tableRaw) ? tableRaw : [];
-      State.tableMap = buildTableMap(State.tableRows);
-      renderPropertyFilter();
-
-      const records = await api.getRentRecords({ month, year });
-      State.records = Array.isArray(records) ? records : [];
-
-      State.unpaid = computeUnpaidStudios(State.studios, State.records, State.tableMap, month, year);
-
-      renderStudioSelect();
-      renderUnpaidPanel();
-
-      State.displayRecords = buildDisplayRecords(month, year);
-
-      applyFilters();
-      renderSummary();
-      renderTable();
-    }
-
-    function validateEntry(){
-      const studioId = $("studioSelect").value;
-      const paymentDate = $("paymentDate").value;
-      const amount = toNum($("amountInput").value);
-
-      if(!studioId) return "Please select a Studio ID.";
-      if(!paymentDate) return "Please select a Payment Date.";
-      if(!(amount > 0)) return "Please enter a valid Amount > 0.";
-      return "";
-    }
-
-    async function recordPayment(){
-      const api = getAPI();
-      const err = validateEntry();
-      if(err){ setError(err); showToast("Validation failed", err); return; }
-      setError("");
-
-      const payload = {
-        StudioId: $("studioSelect").value,
-        Month: Number($("entryMonth").value),
-        Year: Number($("entryYear").value),
-        PaymentDate: $("paymentDate").value,
-        Amount: toNum($("amountInput").value),
-        Maintenance: toNum($("maintenanceInput").value || 0),
-        Method: $("paymentMethod").value,
-        Notes: normStr($("notesInput").value),
-      };
-
-      try{
-        setLoading(true);
-        await api.addRentPayment(payload);
-        setLoading(false);
-
-        showToast("Payment recorded", `${payload.StudioId} • ${monthName(payload.Month)} ${payload.Year}`);
-
-        syncFilterMonthYear();
-        await refreshForPeriod();
-        await refreshHistory();
-
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to record payment.");
-      }
-    }
-
-    async function sendReminder(studioId){
-      const api = getAPI();
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
-
-      try{
-        setLoading(true);
-        await api.sendReminder({ studioId, month, year });
-        setLoading(false);
-        showToast("Reminder triggered", `${studioId} • ${monthName(month)} ${year}`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to send reminder.");
-      }
-    }
-
-    async function sendBulkReminder(){
-      const api = getAPI();
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
-
-      try{
-        setLoading(true);
-        const res = await api.sendBulkReminder({ month, year });
-        setLoading(false);
-        showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${monthName(month)} ${year}`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to send bulk reminders.");
-      }
-    }
-
-    async function exportCsv(){
-      const api = getAPI();
-      const { month, year } = getSelectedMonthYear();
-
-      try{
-        setLoading(true);
-        const csv = await api.exportCsv({ month, year });
-
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `rent-records_${year}-${pad2(month)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-
-        setLoading(false);
-        showToast("Exported CSV", `rent-records_${year}-${pad2(month)}.csv`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Export failed.");
-      }
-    }
-
-    function clearForm(){
-      $("amountInput").value = "";
-      $("maintenanceInput").value = "";
-      $("notesInput").value = "";
-      $("paymentMethod").value = "Cash";
-      $("paymentDate").valueAsDate = new Date();
-      showToast("Cleared", "Entry form reset");
-    }
-
-    function toggleEntry(){
-      const body = $("entryBody");
-      const btn = $("toggleEntryBtn");
-      const isHidden = body.style.display === "none";
-      body.style.display = isHidden ? "" : "none";
-      btn.innerHTML = isHidden
-        ? `<i class="fas fa-chevron-up"></i> Collapse`
-        : `<i class="fas fa-chevron-down"></i> Expand`;
-    }
-
-    function applyAndRender(){
-      applyFilters();
-      renderTable();
-    }
-
-    $("searchInput").addEventListener("input", applyAndRender);
-    $("statusFilter").addEventListener("change", applyAndRender);
-    $("propertyFilter").addEventListener("change", applyAndRender);
-
-    $("monthFilter").addEventListener("change", async () => {
-      syncEntryMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-    $("yearFilter").addEventListener("change", async () => {
-      syncEntryMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-
-    $("entryMonth").addEventListener("change", async () => {
-      syncFilterMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-    $("entryYear").addEventListener("change", async () => {
-      syncFilterMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-
-    $("onlyUnpaidChk").addEventListener("change", () => renderStudioSelect());
-    $("studioSelect").addEventListener("change", () => refreshHistory());
-
-    $("recordPaymentBtn").addEventListener("click", recordPayment);
-    $("emailReminderBtn").addEventListener("click", () => sendReminder($("studioSelect").value));
-    $("bulkReminderBtn").addEventListener("click", sendBulkReminder);
-
-    $("historyRefreshBtn").addEventListener("click", refreshHistory);
-    $("clearFormBtn").addEventListener("click", clearForm);
-    $("toggleEntryBtn").addEventListener("click", toggleEntry);
-
-    $("syncBtn").addEventListener("click", async () => {
-      try{
-        setError("");
-        setLoading(true);
-        await refreshForPeriod();
-        await refreshHistory();
-        setLoading(false);
-        showToast("Refreshed", "Live data updated");
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Refresh failed.");
-      }
-    });
-
-    $("exportBtn").addEventListener("click", exportCsv);
-
-    $("prevBtn").addEventListener("click", () => {
-      if(State.page <= 1) return;
-      State.page -= 1;
-      renderTable();
-    });
-
-    $("nextBtn").addEventListener("click", () => {
-      const total = (State.filtered || []).length;
-      const maxPage = Math.max(1, Math.ceil(total / State.pageSize));
-      if(State.page >= maxPage) return;
-      State.page += 1;
-      renderTable();
-    });
-
-    $("rentRecordsTbody").addEventListener("click", async (e) => {
-      const btn = e.target.closest("button[data-action]");
-      if(!btn) return;
-
-      const tr = btn.closest("tr");
-      const studioId = tr?.dataset?.studioId || "";
-      const action = btn.dataset.action;
-
-      if(action === "select" && studioId){
-        $("studioSelect").value = studioId;
-        await refreshHistory();
-        showToast("Selected", studioId);
-        $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      if(action === "remind" && studioId){
-        await sendReminder(studioId);
-      }
-    });
-
-    $("openInSheetBtn").addEventListener("click", () => {
-      const api = getAPI();
-      const url = api.sheetUrl || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
-      if(!url){
-        showToast("Sheet link not set", "Add SHEET_URL in app-config.js");
+      if(files.length===1){
+        window.open(files[0].webViewLink, "_blank");
+        setStatus("Opened evidence in new tab.");
         return;
       }
-      window.open(url, "_blank", "noopener,noreferrer");
-    });
 
-    $("openEntryBtn").addEventListener("click", () => {
-      $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      const body = $("entryBody");
-      if(body.style.display === "none") toggleEntry();
-    });
+      // Multiple files -> prompt simple chooser
+      const names = files.map((f,i)=> `${i+1}) ${f.name}`).join("\n");
+      const pick = prompt("Multiple evidence files found.\nEnter file number to open:\n\n" + names, "1");
+      const idx = parseInt(pick,10)-1;
+      if(isNaN(idx) || idx<0 || idx>=files.length) return;
 
-    window.addEventListener("DOMContentLoaded", async () => {
-      try{
-        setError("");
-        setLoading(true);
+      window.open(files[idx].webViewLink, "_blank");
+      setStatus("Opened evidence in new tab.");
+    }catch(err){
+      setStatus("Evidence preview failed: " + err.message);
+      alert("Evidence preview failed: " + err.message);
+    }
+  }
 
-        fillMonthSelect($("monthFilter"));
-        fillMonthSelect($("entryMonth"));
-        fillYearSelect($("yearFilter"), new Date().getFullYear());
-        fillYearSelect($("entryYear"), new Date().getFullYear());
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[m]));
+  }
 
-        const now = new Date();
-        $("monthFilter").value = String(now.getMonth() + 1);
-        $("yearFilter").value = String(now.getFullYear());
-        syncEntryMonthYear();
-        $("paymentDate").valueAsDate = new Date();
-
-        await refreshForPeriod();
-        await refreshHistory();
-
-        setLoading(false);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Initialization failed.");
-      }
-    });
-  </script>
+  async function boot(){
+    fillMonthYear();
+    wire();
+    await loadStudios();
+    await loadDashboard();
+  }
+  boot();
+</script>
 </body>
 </html>
