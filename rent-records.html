@@ -1376,14 +1376,97 @@
             }
 
             /*****************************************************************
-             * ACTIONS (stubs)
+             * ACTIONS
              *****************************************************************/
             async function runVerification() {
                 toast("Verification started (docs count not implemented in this static page).", "info");
             }
 
             async function recordPayment() {
-                toast("Record payment is not wired in this static page.", "warning");
+                const studioId = s(el("studioSelect").value);
+                if (!studioId) {
+                    toast("Please select a studio.", "warning");
+                    return;
+                }
+
+                const { month, year } = getSelectedMonthYear();
+                const paymentDate = s(el("paymentDate").value);
+                const amount = n(el("amount").value);
+                const maintenance = n(el("maintenance").value);
+
+                if (!paymentDate) {
+                    toast("Please select payment date.", "warning");
+                    return;
+                }
+                if (!(amount > 0)) {
+                    toast("Amount must be > 0", "warning");
+                    return;
+                }
+
+                // Build payload expected by the existing API used by rent-records.js
+                const payload = {
+                    StudioId: normalizeStudioId(studioId),
+                    Month: Number(month),
+                    Year: Number(year),
+                    PaymentDate: paymentDate,
+                    Amount: amount,
+                    Maintenance: maintenance,
+                    Method: "Cash",
+                    Notes: "",
+                };
+
+                try {
+                    showLoading(true, "Recording payment to RentRecords…");
+
+                    const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
+                    const u = new URL(endpoint);
+                    u.searchParams.set("action", "addRentPayment");
+                    u.searchParams.set("_ts", String(Date.now()));
+
+                    const res = await fetchWithTimeout(
+                        u.toString(),
+                        {
+                            method: "POST",
+                            cache: "no-store",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json",
+                            },
+                            body: JSON.stringify(payload),
+                        },
+                        CONFIG.FETCH_TIMEOUT_MS
+                    );
+
+                    const txt = await res.text();
+                    const trimmed = (txt || "").trim();
+
+                    if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
+                        throw new Error("GAS returned HTML. Re-deploy Web App: Execute as Me, Access: Anyone.");
+                    }
+
+                    let json;
+                    try {
+                        json = JSON.parse(trimmed);
+                    } catch {
+                        throw new Error("Invalid JSON: " + trimmed.slice(0, 200));
+                    }
+
+                    if (!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0, 200)));
+                    if (!json || json.ok !== true) throw new Error(json?.error || json?.message || "API returned ok:false");
+
+                    toast("Payment recorded", "success");
+
+                    // Refresh data from the sheet so UI updates and paidSet rebuilds
+                    await refreshAll();
+
+                    // Clear files after successful post
+                    state.selectedFiles = [];
+                    handleFileSelect([]);
+                } catch (e) {
+                    toast("Record payment failed: " + (e?.message || "Unknown error"), "error");
+                } finally {
+                    showLoading(false);
+                }
             }
 
             async function sendReminders() {
