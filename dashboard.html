@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard • Sabir Amin Real Estate Company LLC</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- Shared UI Styles -->
+    <link rel="stylesheet" href="app.css" />
+
+    <style>
+            /* =========================================================
+           DASHBOARD UI (MATCH RENT-RECORDS HOSTINGER STYLE)
+           UI ONLY — does not remove any existing IDs or scripts
+        ========================================================= */
+
+            :root {
+                /* Brand */
+                --primary: #673DE6;
+                --primary-dark: #5025C4;
+                --primary-light: #EDE9FE;
+                --primary-hover: #F3F4F6;
+                /* Neutrals */
+                --bg: #F9FAFB;
+                --white: #FFFFFF;
+                --text-primary: #1F2937;
+                --text-secondary: #6B7280;
+                --text-muted: #9CA3AF;
+                --border: #E5E7EB;
+                --border-light: #F3F4F6;
+                /* Status */
+                --success: #10B981;
+                --success-bg: #D1FAE5;
+                --warning: #F59E0B;
+                --warning-bg: #FEF3C7;
+                --warning-text: #92400E;
+                --danger: #EF4444;
+                --danger-bg: #FEE2E2;
+                --info: #3B82F6;
+                --info-bg: #DBEAFE;
+                /* Shadows */
+                --shadow-sm: 0 1px 3px rgba(0,0,0,0.10);
+                --shadow-md: 0 4px 6px rgba(0,0,0,0.10);
+                --shadow-lg: 0 10px 15px rgba(0,0,0,0.10);
+                /* Layout */
+                --sidebar-width: 240px;
+                --radius: 8px;
+                --radius-lg: 12px;
+                --pad: 24px;
+                --gap: 24px;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html, body {
+                height: 100%;
+            }
+
+            body {
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                color: var(--text-primary);
+                background: var(--bg);
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                overflow-x: hidden;
+                line-height: 1.5;
+            }
+
+            /* Focus */
+            :where(a, button, input, select, textarea):focus-visible {
+                outline: none;
+                box-shadow: 0 0 0 3px rgba(103, 61, 230, 0.12);
+                border-color: var(--primary);
+            }
+
+            /* =========================================================
+           SIDEBAR (Same as Rent Records)
+        ========================================================= */
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: var(--sidebar-width);
+                background: var(--white);
+                border-right: 1px solid var(--border);
+                overflow-y: auto;
+                z-index: 50;
+            }
+
+            .sidebar-inner {
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .brand {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 24px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .brand-mark {
+                width: 48px;
+                height: 48px;
+                border-radius: var(--radius);
+                background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                display: grid;
+                place-items: center;
+                color: #fff;
+                font-size: 20px;
+                flex-shrink: 0;
+            }
+
+            .brand-title {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+                .brand-title strong {
+                    font-size: 14px;
+                    font-weight: 800;
+                    color: var(--text-primary);
+                }
+
+                .brand-title span {
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                }
+
+            .nav-section {
+                padding: 16px 0;
+            }
+
+            .nav-section-title {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: var(--text-muted);
+                padding: 8px 24px;
+            }
+
+            .nav-link {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 10px 16px;
+                margin: 4px 16px;
+                border-radius: var(--radius);
+                text-decoration: none;
+                color: var(--text-secondary);
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.2s ease;
+            }
+
+                .nav-link i {
+                    width: 20px;
+                    font-size: 18px;
+                    text-align: center;
+                }
+
+                .nav-link:hover {
+                    background: var(--primary-hover);
+                    color: var(--text-primary);
+                }
+
+                .nav-link.active {
+                    background: var(--primary);
+                    color: #fff;
+                }
+
+            .sidebar-footer {
+                margin-top: auto;
+                padding: 24px;
+                border-top: 1px solid var(--border);
+                font-size: 12px;
+                color: var(--text-secondary);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .connection-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 10px;
+                border-radius: 999px;
+                background: var(--success-bg);
+                color: var(--success);
+                font-weight: 700;
+                font-size: 11px;
+            }
+
+            /* =========================================================
+           MAIN
+        ========================================================= */
+            .main-content {
+                margin-left: var(--sidebar-width);
+                padding: 32px;
+                min-height: 100vh;
+            }
+
+            .page-header {
+                margin-bottom: 32px;
+            }
+
+            .header-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 24px;
+            }
+
+            .page-title h1 {
+                font-size: 24px;
+                font-weight: 900;
+                color: var(--text-primary);
+                margin-bottom: 8px;
+            }
+
+            .page-title p {
+                font-size: 14px;
+                color: var(--text-secondary);
+                max-width: 720px;
+            }
+
+            .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+
+            .info-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-radius: var(--radius);
+                background: var(--white);
+                border: 1px solid var(--border);
+                font-size: 13px;
+                color: var(--text-secondary);
+                font-weight: 600;
+                white-space: nowrap;
+            }
+
+            .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 16px;
+                border-radius: var(--radius);
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+                border: none;
+                text-decoration: none;
+                transition: all 0.2s ease;
+                white-space: nowrap;
+                background: var(--white);
+                color: var(--text-primary);
+                border: 1px solid var(--border);
+            }
+
+                .btn:active {
+                    transform: translateY(1px);
+                }
+
+            .btn-primary {
+                background: var(--primary);
+                color: #fff;
+                border-color: transparent;
+            }
+
+                .btn-primary:hover {
+                    background: var(--primary-dark);
+                }
+
+            .btn-secondary {
+                background: var(--white);
+                color: var(--primary);
+                border: 1px solid var(--border);
+            }
+
+                .btn-secondary:hover {
+                    background: var(--primary-hover);
+                }
+
+            /* =========================================================
+           DASHBOARD GRID
+        ========================================================= */
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(12, 1fr);
+                gap: var(--gap);
+            }
+
+            .card {
+                background: var(--white);
+                border: 1px solid var(--border);
+                border-radius: var(--radius-lg);
+                box-shadow: var(--shadow-sm);
+                overflow: hidden;
+            }
+
+            .card-header {
+                padding: 20px 24px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .card-title {
+                font-size: 16px;
+                font-weight: 800;
+                color: var(--text-primary);
+            }
+
+            .card-subtitle {
+                font-size: 13px;
+                color: var(--text-secondary);
+                font-weight: 600;
+            }
+
+            .card-body {
+                padding: 24px;
+            }
+
+            /* Summary cards */
+            .metric {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 12px;
+            }
+
+                .metric .label {
+                    font-size: 12px;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.4px;
+                    color: var(--text-muted);
+                    margin-bottom: 8px;
+                }
+
+                .metric .value {
+                    font-size: 24px;
+                    font-weight: 900;
+                    color: var(--text-primary);
+                    line-height: 1.1;
+                }
+
+                .metric .sub {
+                    margin-top: 6px;
+                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-weight: 600;
+                }
+
+            .metric-ic {
+                width: 44px;
+                height: 44px;
+                border-radius: var(--radius);
+                background: var(--primary-light);
+                border: 1px solid var(--border);
+                display: grid;
+                place-items: center;
+                color: var(--primary);
+                flex: 0 0 auto;
+                box-shadow: var(--shadow-sm);
+            }
+
+            /* Chart container */
+            .chart-wrap {
+                height: 300px;
+                position: relative;
+            }
+
+            /* Placeholder banner */
+            .notice {
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                padding: 14px 16px;
+                border-radius: var(--radius);
+                background: var(--info-bg);
+                color: var(--info);
+                border: 1px solid rgba(59,130,246,0.25);
+                font-weight: 700;
+                font-size: 13px;
+            }
+
+                .notice span {
+                    font-weight: 600;
+                    color: var(--text-primary);
+                }
+
+            /* Layout spans */
+            .col-3 {
+                grid-column: span 3;
+            }
+
+            .col-4 {
+                grid-column: span 4;
+            }
+
+            .col-5 {
+                grid-column: span 5;
+            }
+
+            .col-6 {
+                grid-column: span 6;
+            }
+
+            .col-7 {
+                grid-column: span 7;
+            }
+
+            .col-8 {
+                grid-column: span 8;
+            }
+
+            .col-12 {
+                grid-column: span 12;
+            }
+
+            @media (max-width: 1100px) {
+                .col-3 {
+                    grid-column: span 6;
+                }
+
+                .col-4 {
+                    grid-column: span 6;
+                }
+
+                .col-5 {
+                    grid-column: span 12;
+                }
+
+                .col-6 {
+                    grid-column: span 12;
+                }
+
+                .col-7 {
+                    grid-column: span 12;
+                }
+
+                .col-8 {
+                    grid-column: span 12;
+                }
+
+                .main-content {
+                    padding: 16px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    position: static;
+                    width: 100%;
+                    border-right: none;
+                    border-bottom: 1px solid var(--border);
+                }
+
+                .main-content {
+                    margin-left: 0;
+                    padding: 16px;
+                }
+
+                .header-top {
+                    flex-direction: column;
+                    align-items: stretch;
+                }
+
+                .header-actions {
+                    justify-content: flex-start;
+                }
+            }
+    </style>
+</head>
+
+<body data-page="dashboard">
+    <div class="backdrop" id="backdrop"></div>
+
+    <!-- Sidebar (same structure as Rent Records) -->
+    <nav class="sidebar">
+        <div class="sidebar-inner">
+            <div class="brand">
+                <div class="brand-mark">
+                    <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div class="brand-title">
+                    <strong>Sabir Amin</strong>
+                    <span>Real Estate Company LLC</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="index.html" class="nav-link active">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="properties.html" class="nav-link">
+                    <i class="fas fa-building"></i> Properties
+                </a>
+                <a href="rent-records.html" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i> Rent Records
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Finance</div>
+                <a href="transactions.html" class="nav-link">
+                    <i class="fas fa-exchange-alt"></i> Transactions
+                </a>
+                <a href="recurring-expenses.html" class="nav-link">
+                    <i class="fas fa-redo"></i> Recurring Expenses
+                </a>
+                <a href="monthly-profit.html" class="nav-link">
+                    <i class="fas fa-chart-line"></i> Monthly Profit
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports</div>
+                <a href="reports.html" class="nav-link">
+                    <i class="fas fa-chart-bar"></i> Reports
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <a href="settings.html" class="nav-link">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+
+            <div class="sidebar-footer">
+                <i class="fa-brands fa-google-drive" style="color:var(--success);"></i>
+                <span class="connection-badge">Connected</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="page-header">
+            <div class="header-top">
+                <div class="page-title">
+                    <h1>Dashboard</h1>
+                    <p>Overview of your portfolio performance. This page keeps your existing logic in <code>app.js</code> and only upgrades the UI to match the Hostinger-style layout.</p>
+                </div>
+
+                <div class="header-actions">
+                    <div class="info-badge">
+                        <i class="fas fa-clock"></i>
+                        <span id="dashLastUpdated">Last Updated: —</span>
+                    </div>
+
+                    <a class="btn btn-secondary" href="reports.html">
+                        <i class="fas fa-chart-column"></i> View Reports
+                    </a>
+
+                    <button class="btn btn-primary" id="dashRefreshBtn" type="button">
+                        <i class="fas fa-rotate"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="notice">
+                <i class="fas fa-circle-info" style="margin-top:2px;"></i>
+                <div>
+                    <div style="font-weight:800;">UI Updated</div>
+                    <span>This dashboard is a styled shell. Wire metrics/charts in <code>app.js</code> using the IDs below without changing layout.</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Grid -->
+        <section class="grid" aria-label="Dashboard content">
+
+            <!-- Metric cards (IDs provided for app.js to fill) -->
+            <div class="card col-3">
+                <div class="card-body">
+                    <div class="metric">
+                        <div>
+                            <div class="label">Total Units</div>
+                            <div class="value" id="mTotalUnits">—</div>
+                            <div class="sub" id="mTotalUnitsSub">All properties</div>
+                        </div>
+                        <div class="metric-ic"><i class="fa-solid fa-city"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-3">
+                <div class="card-body">
+                    <div class="metric">
+                        <div>
+                            <div class="label">Occupied</div>
+                            <div class="value" id="mOccupied">—</div>
+                            <div class="sub">Active tenants</div>
+                        </div>
+                        <div class="metric-ic"><i class="fa-solid fa-circle-check"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-3">
+                <div class="card-body">
+                    <div class="metric">
+                        <div>
+                            <div class="label">Vacant</div>
+                            <div class="value" id="mVacant">—</div>
+                            <div class="sub">Needs leasing</div>
+                        </div>
+                        <div class="metric-ic"><i class="fa-solid fa-door-open"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-3">
+                <div class="card-body">
+                    <div class="metric">
+                        <div>
+                            <div class="label">Net Monthly Profit</div>
+                            <div class="value" id="mNetProfit">—</div>
+                            <div class="sub">Rent out − rent in</div>
+                        </div>
+                        <div class="metric-ic"><i class="fa-solid fa-chart-line"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="card col-7">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Monthly Profit Trend</div>
+                        <div class="card-subtitle">Last 6 months</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrap">
+                        <canvas id="profitChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card col-5">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Occupancy</div>
+                        <div class="card-subtitle">Occupied vs Vacant</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-wrap" style="height:300px;">
+                        <canvas id="occupancyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity / Notes -->
+            <div class="card col-12">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">Activity</div>
+                        <div class="card-subtitle">Recent updates and reminders</div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p style="color:var(--text-secondary); font-weight:600;">
+                        This section is ready for your feed (e.g., expiring contracts, unpaid studios, pending evidence uploads).
+                        Keep using <code>app.js</code> to populate it.
+                    </p>
+
+                    <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap;">
+                        <a class="btn btn-secondary" href="properties.html"><i class="fas fa-building"></i> Manage Properties</a>
+                        <a class="btn btn-secondary" href="rent-records.html"><i class="fas fa-file-invoice-dollar"></i> Manage Rent</a>
+                        <a class="btn btn-primary" href="monthly-profit.html"><i class="fas fa-chart-line"></i> Profit Details</a>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <script>
+        // UI-only default behavior (does not conflict with app.js)
+        (function () {
+            const last = document.getElementById("dashLastUpdated");
+            const btn = document.getElementById("dashRefreshBtn");
+
+            // Basic timestamp so the badge is never empty (app.js can overwrite)
+            last.textContent = "Last Updated: " + new Date().toLocaleString();
+
+            // If app.js exposes a refresh function, call it; otherwise just update timestamp
+            btn.addEventListener("click", function () {
+                try {
+                    if (typeof window.refreshDashboard === "function") {
+                        window.refreshDashboard();
+                    }
+                } catch { }
+                last.textContent = "Last Updated: " + new Date().toLocaleString();
+            });
+
+            // Lightweight placeholder charts (app.js can replace datasets)
+            const profitCanvas = document.getElementById("profitChart");
+            const occCanvas = document.getElementById("occupancyChart");
+
+            if (window.Chart && profitCanvas) {
+                new Chart(profitCanvas, {
+                    type: "line",
+                    data: {
+                        labels: ["M-5", "M-4", "M-3", "M-2", "M-1", "M"],
+                        datasets: [{ label: "Profit (AED)", data: [0, 0, 0, 0, 0, 0] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+
+            if (window.Chart && occCanvas) {
+                new Chart(occCanvas, {
+                    type: "doughnut",
+                    data: {
+                        labels: ["Occupied", "Vacant"],
+                        datasets: [{ data: [0, 0] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        })();
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>
