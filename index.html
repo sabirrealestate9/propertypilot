@@ -1,391 +1,1291 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard • Sabir Amin Real Estate Company LLC</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard • Sabir Amin Real Estate Company LLC</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
 
-  <!-- Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- Shared UI Styles -->
-  <link rel="stylesheet" href="app.css" />
+    <!-- Shared UI Styles -->
+    <link rel="stylesheet" href="app.css" />
+
+    <style>
+        /* =========================================================
+           HOSTINGER-INSPIRED DASHBOARD DESIGN
+           Matching rent-records.html styling
+        ========================================================= */
+        :root {
+            --primary: #673DE6;
+            --primary-dark: #5025C4;
+            --primary-light: #EDE9FE;
+            --primary-hover: #F3F4F6;
+            --bg: #F9FAFB;
+            --white: #FFFFFF;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --text-muted: #9CA3AF;
+            --border: #E5E7EB;
+            --border-light: #F3F4F6;
+            --success: #10B981;
+            --success-bg: #D1FAE5;
+            --warning: #F59E0B;
+            --warning-bg: #FEF3C7;
+            --warning-text: #92400E;
+            --danger: #EF4444;
+            --danger-bg: #FEE2E2;
+            --info: #3B82F6;
+            --info-bg: #DBEAFE;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 240px;
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            z-index: 50;
+        }
+
+        .sidebar-inner {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-mark {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .brand-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand-title strong {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .brand-title span {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .nav-section {
+            padding: 16px 0;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            padding: 8px 24px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            margin: 4px 16px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .nav-link i {
+            width: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .nav-link:hover {
+            background: var(--primary-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .connection-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: var(--success-bg);
+            color: var(--success);
+            font-weight: 600;
+            font-size: 11px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 32px;
+            min-height: 100vh;
+        }
+
+        /* Page Header */
+        .page-header {
+            margin-bottom: 32px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .page-title h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .page-title p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            max-width: 600px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            background: var(--white);
+            border: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-icon {
+            padding: 10px 12px;
+        }
+
+        /* Search */
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 280px;
+            padding: 10px 12px;
+            border-radius: var(--radius);
+            background: var(--white);
+            border: 1px solid var(--border);
+        }
+
+        .search-box i {
+            color: var(--text-muted);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            background: transparent;
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(103, 61, 230, 0.1);
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .kpi-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .kpi-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .kpi-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius);
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        .kpi-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .kpi-chip.up {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .kpi-chip.down {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .kpi-chip.warn {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .kpi-chip.info {
+            background: var(--info-bg);
+            color: var(--info);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        .card-sub {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .card-body {
+            padding: 24px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-canvas {
+            height: 260px;
+        }
+
+        /* Segmented Buttons */
+        .segmented {
+            display: inline-flex;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--white);
+            overflow: hidden;
+        }
+
+        .segmented button {
+            padding: 8px 14px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .segmented button.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* Alerts List */
+        .list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        .alert .ic {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius);
+            background: var(--border-light);
+            border: 1px solid var(--border);
+            display: grid;
+            place-items: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .alert h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .alert p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .alert.danger {
+            background: var(--danger-bg);
+            border-color: rgba(239, 68, 68, 0.25);
+        }
+
+        .alert.danger .ic {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .alert.warn {
+            background: var(--warning-bg);
+            border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .alert.warn .ic {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .alert.info {
+            background: var(--info-bg);
+            border-color: rgba(59, 130, 246, 0.25);
+        }
+
+        .alert.info .ic {
+            background: var(--info-bg);
+            color: var(--info);
+        }
+
+        .alert.ok {
+            background: var(--success-bg);
+            border-color: rgba(16, 185, 129, 0.25);
+        }
+
+        .alert.ok .ic {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        /* Tasks */
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--white);
+        }
+
+        .task-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .task-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .task-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .task-chip {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .task-chip.overdue {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .task-chip.due {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .task-chip.ok {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        /* Table */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: var(--border-light);
+            color: var(--text-secondary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background: var(--border-light);
+        }
+
+        /* Status Chips */
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .chip::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .chip.ok {
+            color: var(--success);
+            background: var(--success-bg);
+        }
+
+        .chip.warn {
+            color: var(--warning-text);
+            background: var(--warning-bg);
+        }
+
+        .chip.danger {
+            color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        .chip.info {
+            color: var(--info);
+            background: var(--info-bg);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .charts-grid,
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: unset;
+                width: 100%;
+            }
+
+            .kpi-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Hide hamburger on desktop */
+        .hamburger {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40px;
+                height: 40px;
+                border-radius: var(--radius);
+                background: var(--white);
+                border: 1px solid var(--border);
+                cursor: pointer;
+                color: var(--text-primary);
+            }
+        }
+    </style>
 </head>
 
 <body data-page="dashboard">
-  <div class="backdrop" id="backdrop"></div>
-
-  <!-- Sidebar -->
-  <nav class="sidebar" id="sidebar">
-    <div class="logo">
-      <div class="logo-icon"><i class="fas fa-gem"></i></div>
-      <div class="logo-text">
-        <div class="brand-name">Sabir Amin</div>
-        <div class="brand-sub">Real Estate Company LLC</div>
-      </div>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Main</div>
-      <a href="index.html" class="nav-link active"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
-      <a href="rent-records.html" class="nav-link">
-        <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">0</span>
-      </a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Finance</div>
-      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
-      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
-      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">Reports</div>
-      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
-    </div>
-
-    <div class="nav-section">
-      <div class="nav-section-title">System</div>
-      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="main-content">
-    <!-- Header -->
-    <header class="topbar">
-      <div class="page-title">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
-          <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
-          <h1>Dashboard</h1>
-        </div>
-        <p>
-          Portfolio overview with key alerts, tasks, and performance trends.
-          <span id="nowMeta" style="font-weight:900;"></span>
-        </p>
-      </div>
-
-      <div class="header-actions">
-        <div class="pill" title="Theme">
-          <i class="fas fa-moon" style="color:var(--opal-lilac);"></i>
-          <span>Theme: <strong id="themeLabel">Light</strong></span>
-        </div>
-
-        <div class="search-box" title="Search unit / owner / tenant / location">
-          <i class="fas fa-search"></i>
-          <input id="searchInput" type="text" placeholder="Search unit / owner / tenant / location…" />
-        </div>
-
-        <button class="btn btn-secondary btn-icon" id="themeBtn" title="Toggle dark mode">
-          <i class="fas fa-circle-half-stroke"></i>
-        </button>
-
-        <a class="btn btn-secondary" id="exportBtn" href="#" title="Export snapshot (demo)">
-          <i class="fas fa-file-export"></i> Export
-        </a>
-
-        <a class="btn btn-primary" href="properties.html" title="Go to Properties">
-          <i class="fas fa-building"></i> Manage Properties
-        </a>
-      </div>
-    </header>
-
-    <!-- KPIs -->
-    <section class="kpi-grid" aria-label="Key performance indicators">
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Total Units</div>
-            <div class="kpi-value" id="kpiTotalUnits">—</div>
-            <div class="kpi-sub">Studios & Apartments</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-building"></i></div>
-        </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Live from Google Sheet</div>
-      </div>
-
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Occupied</div>
-            <div class="kpi-value" id="kpiOccupied">—</div>
-            <div class="kpi-sub">Portfolio occupancy</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
-        </div>
-        <div class="kpi-chip up"><i class="fas fa-chart-line"></i> Updated automatically</div>
-      </div>
-
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Net Monthly Profit</div>
-            <div class="kpi-value" id="kpiProfit">—</div>
-            <div class="kpi-sub" id="kpiCurrency">QAR</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-sack-dollar"></i></div>
-        </div>
-        <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Income − Expenses</div>
-      </div>
-
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Overdue Payments</div>
-            <div class="kpi-value" id="kpiOverdue">—</div>
-            <div class="kpi-sub">Requires follow-up</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
-        </div>
-        <div class="kpi-chip down"><i class="fas fa-arrow-down"></i> Action required</div>
-      </div>
-
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Contracts Expiring</div>
-            <div class="kpi-value" id="kpiExpiring">—</div>
-            <div class="kpi-sub">Within 90 days</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-calendar-days"></i></div>
-        </div>
-        <div class="kpi-chip warn"><i class="fas fa-clock"></i> Review needed</div>
-      </div>
-
-      <div class="kpi-card card">
-        <div class="kpi-row">
-          <div>
-            <div class="kpi-label">Maintenance</div>
-            <div class="kpi-value" id="kpiMaintenance">—</div>
-            <div class="kpi-sub">Open issues</div>
-          </div>
-          <div class="kpi-icon"><i class="fas fa-screwdriver-wrench"></i></div>
-        </div>
-        <div class="kpi-chip info"><i class="fas fa-wrench"></i> In progress</div>
-      </div>
-    </section>
-
-    <!-- Charts -->
-    <section class="charts-grid" aria-label="Charts section">
-      <div class="card" style="min-height: 320px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title"><i class="fas fa-chart-line"></i> Monthly Profit Trend</div>
-            <div class="card-sub">Track profit performance over time</div>
-          </div>
-          <div class="segmented" role="tablist" aria-label="Profit range">
-            <button type="button" id="btn6m">6M</button>
-            <button type="button" id="btn12m" class="active">12M</button>
-            <button type="button" id="btnAll">All</button>
-          </div>
-        </div>
-        <div class="card-body" style="height: 250px;">
-          <canvas id="profitChart"></canvas>
-        </div>
-      </div>
-
-      <div class="card" style="min-height: 320px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title"><i class="fas fa-chart-pie"></i> Income vs Expenses</div>
-            <div class="card-sub">Current month snapshot</div>
-          </div>
-          <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh charts">
-            <i class="fas fa-rotate"></i>
-          </button>
-        </div>
-        <div class="card-body" style="height: 250px;">
-          <canvas id="incomeExpenseChart"></canvas>
-        </div>
-      </div>
-    </section>
-
-    <!-- Alerts + Tasks -->
-    <section class="two-col" aria-label="Alerts and tasks">
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title"><i class="fas fa-bell"></i> Alerts & Notifications</div>
-            <div class="card-sub">Items requiring attention</div>
-          </div>
-          <a class="btn btn-secondary" href="#" title="View all (placeholder)">
-            <i class="fas fa-list"></i> View All
-          </a>
-        </div>
-        <div class="card-body">
-          <!-- Will be replaced by API -->
-          <div class="list" id="alertsList">
-            <div class="alert info">
-              <div class="ic"><i class="fas fa-rotate"></i></div>
-              <div>
-                <h4>Loading alerts…</h4>
-                <p>Fetching data from Google Sheet</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div>
-            <div class="card-title"><i class="fas fa-clipboard-check"></i> Action Center</div>
-            <div class="card-sub">Next steps for this week</div>
-          </div>
-          <button class="btn btn-secondary" id="addTaskBtn" title="Add a task (demo)">
-            <i class="fas fa-plus"></i> Add
-          </button>
-        </div>
-        <div class="card-body">
-          <div class="list" id="taskList">
-            <div class="task">
-              <div class="task-left">
-                <div class="task-dot"></div>
-                <div>
-                  <div class="task-title">Call overdue tenants and agree payment plan</div>
-                  <div class="task-meta">Assigned: Admin • Priority: High</div>
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+            <div class="brand">
+                <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="brand-title">
+                    <strong>Sabir Amin</strong>
+                    <span>Real Estate Company LLC</span>
                 </div>
-              </div>
-              <div class="task-chip overdue">Overdue</div>
             </div>
-            <div class="task">
-              <div class="task-left">
-                <div class="task-dot" style="background:var(--opal-lilac);box-shadow:0 0 0 4px rgba(149,117,205,0.14);"></div>
-                <div>
-                  <div class="task-title">Renew contracts expiring within 90 days</div>
-                  <div class="task-meta">Assigned: Leasing • Priority: Medium</div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="index.html" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="properties.html" class="nav-link"><i class="fas fa-building"></i> Properties</a>
+                <a href="rent-records.html" class="nav-link">
+                    <i class="fas fa-file-invoice-dollar"></i> Rent Records
+                    <span class="nav-badge" id="rentBadge">0</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Finance</div>
+                <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i> Transactions</a>
+                <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i> Recurring Expenses</a>
+                <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i> Monthly Profit</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Reports</div>
+                <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">System</div>
+                <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
+            </div>
+
+            <div class="sidebar-footer">
+                <i class="fa-brands fa-google-drive" style="color:var(--success);"></i>
+                <span class="connection-badge">Connected</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="page-header">
+            <div class="header-top">
+                <div class="page-title">
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+                        <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
+                        <h1>Dashboard</h1>
+                    </div>
+                    <p>Portfolio overview with key alerts, tasks, and performance trends. <span id="nowMeta"
+                            style="font-weight:600;"></span>
+                    </p>
                 </div>
-              </div>
-              <div class="task-chip due">Due Soon</div>
-            </div>
-            <div class="task">
-              <div class="task-left">
-                <div class="task-dot" style="background:var(--opal-mint);box-shadow:0 0 0 4px rgba(105,240,174,0.14);"></div>
-                <div>
-                  <div class="task-title">Upload missing receipts to Drive folders</div>
-                  <div class="task-meta">Assigned: Admin • Priority: Normal</div>
+
+                <div class="header-actions">
+                    <div class="search-box" title="Search">
+                        <i class="fas fa-search"></i>
+                        <input id="searchInput" type="text" placeholder="Search unit / owner / tenant…" />
+                    </div>
+
+                    <a class="btn btn-secondary" href="properties.html">
+                        <i class="fas fa-building"></i> Properties
+                    </a>
+
+                    <a class="btn btn-primary" href="rent-records.html">
+                        <i class="fas fa-file-invoice-dollar"></i> Rent Records
+                    </a>
                 </div>
-              </div>
-              <div class="task-chip ok">On Track</div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
+        </header>
 
-    <!-- Recent Properties Table -->
-    <section class="card" aria-label="Recent properties">
-      <div class="card-header">
-        <div>
-          <div class="card-title"><i class="fas fa-table"></i> Recent Properties</div>
-          <div class="card-sub">Live view (from Google Sheet)</div>
-        </div>
-        <a href="properties.html" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> View All</a>
-      </div>
+        <!-- KPIs -->
+        <section class="kpi-grid" aria-label="Key performance indicators">
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Total Units</div>
+                        <div class="kpi-value" id="kpiTotalUnits">—</div>
+                        <div class="kpi-sub">Studios & Apartments</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-building"></i></div>
+                </div>
+                <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Live</div>
+            </div>
 
-      <div class="card-body" style="padding:0;">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Unit</th>
-                <th>Type</th>
-                <th>Owner</th>
-                <th>Tenant</th>
-                <th>Days Left</th>
-                <th>Rent In</th>
-                <th>Rent Out</th>
-                <th>Profit</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="recentTbody">
-              <tr>
-                <td colspan="9" style="padding:18px 14px;color:var(--text-secondary);font-weight:900;">
-                  Loading recent properties…
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-  </main>
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Occupied</div>
+                        <div class="kpi-value" id="kpiOccupied">—</div>
+                        <div class="kpi-sub">Active tenants</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
+                </div>
+                <div class="kpi-chip up"><i class="fas fa-chart-line"></i> Updated</div>
+            </div>
 
-  <!-- Quick Actions FAB -->
-  <div class="quick-actions">
-    <button class="fab" id="fabBtn" title="Quick Add (demo)">
-      <i class="fas fa-plus"></i>
-    </button>
-  </div>
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Net Profit</div>
+                        <div class="kpi-value" id="kpiProfit">—</div>
+                        <div class="kpi-sub" id="kpiCurrency">AED</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-sack-dollar"></i></div>
+                </div>
+                <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Monthly</div>
+            </div>
 
-  <!-- Shared App Logic -->
-  <script src="app.js"></script>
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Overdue</div>
+                        <div class="kpi-value" id="kpiOverdue">—</div>
+                        <div class="kpi-sub">Needs follow-up</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
+                </div>
+                <div class="kpi-chip down"><i class="fas fa-arrow-down"></i> Action</div>
+            </div>
 
-  <!-- Optional: Profit range buttons (uses chart already rendered from API) -->
-  <script>
-    // Range switch is optional; it modifies the existing chart dataset in-memory.
-    function setRange(range){
-      const btn6m = document.getElementById("btn6m");
-      const btn12m = document.getElementById("btn12m");
-      const btnAll = document.getElementById("btnAll");
-      if(!btn6m || !btn12m || !btnAll) return;
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Expiring</div>
+                        <div class="kpi-value" id="kpiExpiring">—</div>
+                        <div class="kpi-sub">Within 90 days</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-calendar-days"></i></div>
+                </div>
+                <div class="kpi-chip warn"><i class="fas fa-clock"></i> Review</div>
+            </div>
 
-      btn6m.classList.remove("active");
-      btn12m.classList.remove("active");
-      btnAll.classList.remove("active");
+            <div class="kpi-card">
+                <div class="kpi-row">
+                    <div>
+                        <div class="kpi-label">Maintenance</div>
+                        <div class="kpi-value" id="kpiMaintenance">—</div>
+                        <div class="kpi-sub">Open issues</div>
+                    </div>
+                    <div class="kpi-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+                </div>
+                <div class="kpi-chip info"><i class="fas fa-wrench"></i> Progress</div>
+            </div>
+        </section>
 
-      if(range === "6m") btn6m.classList.add("active");
-      if(range === "12m") btn12m.classList.add("active");
-      if(range === "all") btnAll.classList.add("active");
+        <!-- Charts -->
+        <section class="charts-grid" aria-label="Charts">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><i class="fas fa-chart-line"></i> Monthly Profit Trend</div>
+                        <div class="card-sub">Track profit over time</div>
+                    </div>
+                    <div class="segmented">
+                        <button type="button" id="btn6m">6M</button>
+                        <button type="button" id="btn12m" class="active">12M</button>
+                        <button type="button" id="btnAll">All</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="chart-canvas"><canvas id="profitChart"></canvas></div>
+                </div>
+            </div>
 
-      // Uses window.__dashboardChartsData (set by app.js after API call)
-      if(!window.__dashboardChartsData || !window.__dashboardChartsData.profitTrend) return;
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><i class="fas fa-chart-pie"></i> Income vs Expenses</div>
+                        <div class="card-sub">Current month snapshot</div>
+                    </div>
+                    <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh">
+                        <i class="fas fa-rotate"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-canvas"><canvas id="incomeExpenseChart"></canvas></div>
+                </div>
+            </div>
+        </section>
 
-      const fullLabels = window.__dashboardChartsData.profitTrend.labels || [];
-      const fullData = window.__dashboardChartsData.profitTrend.data || [];
+        <!-- Alerts + Tasks -->
+        <section class="two-col" aria-label="Alerts and tasks">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><i class="fas fa-bell"></i> Alerts</div>
+                        <div class="card-sub">Items requiring attention</div>
+                    </div>
+                    <a class="btn btn-secondary" href="properties.html"><i class="fas fa-list"></i> View All</a>
+                </div>
+                <div class="card-body">
+                    <div class="list" id="alertsList">
+                        <div class="alert info">
+                            <div class="ic"><i class="fas fa-rotate"></i></div>
+                            <div>
+                                <h4>Loading alerts…</h4>
+                                <p>Fetching data from Google Sheet</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-      // Access Chart instance via global (created in app.js)
-      // If you want range switching based on API history, expand your API to return 6m/all sets.
-      // Here we implement a safe slice for 6m and full for 12m.
-      const canvas = document.getElementById("profitChart");
-      if(!canvas) return;
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title"><i class="fas fa-clipboard-check"></i> Action Center</div>
+                        <div class="card-sub">Next steps for this week</div>
+                    </div>
+                    <button class="btn btn-secondary" id="addTaskBtn"><i class="fas fa-plus"></i> Add</button>
+                </div>
+                <div class="card-body">
+                    <div class="list" id="taskList">
+                        <div class="task">
+                            <div class="task-left">
+                                <div class="task-dot"></div>
+                                <div>
+                                    <div class="task-title">Call overdue tenants</div>
+                                    <div class="task-meta">Admin • High Priority</div>
+                                </div>
+                            </div>
+                            <div class="task-chip overdue">Overdue</div>
+                        </div>
+                        <div class="task">
+                            <div class="task-left">
+                                <div class="task-dot" style="background:var(--warning);"></div>
+                                <div>
+                                    <div class="task-title">Renew expiring contracts</div>
+                                    <div class="task-meta">Leasing • Medium</div>
+                                </div>
+                            </div>
+                            <div class="task-chip due">Due Soon</div>
+                        </div>
+                        <div class="task">
+                            <div class="task-left">
+                                <div class="task-dot" style="background:var(--success);"></div>
+                                <div>
+                                    <div class="task-title">Upload missing receipts</div>
+                                    <div class="task-meta">Admin • Normal</div>
+                                </div>
+                            </div>
+                            <div class="task-chip ok">On Track</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-      // Re-render charts with modified data by overwriting __dashboardChartsData then calling renderCharts()
-      if(range === "6m"){
-        window.__dashboardChartsData.profitTrend = {
-          labels: fullLabels.slice(Math.max(0, fullLabels.length - 6)),
-          data: fullData.slice(Math.max(0, fullData.length - 6))
+        <!-- Recent Properties Table -->
+        <section class="card" aria-label="Recent properties">
+            <div class="card-header">
+                <div>
+                    <div class="card-title"><i class="fas fa-table"></i> Recent Properties</div>
+                    <div class="card-sub">Live data from Google Sheet</div>
+                </div>
+                <a href="properties.html" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> View All</a>
+            </div>
+            <div class="card-body" style="padding:0;">
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Unit</th>
+                                <th>Type</th>
+                                <th>Owner</th>
+                                <th>Tenant</th>
+                                <th>Days Left</th>
+                                <th>Rent In</th>
+                                <th>Rent Out</th>
+                                <th>Profit</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentTbody">
+                            <tr>
+                                <td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">
+                                    Loading recent properties…
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- App.js for shared functionality -->
+    <script src="app.js"></script>
+
+    <!-- Dashboard Logic -->
+    <script>
+        const CONFIG = {
+            API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
+            CURRENCY: "AED",
+            EXPIRING_90_DAYS: 90,
+            FETCH_TIMEOUT_MS: 15000
         };
-      } else if(range === "all") {
-        // For "All", keep as-is unless your API returns longer history.
-        window.__dashboardChartsData.profitTrend = { labels: fullLabels, data: fullData };
-      } else {
-        window.__dashboardChartsData.profitTrend = { labels: fullLabels, data: fullData };
-      }
 
-      if (typeof window.renderCharts === "function") window.renderCharts();
-    }
+        const $ = (id) => document.getElementById(id);
+        function safeText(v) { return (v === null || v === undefined) ? "" : String(v).trim(); }
+        function toNumber(v) {
+            if (v === null || v === undefined || v === "") return 0;
+            if (typeof v === "number") return v;
+            const s = String(v).replace(/AED|USD|QAR|,/gi, "").trim();
+            const n = Number(s);
+            return Number.isFinite(n) ? n : 0;
+        }
+        function money(n) {
+            const v = toNumber(n);
+            try { return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(v); }
+            catch { return `${v.toFixed(0)} ${CONFIG.CURRENCY}`; }
+        }
+        function computeOccupied(p) {
+            const tenant = safeText(p.TenantName || p.Tenant || "");
+            const status = safeText(p.Status || "").toLowerCase();
+            return !!tenant && status !== "vacant";
+        }
+        function computeOverdue(p) {
+            const tenant = safeText(p.TenantName || p.Tenant || "");
+            const days = toNumber(p.DaysLeft);
+            return !!tenant && days <= 0;
+        }
+        function computeExpiring(p) {
+            const tenant = safeText(p.TenantName || p.Tenant || "");
+            const days = toNumber(p.DaysLeft);
+            return !!tenant && days > 0 && days <= CONFIG.EXPIRING_90_DAYS;
+        }
+        function computeMaintenance(p) {
+            const m = p.Maintenance;
+            if (typeof m === "number") return m > 0;
+            const t = safeText(m).toLowerCase();
+            return t && t !== "0" && t !== "no" && t !== "none";
+        }
 
-    document.getElementById("btn6m")?.addEventListener("click", () => setRange("6m"));
-    document.getElementById("btn12m")?.addEventListener("click", () => setRange("12m"));
-    document.getElementById("btnAll")?.addEventListener("click", () => setRange("all"));
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+            const controller = new AbortController();
+            const t = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                return await fetch(url, { ...options, signal: controller.signal, mode: "cors", cache: "no-store" });
+            } finally { clearTimeout(t); }
+        }
 
-    // Refresh button (delegates to app.js listener if present; this is just a fallback)
-    document.getElementById("refreshChartsBtn")?.addEventListener("click", () => {
-      if (typeof window.renderCharts === "function") window.renderCharts();
-    });
-  </script>
-</body>
-</html>
+        async function fetchDashboardData() {
+            const u = new URL(CONFIG.API_URL);
+            u.searchParams.set("_ts", String(Date.now()));
+            const res = await fetchWithTimeout(u.toString(), { method: "GET" }, CONFIG.FETCH_TIMEOUT_MS);
+            const txt = await res.text();
+            const trimmed = (txt || "").trim();
+            if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) {
+                throw new Error("API returned HTML. Check Apps Script deployment.");
+            }
+            let payload;
+            try { payload = JSON.parse(trimmed); } catch { throw new Error("Invalid JSON from API."); }
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            if (!payload.ok) throw new Error(payload.error || "API returned ok=false");
+            return { payload, rows: Array.isArray(payload.properties) ? payload.properties : [] };
+        }
+
+        let profitChartInstance = null;
+        let incomeExpenseChartInstance = null;
+
+        function buildProfitTrend(rows) {
+            const map = new Map();
+            rows.forEach(r => {
+                const m = toNumber(r.Month);
+                const profit = toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent)));
+                if (m >= 1 && m <= 12) map.set(m, (map.get(m) || 0) + profit);
+            });
+            if (map.size === 0) {
+                const total = rows.reduce((a, r) => a + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
+                return { labels: ["All"], data: [Math.round(total)] };
+            }
+            const labels = [], data = [];
+            for (let m = 1; m <= 12; m++) { labels.push(`M${m}`); data.push(Math.round(map.get(m) || 0)); }
+            return { labels, data };
+        }
+
+        function buildIncomeVsExpense(rows) {
+            const currentMonth = new Date().getMonth() + 1;
+            let income = 0, expense = 0, monthFound = false;
+            rows.forEach(r => {
+                const m = toNumber(r.Month);
+                if (m >= 1 && m <= 12) monthFound = true;
+                if (monthFound) { if (m === currentMonth) { income += toNumber(r.TenantRent); expense += toNumber(r.OwnerRent); } }
+                else { income += toNumber(r.TenantRent); expense += toNumber(r.OwnerRent); }
+            });
+            return { labels: ["Income", "Expenses"], data: [Math.round(income), Math.round(expense)] };
+        }
+
+        function renderCharts(rows) {
+            const profitTrend = buildProfitTrend(rows);
+            const incExp = buildIncomeVsExpense(rows);
+            window.__dashboardChartsData = { profitTrend };
+
+            const PRIMARY = "rgba(103, 61, 230, 1)";
+            const PRIMARY_FILL = "rgba(103, 61, 230, 0.12)";
+            const INCOME = "rgba(16, 185, 129, 0.85)";
+            const EXPENSE = "rgba(239, 68, 68, 0.80)";
+
+            const profitCanvas = $("profitChart");
+            if (profitCanvas) {
+                if (profitChartInstance) profitChartInstance.destroy();
+                profitChartInstance = new Chart(profitCanvas, {
+                    type: "line",
+                    data: { labels: profitTrend.labels, datasets: [{ label: "Profit", data: profitTrend.data, borderColor: PRIMARY, backgroundColor: PRIMARY_FILL, tension: 0.35, fill: true, pointRadius: 3 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(0,0,0,0.05)" } } } }
+                });
+            }
+
+            const pieCanvas = $("incomeExpenseChart");
+            if (pieCanvas) {
+                if (incomeExpenseChartInstance) incomeExpenseChartInstance.destroy();
+                incomeExpenseChartInstance = new Chart(pieCanvas, {
+                    type: "doughnut",
+                    data: { labels: incExp.labels, datasets: [{ data: incExp.data, backgroundColor: [INCOME, EXPENSE], borderWidth: 1 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, cutout: "65%" }
+                });
+            }
+        }
+
+        function renderKPIs(rows) {
+            const total = rows.length;
+            const occupied = rows.filter(computeOccupied).length;
+            const overdue = rows.filter(computeOverdue).length;
+            const expiring = rows.filter(computeExpiring).length;
+            const maintenance = rows.filter(computeMaintenance).length;
+            const profit = rows.reduce((acc, r) => acc + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
+
+            $("kpiTotalUnits").textContent = String(total);
+            $("kpiOccupied").textContent = String(occupied);
+            $("kpiOverdue").textContent = String(overdue);
+            $("kpiExpiring").textContent = String(expiring);
+            $("kpiMaintenance").textContent = String(maintenance);
+            $("kpiProfit").textContent = money(profit);
+            $("kpiCurrency").textContent = CONFIG.CURRENCY;
+            if ($("rentBadge")) $("rentBadge").textContent = String(overdue);
+        }
+
+        function renderRecentTable(rows) {
+            const tb = $("recentTbody");
+            if (!tb) return;
+            const sorted = [...rows].sort((a, b) => toNumber(b.S_No) - toNumber(a.S_No));
+            const show = sorted.slice(0, 12);
+            if (!show.length) {
+                tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No data found.</td></tr>`;
+                return;
+            }
+            tb.innerHTML = show.map(r => {
+                const unit = safeText(r.Flat || r.Unit || r.S_No || "—");
+                const type = safeText(r.Property || r.FlatType || r.Type || "—");
+                const owner = safeText(r.OwnerName || "—");
+                const tenant = safeText(r.TenantName || "—");
+                const days = toNumber(r.DaysLeft);
+                const rentIn = toNumber(r.OwnerRent);
+                const rentOut = toNumber(r.TenantRent);
+                const profit = toNumber(r.Profit ?? (rentOut - rentIn));
+                const statusChip = computeOverdue(r) ? `<span class="chip danger">Overdue</span>` :
+                    computeExpiring(r) ? `<span class="chip warn">Expiring</span>` :
+                    computeOccupied(r) ? `<span class="chip ok">Active</span>` : `<span class="chip info">Vacant</span>`;
+                return `<tr>
+                    <td><strong>${safeText(unit)}</strong></td>
+                    <td>${safeText(type)}</td>
+                    <td>${safeText(owner)}</td>
+                    <td>${safeText(tenant)}</td>
+                    <td>${Number.isFinite(days) ? days : "—"}</td>
+                    <td>${money(rentIn)}</td>
+                    <td>${money(rentOut)}</td>
+                    <td>${money(profit)}</td>
+                    <td>${statusChip}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        function renderAlerts(rows) {
+            const box = $("alertsList");
+            if (!box) return;
+            const overdue = rows.filter(computeOverdue).slice(0, 5);
+            const expiring = rows.filter(computeExpiring).sort((a, b) => toNumber(a.DaysLeft) - toNumber(b.DaysLeft)).slice(0, 5);
+            const items = [];
+            overdue.forEach(r => items.push({ type: "danger", title: `Overdue: ${safeText(r.Flat || r.S_No)} • ${safeText(r.TenantName)}`, desc: `Days left: ${toNumber(r.DaysLeft)}` }));
+            expiring.forEach(r => items.push({ type: "warn", title: `Expiring: ${safeText(r.Flat || r.S_No)} • ${safeText(r.TenantName)}`, desc: `Days left: ${toNumber(r.DaysLeft)}` }));
+            if (!items.length) {
+                box.innerHTML = `<div class="alert ok"><div class="ic"><i class="fas fa-circle-check"></i></div><div><h4>All clear</h4><p>No urgent alerts.</p></div></div>`;
+                return;
+            }
+            box.innerHTML = items.slice(0, 8).map(a => `<div class="alert ${a.type}"><div class="ic"><i class="fas fa-bell"></i></div><div><h4>${a.title}</h4><p>${a.desc}</p></div></div>`).
