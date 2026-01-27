@@ -1338,13 +1338,17 @@
                 const studioId = s(el("studioSelect").value);
                 if (!studioId) {
                     el("summaryContent").innerHTML = '<div style="color:var(--text-muted); margin-top:16px; font-size:14px;">Select a studio to view summary…</div>';
+                    // Clear entry fields when nothing selected
+                    el("ownershipType").value = "";
+                    el("amount").value = "";
                     return;
                 }
                 const it = state.items.find(x => normalizeStudioId(x.Location) === normalizeStudioId(studioId));
                 if (!it) return;
 
                 el("ownershipType").value = it.ownershipType || "";
-                if (!el("amount").value) el("amount").value = String(n(it.TenantRent));
+                // Always sync amount to tenant rent when selecting a studio
+                el("amount").value = String(n(it.TenantRent));
 
                 const { month, year } = getSelectedMonthYear();
                 const isPaid = isPaidForSelectedPeriod(studioId);
@@ -1531,6 +1535,7 @@
                 el("yearSelect").addEventListener("change", renderAll);
                 el("showUnpaidOnly").addEventListener("change", renderAll);
                 el("studioSelect").addEventListener("change", () => {
+                    // Update entry form + summary + table
                     syncPaymentPanel();
                     renderHistoryTable();
                 });
