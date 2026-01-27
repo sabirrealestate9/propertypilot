@@ -1386,92 +1386,81 @@
                 toast("Verification started (docs count not implemented in this static page).", "info");
             }
 
-            async function recordPayment() {
-                const studioId = s(el("studioSelect").value);
-                if (!studioId) {
-                    toast("Please select a studio.", "warning");
-                    return;
-                }
+          async function recordPayment() {
+  const studioId = s(el("studioSelect").value);
+  if (!studioId) { toast("Please select a studio.", "warning"); return; }
 
-                const { month, year } = getSelectedMonthYear();
-                const paymentDate = s(el("paymentDate").value);
-                const amount = n(el("amount").value);
-                const maintenance = n(el("maintenance").value);
+  const { month, year } = getSelectedMonthYear();
+  const paymentDate = s(el("paymentDate").value);
+  const amount = n(el("amount").value);
+  const maintenance = n(el("maintenance").value);
 
-                if (!paymentDate) {
-                    toast("Please select payment date.", "warning");
-                    return;
-                }
-                if (!(amount > 0)) {
-                    toast("Amount must be > 0", "warning");
-                    return;
-                }
+  if (!paymentDate) { toast("Please select payment date.", "warning"); return; }
+  if (!(amount > 0)) { toast("Amount must be > 0", "warning"); return; }
 
-                // Build payload expected by the existing API used by rent-records.js
-                const payload = {
-                    StudioId: normalizeStudioId(studioId),
-                    Month: Number(month),
-                    Year: Number(year),
-                    PaymentDate: paymentDate,
-                    Amount: amount,
-                    Maintenance: maintenance,
-                    Method: "Cash",
-                    Notes: "",
-                };
+  const payload = {
+    StudioId: normalizeStudioId(studioId),
+    Month: Number(month),
+    Year: Number(year),
+    PaymentDate: paymentDate,        // yyyy-MM-dd
+    Amount: amount,
+    Maintenance: maintenance,
+    Ownership: s(el("ownershipType").value) || "Personnel"
+  };
 
-                try {
-                    showLoading(true, "Recording payment to RentRecords…");
+  try {
+    showLoading(true, "Recording payment to RentRecords…");
 
-                    const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
-                    const u = new URL(endpoint);
-                    u.searchParams.set("action", "addRentPayment");
-                    u.searchParams.set("_ts", String(Date.now()));
+    const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
+    const u = new URL(endpoint);
+    u.searchParams.set("action", "addRentPayment");
+    u.searchParams.set("_ts", String(Date.now()));
 
-                    const res = await fetchWithTimeout(
-                        u.toString(),
-                        {
-                            method: "POST",
-                            cache: "no-store",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Accept": "application/json",
-                            },
-                            body: JSON.stringify(payload),
-                        },
-                        CONFIG.FETCH_TIMEOUT_MS
-                    );
+    const body = "payload=" + encodeURIComponent(JSON.stringify(payload));
 
-                    const txt = await res.text();
-                    const trimmed = (txt || "").trim();
+    const res = await fetchWithTimeout(
+      u.toString(),
+      {
+        method: "POST",
+        cache: "no-store",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+          "Accept": "application/json"
+        },
+        body
+      },
+      CONFIG.FETCH_TIMEOUT_MS
+    );
 
-                    if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
-                        throw new Error("GAS returned HTML. Re-deploy Web App: Execute as Me, Access: Anyone.");
-                    }
+    const txt = await res.text();
+    const trimmed = (txt || "").trim();
 
-                    let json;
-                    try {
-                        json = JSON.parse(trimmed);
-                    } catch {
-                        throw new Error("Invalid JSON: " + trimmed.slice(0, 200));
-                    }
+    // If Apps Script returns HTML, it's usually a deployment/access issue
+    if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
+      throw new Error("GAS returned HTML (not JSON). Redeploy Web App: Execute as Me, Access: Anyone.");
+    }
 
-                    if (!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0, 200)));
-                    if (!json || json.ok !== true) throw new Error(json?.error || json?.message || "API returned ok:false");
+    let json;
+    try { json = JSON.parse(trimmed); }
+    catch { throw new Error("Invalid JSON: " + trimmed.slice(0, 200)); }
 
-                    toast("Payment recorded", "success");
+    if (!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0, 200)));
+    if (!json || json.ok !== true) throw new Error(json?.error || json?.message || "API returned ok:false");
 
-                    // Refresh data from the sheet so UI updates and paidSet rebuilds
-                    await refreshAll();
+    toast("Payment recorded", "success");
 
-                    // Clear files after successful post
-                    state.selectedFiles = [];
-                    handleFileSelect([]);
-                } catch (e) {
-                    toast("Record payment failed: " + (e?.message || "Unknown error"), "error");
-                } finally {
-                    showLoading(false);
-                }
-            }
+    await refreshAll();
+
+    state.selectedFiles = [];
+    handleFileSelect([]);
+  } catch (e) {
+    toast("Record payment failed: " + (e?.message || "Unknown error"), "error");
+    console.error("Record payment error:", e);
+  } finally {
+    showLoading(false);
+  }
+}
+
 
             async function sendReminders() {
                 toast("Send reminders is not wired in this static page.", "warning");
