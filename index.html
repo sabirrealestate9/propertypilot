@@ -9,8 +9,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
     <!-- Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -1089,203 +1088,489 @@
         </section>
     </main>
 
+    <!-- App Config (must load before dashboard logic) -->
+    <script src="app-config.js"></script>
+
     <!-- App.js for shared functionality -->
     <script src="app.js"></script>
 
-    <!-- Dashboard Logic -->
+    <!-- Dashboard Logic - Connected to Google Sheets -->
     <script>
-        const CONFIG = {
-            API_URL: "https://script.google.com/macros/s/AKfycbwH7ICA4_BlTvfN5FU68YgSIDe6xA1ziuZx3Ajc1KXeMZY5P4inQ_IIyBMAev7C5oh_/exec",
-            CURRENCY: "AED",
-            EXPIRING_90_DAYS: 90,
-            FETCH_TIMEOUT_MS: 15000
-        };
+        (function() {
+            "use strict";
 
-        const $ = (id) => document.getElementById(id);
-        function safeText(v) { return (v === null || v === undefined) ? "" : String(v).trim(); }
-        function toNumber(v) {
-            if (v === null || v === undefined || v === "") return 0;
-            if (typeof v === "number") return v;
-            const s = String(v).replace(/AED|USD|QAR|,/gi, "").trim();
-            const n = Number(s);
-            return Number.isFinite(n) ? n : 0;
-        }
-        function money(n) {
-            const v = toNumber(n);
-            try { return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(v); }
-            catch { return `${v.toFixed(0)} ${CONFIG.CURRENCY}`; }
-        }
-        function computeOccupied(p) {
-            const tenant = safeText(p.TenantName || p.Tenant || "");
-            const status = safeText(p.Status || "").toLowerCase();
-            return !!tenant && status !== "vacant";
-        }
-        function computeOverdue(p) {
-            const tenant = safeText(p.TenantName || p.Tenant || "");
-            const days = toNumber(p.DaysLeft);
-            return !!tenant && days <= 0;
-        }
-        function computeExpiring(p) {
-            const tenant = safeText(p.TenantName || p.Tenant || "");
-            const days = toNumber(p.DaysLeft);
-            return !!tenant && days > 0 && days <= CONFIG.EXPIRING_90_DAYS;
-        }
-        function computeMaintenance(p) {
-            const m = p.Maintenance;
-            if (typeof m === "number") return m > 0;
-            const t = safeText(m).toLowerCase();
-            return t && t !== "0" && t !== "no" && t !== "none";
-        }
+            // Use centralized config from app-config.js
+            const CONFIG = {
+                get API_URL() {
+                    return (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "";
+                },
+                get SHEET_URL() {
+                    return (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
+                },
+                CURRENCY: "AED",
+                EXPIRING_90_DAYS: 90,
+                FETCH_TIMEOUT_MS: 15000
+            };
 
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
-            const controller = new AbortController();
-            const t = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                return await fetch(url, { ...options, signal: controller.signal, mode: "cors", cache: "no-store" });
-            } finally { clearTimeout(t); }
-        }
+            const $ = (id) => document.getElementById(id);
 
-        async function fetchDashboardData() {
-            const u = new URL(CONFIG.API_URL);
-            u.searchParams.set("_ts", String(Date.now()));
-            const res = await fetchWithTimeout(u.toString(), { method: "GET" }, CONFIG.FETCH_TIMEOUT_MS);
-            const txt = await res.text();
-            const trimmed = (txt || "").trim();
-            if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) {
-                throw new Error("API returned HTML. Check Apps Script deployment.");
+            // Utility functions
+            function safeText(v) { 
+                return (v === null || v === undefined) ? "" : String(v).trim(); 
             }
-            let payload;
-            try { payload = JSON.parse(trimmed); } catch { throw new Error("Invalid JSON from API."); }
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            if (!payload.ok) throw new Error(payload.error || "API returned ok=false");
-            return { payload, rows: Array.isArray(payload.properties) ? payload.properties : [] };
-        }
 
-        let profitChartInstance = null;
-        let incomeExpenseChartInstance = null;
-
-        function buildProfitTrend(rows) {
-            const map = new Map();
-            rows.forEach(r => {
-                const m = toNumber(r.Month);
-                const profit = toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent)));
-                if (m >= 1 && m <= 12) map.set(m, (map.get(m) || 0) + profit);
-            });
-            if (map.size === 0) {
-                const total = rows.reduce((a, r) => a + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
-                return { labels: ["All"], data: [Math.round(total)] };
+            function toNumber(v) {
+                if (v === null || v === undefined || v === "") return 0;
+                if (typeof v === "number") return v;
+                const s = String(v).replace(/AED|USD|QAR|,/gi, "").trim();
+                const n = Number(s);
+                return Number.isFinite(n) ? n : 0;
             }
-            const labels = [], data = [];
-            for (let m = 1; m <= 12; m++) { labels.push(`M${m}`); data.push(Math.round(map.get(m) || 0)); }
-            return { labels, data };
-        }
 
-        function buildIncomeVsExpense(rows) {
-            const currentMonth = new Date().getMonth() + 1;
-            let income = 0, expense = 0, monthFound = false;
-            rows.forEach(r => {
-                const m = toNumber(r.Month);
-                if (m >= 1 && m <= 12) monthFound = true;
-                if (monthFound) { if (m === currentMonth) { income += toNumber(r.TenantRent); expense += toNumber(r.OwnerRent); } }
-                else { income += toNumber(r.TenantRent); expense += toNumber(r.OwnerRent); }
-            });
-            return { labels: ["Income", "Expenses"], data: [Math.round(income), Math.round(expense)] };
-        }
+            function money(n) {
+                const v = toNumber(n);
+                try { 
+                    return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(v); 
+                } catch { 
+                    return `${v.toFixed(0)} ${CONFIG.CURRENCY}`; 
+                }
+            }
 
-        function renderCharts(rows) {
-            const profitTrend = buildProfitTrend(rows);
-            const incExp = buildIncomeVsExpense(rows);
-            window.__dashboardChartsData = { profitTrend };
+            function escapeHtml(str) {
+                return String(str || "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;");
+            }
 
-            const PRIMARY = "rgba(103, 61, 230, 1)";
-            const PRIMARY_FILL = "rgba(103, 61, 230, 0.12)";
-            const INCOME = "rgba(16, 185, 129, 0.85)";
-            const EXPENSE = "rgba(239, 68, 68, 0.80)";
+            // Status computation
+            function computeOccupied(p) {
+                const tenant = safeText(p.TenantName || p.Tenant || "");
+                const status = safeText(p.Status || "").toLowerCase();
+                return !!tenant && status !== "vacant";
+            }
 
-            const profitCanvas = $("profitChart");
-            if (profitCanvas) {
-                if (profitChartInstance) profitChartInstance.destroy();
-                profitChartInstance = new Chart(profitCanvas, {
-                    type: "line",
-                    data: { labels: profitTrend.labels, datasets: [{ label: "Profit", data: profitTrend.data, borderColor: PRIMARY, backgroundColor: PRIMARY_FILL, tension: 0.35, fill: true, pointRadius: 3 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(0,0,0,0.05)" } } } }
+            function computeOverdue(p) {
+                const tenant = safeText(p.TenantName || p.Tenant || "");
+                const days = toNumber(p.DaysLeft);
+                return !!tenant && days <= 0;
+            }
+
+            function computeExpiring(p) {
+                const tenant = safeText(p.TenantName || p.Tenant || "");
+                const days = toNumber(p.DaysLeft);
+                return !!tenant && days > 0 && days <= CONFIG.EXPIRING_90_DAYS;
+            }
+
+            function computeMaintenance(p) {
+                const m = p.Maintenance;
+                if (typeof m === "number") return m > 0;
+                const t = safeText(m).toLowerCase();
+                return t && t !== "0" && t !== "no" && t !== "none";
+            }
+
+            // API Functions
+            async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
+                const controller = new AbortController();
+                const t = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    return await fetch(url, { 
+                        ...options, 
+                        signal: controller.signal, 
+                        mode: "cors", 
+                        cache: "no-store",
+                        redirect: "follow"
+                    });
+                } finally { 
+                    clearTimeout(t); 
+                }
+            }
+
+            async function fetchFromGoogleSheets() {
+                const apiUrl = CONFIG.API_URL;
+                if (!apiUrl) {
+                    throw new Error("API_URL not configured. Check app-config.js");
+                }
+
+                const u = new URL(apiUrl);
+                u.searchParams.set("action", "getDashboard");
+                u.searchParams.set("_ts", String(Date.now()));
+
+                const res = await fetchWithTimeout(u.toString(), { method: "GET" }, CONFIG.FETCH_TIMEOUT_MS);
+                const txt = await res.text();
+                const trimmed = (txt || "").trim();
+
+                // Check for HTML response (deployment error)
+                if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
+                    throw new Error("API returned HTML instead of JSON. Re-deploy Apps Script: Execute as Me, Access: Anyone.");
+                }
+
+                let payload;
+                try { 
+                    payload = JSON.parse(trimmed); 
+                } catch { 
+                    throw new Error("Invalid JSON from API: " + trimmed.slice(0, 200)); 
+                }
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (payload.ok === false) throw new Error(payload.error || "API returned ok=false");
+
+                return {
+                    payload,
+                    rows: Array.isArray(payload.properties) ? payload.properties : 
+                          Array.isArray(payload.data) ? payload.data :
+                          Array.isArray(payload.rows) ? payload.rows : []
+                };
+            }
+
+            // Chart instances - stored globally to track them
+            let profitChartInstance = null;
+            let incomeExpenseChartInstance = null;
+
+            // Helper function to safely destroy a chart on a canvas
+            function destroyChartOnCanvas(canvasId) {
+                const canvas = $(canvasId);
+                if (!canvas || !window.Chart) return;
+                
+                // Method 1: Use Chart.getChart() to find existing chart
+                const existingChart = Chart.getChart(canvas);
+                if (existingChart) {
+                    existingChart.destroy();
+                }
+            }
+
+            function buildProfitTrend(rows) {
+                const map = new Map();
+                rows.forEach(r => {
+                    const m = toNumber(r.Month);
+                    const profit = toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent)));
+                    if (m >= 1 && m <= 12) map.set(m, (map.get(m) || 0) + profit);
+                });
+
+                if (map.size === 0) {
+                    const total = rows.reduce((a, r) => a + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
+                    return { labels: ["Total"], data: [Math.round(total)] };
+                }
+
+                const labels = [], data = [];
+                for (let m = 1; m <= 12; m++) { 
+                    labels.push(`M${m}`); 
+                    data.push(Math.round(map.get(m) || 0)); 
+                }
+                return { labels, data };
+            }
+
+            function buildIncomeVsExpense(rows) {
+                const currentMonth = new Date().getMonth() + 1;
+                let income = 0, expense = 0, monthFound = false;
+
+                rows.forEach(r => {
+                    const m = toNumber(r.Month);
+                    if (m >= 1 && m <= 12) monthFound = true;
+
+                    if (monthFound) { 
+                        if (m === currentMonth) { 
+                            income += toNumber(r.TenantRent); 
+                            expense += toNumber(r.OwnerRent); 
+                        } 
+                    } else { 
+                        income += toNumber(r.TenantRent); 
+                        expense += toNumber(r.OwnerRent); 
+                    }
+                });
+
+                return { labels: ["Income", "Expenses"], data: [Math.round(income), Math.round(expense)] };
+            }
+
+            function renderCharts(rows) {
+                const profitTrend = buildProfitTrend(rows);
+                const incExp = buildIncomeVsExpense(rows);
+                window.__dashboardChartsData = { profitTrend };
+
+                // Hostinger color palette
+                const PRIMARY = "rgba(103, 61, 230, 1)";
+                const PRIMARY_FILL = "rgba(103, 61, 230, 0.12)";
+                const INCOME = "rgba(16, 185, 129, 0.85)";
+                const EXPENSE = "rgba(239, 68, 68, 0.80)";
+
+                const profitCanvas = $("profitChart");
+                if (profitCanvas && window.Chart) {
+                    // Destroy any existing chart on this canvas using Chart.getChart()
+                    const existingProfitChart = Chart.getChart(profitCanvas);
+                    if (existingProfitChart) existingProfitChart.destroy();
+                    if (profitChartInstance) { try { profitChartInstance.destroy(); } catch(e) {} }
+                    
+                    profitChartInstance = new Chart(profitCanvas, {
+                        type: "line",
+                        data: { 
+                            labels: profitTrend.labels, 
+                            datasets: [{ 
+                                label: "Profit", 
+                                data: profitTrend.data, 
+                                borderColor: PRIMARY, 
+                                backgroundColor: PRIMARY_FILL, 
+                                tension: 0.35, 
+                                fill: true, 
+                                pointRadius: 3 
+                            }] 
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { display: false } }, 
+                            scales: { 
+                                x: { grid: { display: false } }, 
+                                y: { grid: { color: "rgba(0,0,0,0.05)" } } 
+                            } 
+                        }
+                    });
+                }
+
+                const pieCanvas = $("incomeExpenseChart");
+                if (pieCanvas && window.Chart) {
+                    // Destroy any existing chart on this canvas using Chart.getChart()
+                    const existingPieChart = Chart.getChart(pieCanvas);
+                    if (existingPieChart) existingPieChart.destroy();
+                    if (incomeExpenseChartInstance) { try { incomeExpenseChartInstance.destroy(); } catch(e) {} }
+                    
+                    incomeExpenseChartInstance = new Chart(pieCanvas, {
+                        type: "doughnut",
+                        data: { 
+                            labels: incExp.labels, 
+                            datasets: [{ 
+                                data: incExp.data, 
+                                backgroundColor: [INCOME, EXPENSE], 
+                                borderWidth: 1 
+                            }] 
+                        },
+                        options: { 
+                            responsive: true, 
+                            maintainAspectRatio: false, 
+                            plugins: { legend: { position: "bottom" } }, 
+                            cutout: "65%" 
+                        }
+                    });
+                }
+            }
+
+            function renderKPIs(rows) {
+                const total = rows.length;
+                const occupied = rows.filter(computeOccupied).length;
+                const overdue = rows.filter(computeOverdue).length;
+                const expiring = rows.filter(computeExpiring).length;
+                const maintenance = rows.filter(computeMaintenance).length;
+
+                // Match properties.html calculation: sum of (TenantRent - OwnerRent)
+                const profit = rows.reduce((acc, r) => acc + (toNumber(r.TenantRent) - toNumber(r.OwnerRent)), 0);
+
+                if ($("kpiTotalUnits")) $("kpiTotalUnits").textContent = String(total);
+                if ($("kpiOccupied")) $("kpiOccupied").textContent = String(occupied);
+                if ($("kpiOverdue")) $("kpiOverdue").textContent = String(overdue);
+                if ($("kpiExpiring")) $("kpiExpiring").textContent = String(expiring);
+                if ($("kpiMaintenance")) $("kpiMaintenance").textContent = String(maintenance);
+                if ($("kpiProfit")) $("kpiProfit").textContent = money(profit);
+                if ($("kpiCurrency")) $("kpiCurrency").textContent = CONFIG.CURRENCY;
+                if ($("rentBadge")) $("rentBadge").textContent = String(overdue);
+            }
+
+            function renderRecentTable(rows) {
+                const tb = $("recentTbody");
+                if (!tb) return;
+
+                const sorted = [...rows].sort((a, b) => toNumber(b.S_No) - toNumber(a.S_No));
+                const show = sorted.slice(0, 12);
+
+                if (!show.length) {
+                    tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No data found. Check Google Sheet connection.</td></tr>`;
+                    return;
+                }
+
+                tb.innerHTML = show.map(r => {
+                    const unit = escapeHtml(safeText(r.Flat || r.Unit || r.Location || r.S_No || "—"));
+                    const type = escapeHtml(safeText(r.Property || r.FlatType || r.Type || "—"));
+                    const owner = escapeHtml(safeText(r.OwnerName || "—"));
+                    const tenant = escapeHtml(safeText(r.TenantName || "—"));
+                    const days = toNumber(r.DaysLeft);
+                    const rentIn = toNumber(r.OwnerRent);
+                    const rentOut = toNumber(r.TenantRent);
+                    const profit = toNumber(r.Profit ?? (rentOut - rentIn));
+
+                    const statusChip = computeOverdue(r) ? `<span class="chip danger">Overdue</span>` :
+                        computeExpiring(r) ? `<span class="chip warn">Expiring</span>` :
+                        computeOccupied(r) ? `<span class="chip ok">Active</span>` : 
+                        `<span class="chip info">Vacant</span>`;
+
+                    return `<tr>
+                        <td><strong>${unit}</strong></td>
+                        <td>${type}</td>
+                        <td>${owner}</td>
+                        <td>${tenant}</td>
+                        <td>${Number.isFinite(days) ? days : "—"}</td>
+                        <td>${money(rentIn)}</td>
+                        <td>${money(rentOut)}</td>
+                        <td>${money(profit)}</td>
+                        <td>${statusChip}</td>
+                    </tr>`;
+                }).join("");
+            }
+
+            function renderAlerts(rows) {
+                const box = $("alertsList");
+                if (!box) return;
+
+                const overdue = rows.filter(computeOverdue).slice(0, 5);
+                const expiring = rows.filter(computeExpiring).sort((a, b) => toNumber(a.DaysLeft) - toNumber(b.DaysLeft)).slice(0, 5);
+                const items = [];
+
+                overdue.forEach(r => items.push({ 
+                    type: "danger", 
+                    icon: "fa-triangle-exclamation",
+                    title: `Overdue: ${escapeHtml(safeText(r.Flat || r.Location || r.S_No))}`, 
+                    desc: `Tenant: ${escapeHtml(safeText(r.TenantName))} • Days: ${toNumber(r.DaysLeft)}` 
+                }));
+
+                expiring.forEach(r => items.push({ 
+                    type: "warn", 
+                    icon: "fa-calendar-days",
+                    title: `Expiring: ${escapeHtml(safeText(r.Flat || r.Location || r.S_No))}`, 
+                    desc: `Tenant: ${escapeHtml(safeText(r.TenantName))} • ${toNumber(r.DaysLeft)} days left` 
+                }));
+
+                if (!items.length) {
+                    box.innerHTML = `
+                        <div class="alert ok">
+                            <div class="ic"><i class="fas fa-circle-check"></i></div>
+                            <div>
+                                <h4>All clear</h4>
+                                <p>No urgent alerts at this time.</p>
+                            </div>
+                        </div>`;
+                    return;
+                }
+
+                box.innerHTML = items.slice(0, 8).map(a => `
+                    <div class="alert ${a.type}">
+                        <div class="ic"><i class="fas ${a.icon}"></i></div>
+                        <div>
+                            <h4>${a.title}</h4>
+                            <p>${a.desc}</p>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            function wireSearch(rows) {
+                const input = $("searchInput");
+                if (!input) return;
+
+                input.addEventListener("input", () => {
+                    const q = safeText(input.value).toLowerCase();
+                    const filtered = !q ? rows : rows.filter(r => {
+                        const hay = [r.Flat, r.Property, r.OwnerName, r.TenantName, r.Location, r.Unit]
+                            .map(safeText).join(" ").toLowerCase();
+                        return hay.includes(q);
+                    });
+
+                    renderKPIs(filtered); 
+                    renderAlerts(filtered); 
+                    renderRecentTable(filtered); 
+                    renderCharts(filtered);
                 });
             }
 
-            const pieCanvas = $("incomeExpenseChart");
-            if (pieCanvas) {
-                if (incomeExpenseChartInstance) incomeExpenseChartInstance.destroy();
-                incomeExpenseChartInstance = new Chart(pieCanvas, {
-                    type: "doughnut",
-                    data: { labels: incExp.labels, datasets: [{ data: incExp.data, backgroundColor: [INCOME, EXPENSE], borderWidth: 1 }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, cutout: "65%" }
-                });
+            // Loading state
+            function showLoading(show) {
+                const tb = $("recentTbody");
+                const alerts = $("alertsList");
+
+                if (show) {
+                    if (tb) tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading data from Google Sheet...</td></tr>`;
+                    if (alerts) alerts.innerHTML = `<div class="alert info"><div class="ic"><i class="fas fa-rotate fa-spin"></i></div><div><h4>Loading...</h4><p>Fetching data from Google Sheet</p></div></div>`;
+                }
             }
-        }
 
-        function renderKPIs(rows) {
-            const total = rows.length;
-            const occupied = rows.filter(computeOccupied).length;
-            const overdue = rows.filter(computeOverdue).length;
-            const expiring = rows.filter(computeExpiring).length;
-            const maintenance = rows.filter(computeMaintenance).length;
-            const profit = rows.reduce((acc, r) => acc + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
+            function showError(message) {
+                const tb = $("recentTbody");
+                const alerts = $("alertsList");
 
-            $("kpiTotalUnits").textContent = String(total);
-            $("kpiOccupied").textContent = String(occupied);
-            $("kpiOverdue").textContent = String(overdue);
-            $("kpiExpiring").textContent = String(expiring);
-            $("kpiMaintenance").textContent = String(maintenance);
-            $("kpiProfit").textContent = money(profit);
-            $("kpiCurrency").textContent = CONFIG.CURRENCY;
-            if ($("rentBadge")) $("rentBadge").textContent = String(overdue);
-        }
-
-        function renderRecentTable(rows) {
-            const tb = $("recentTbody");
-            if (!tb) return;
-            const sorted = [...rows].sort((a, b) => toNumber(b.S_No) - toNumber(a.S_No));
-            const show = sorted.slice(0, 12);
-            if (!show.length) {
-                tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No data found.</td></tr>`;
-                return;
+                if (tb) tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--danger);"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(message)}</td></tr>`;
+                if (alerts) alerts.innerHTML = `<div class="alert danger"><div class="ic"><i class="fas fa-triangle-exclamation"></i></div><div><h4>Connection Error</h4><p>${escapeHtml(message)}</p></div></div>`;
             }
-            tb.innerHTML = show.map(r => {
-                const unit = safeText(r.Flat || r.Unit || r.S_No || "—");
-                const type = safeText(r.Property || r.FlatType || r.Type || "—");
-                const owner = safeText(r.OwnerName || "—");
-                const tenant = safeText(r.TenantName || "—");
-                const days = toNumber(r.DaysLeft);
-                const rentIn = toNumber(r.OwnerRent);
-                const rentOut = toNumber(r.TenantRent);
-                const profit = toNumber(r.Profit ?? (rentOut - rentIn));
-                const statusChip = computeOverdue(r) ? `<span class="chip danger">Overdue</span>` :
-                    computeExpiring(r) ? `<span class="chip warn">Expiring</span>` :
-                    computeOccupied(r) ? `<span class="chip ok">Active</span>` : `<span class="chip info">Vacant</span>`;
-                return `<tr>
-                    <td><strong>${safeText(unit)}</strong></td>
-                    <td>${safeText(type)}</td>
-                    <td>${safeText(owner)}</td>
-                    <td>${safeText(tenant)}</td>
-                    <td>${Number.isFinite(days) ? days : "—"}</td>
-                    <td>${money(rentIn)}</td>
-                    <td>${money(rentOut)}</td>
-                    <td>${money(profit)}</td>
-                    <td>${statusChip}</td>
-                </tr>`;
-            }).join("");
-        }
 
-        function renderAlerts(rows) {
-            const box = $("alertsList");
-            if (!box) return;
-            const overdue = rows.filter(computeOverdue).slice(0, 5);
-            const expiring = rows.filter(computeExpiring).sort((a, b) => toNumber(a.DaysLeft) - toNumber(b.DaysLeft)).slice(0, 5);
-            const items = [];
-            overdue.forEach(r => items.push({ type: "danger", title: `Overdue: ${safeText(r.Flat || r.S_No)} • ${safeText(r.TenantName)}`, desc: `Days left: ${toNumber(r.DaysLeft)}` }));
-            expiring.forEach(r => items.push({ type: "warn", title: `Expiring: ${safeText(r.Flat || r.S_No)} • ${safeText(r.TenantName)}`, desc: `Days left: ${toNumber(r.DaysLeft)}` }));
-            if (!items.length) {
-                box.innerHTML = `<div class="alert ok"><div class="ic"><i class="fas fa-circle-check"></i></div><div><h4>All clear</h4><p>No urgent alerts.</p></div></div>`;
-                return;
+            // Main refresh function (exposed globally for refresh button)
+            window.refreshDashboard = async function() {
+                try {
+                    showLoading(true);
+                    const { rows } = await fetchFromGoogleSheets();
+
+                    renderKPIs(rows);
+                    renderAlerts(rows);
+                    renderRecentTable(rows);
+                    renderCharts(rows);
+                    wireSearch(rows);
+
+                    // Update timestamp
+                    if ($("nowMeta")) $("nowMeta").textContent = `• ${new Date().toLocaleString()}`;
+
+                    console.log(`Dashboard loaded: ${rows.length} properties from Google Sheet`);
+                } catch (err) {
+                    console.error("Dashboard error:", err);
+                    showError(err.message || "Failed to load data");
+                }
+            };
+
+            // Initialize dashboard
+            async function initDashboard() {
+                try {
+                    // Set initial timestamp
+                    if ($("nowMeta")) $("nowMeta").textContent = `• ${new Date().toLocaleString()}`;
+                    if ($("kpiCurrency")) $("kpiCurrency").textContent = CONFIG.CURRENCY;
+
+                    // Fetch and render data
+                    await window.refreshDashboard();
+
+                    // Wire up refresh button
+                    $("refreshChartsBtn")?.addEventListener("click", window.refreshDashboard);
+
+                    // Range buttons for profit chart
+                    function setRange(range) {
+                        const { labels: fullLabels, data: fullData } = window.__dashboardChartsData?.profitTrend || { labels: [], data: [] };
+                        let labels = fullLabels, data = fullData;
+
+                        if (range === "6m") { 
+                            labels = fullLabels.slice(-6); 
+                            data = fullData.slice(-6); 
+                        }
+
+                        if (profitChartInstance) { 
+                            profitChartInstance.data.labels = labels; 
+                            profitChartInstance.data.datasets[0].data = data; 
+                            profitChartInstance.update(); 
+                        }
+
+                        $("btn6m")?.classList.toggle("active", range === "6m");
+                        $("btn12m")?.classList.toggle("active", range === "12m");
+                        $("btnAll")?.classList.toggle("active", range === "all");
+                    }
+
+                    $("btn6m")?.addEventListener("click", () => setRange("6m"));
+                    $("btn12m")?.addEventListener("click", () => setRange("12m"));
+                    $("btnAll")?.addEventListener("click", () => setRange("all"));
+
+                } catch (err) {
+                    console.error("Dashboard init error:", err);
+                    showError(err.message || "Initialization failed");
+                }
             }
-            box.innerHTML = items.slice(0, 8).map(a => `<div class="alert ${a.type}"><div class="ic"><i class="fas fa-bell"></i></div><div><h4>${a.title}</h4><p>${a.desc}</p></div></div>`).
+
+            // Start when DOM ready
+            document.addEventListener("DOMContentLoaded", () => { 
+                if (document.body?.getAttribute("data-page") === "dashboard") {
+                    initDashboard(); 
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
