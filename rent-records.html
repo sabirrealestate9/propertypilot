@@ -241,7 +241,6 @@
             flex-wrap: wrap;
         }
 
-        /* Info Badge */
         .info-badge {
             display: inline-flex;
             align-items: center;
@@ -255,7 +254,6 @@
             font-weight: 500;
         }
 
-        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -282,16 +280,6 @@
 
             .btn-primary:hover {
                 background: var(--primary-dark);
-            }
-
-        .btn-secondary {
-            background: var(--white);
-            color: var(--primary);
-            border: 1px solid var(--border);
-        }
-
-            .btn-secondary:hover {
-                background: var(--primary-hover);
             }
 
         .btn-success {
@@ -431,7 +419,6 @@
                 user-select: none;
             }
 
-        /* File Upload */
         .file-upload-area {
             border: 2px dashed var(--border);
             padding: 24px;
@@ -482,7 +469,6 @@
             font-size: 12px;
         }
 
-        /* Summary Box */
         .summary-box {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
@@ -566,7 +552,6 @@
                 background: var(--border-light);
             }
 
-        /* Status Badges */
         .badge {
             display: inline-flex;
             align-items: center;
@@ -959,7 +944,6 @@
                             </button>
                         </div>
 
-                        <!-- Summary Box -->
                         <div id="summaryContent">
                             <div style="color:var(--text-muted); margin-top:16px; font-size:14px;">
                                 Select a studio to view summary…
@@ -1012,7 +996,7 @@
              * CONFIG
              *****************************************************************/
             const CONFIG = {
-                GAS_ENDPOINT: "https://script.google.com/macros/s/AKfycbwJARzPYXHVzwJ-zeGTw8HN5nUXbDGzLE41HGd5Tr93hbShLokFPmxafA3RGsFcAcVr/exec",
+                GAS_ENDPOINT: "https://sabir-gas-proxy.twilight-night-72d0.workers.dev",
                 FETCH_TIMEOUT_MS: 15000,
                 CACHE_BUST: true
             };
@@ -1070,7 +1054,7 @@
             }
 
             function normalizeStudioId(value) {
-                return s(value).toUpperCase();
+                return s(value).replace(/\s+/g, " ").trim().toUpperCase();
             }
 
             function getSelectedMonthYear() {
@@ -1151,7 +1135,13 @@
                 const controller = new AbortController();
                 const t = setTimeout(() => controller.abort(), ms);
                 try {
-                    return await fetch(url, { ...options, signal: controller.signal });
+                    return await fetch(url, {
+                        ...options,
+                        signal: controller.signal,
+                        mode: "cors",
+                        redirect: "follow",
+                        cache: "no-store"
+                    });
                 } finally {
                     clearTimeout(t);
                 }
@@ -1159,12 +1149,12 @@
 
             async function fetchFromGas() {
                 const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
-                const isValid = /^https:\/\/script\.google\.com\/macros\/s\/[-\w]+\/exec/i.test(endpoint);
-                if (!isValid) {
-                    throw new Error("Invalid GAS_ENDPOINT. Must be a deployed Apps Script Web App URL.");
-                }
 
-                const url = endpoint + (CONFIG.CACHE_BUST ? "?t=" + Date.now() : "");
+                const isAppsScript = /^https:\/\/script\.google\.com\/macros\/s\/[-\w]+\/exec\/?$/i.test(endpoint);
+                const isWorker = /^https:\/\/.+\.workers\.dev\/?$/i.test(endpoint);
+                if (!isAppsScript && !isWorker) throw new Error("Invalid GAS_ENDPOINT. Use Apps Script /exec URL OR Cloudflare Worker URL.");
+
+                const url = endpoint + (CONFIG.CACHE_BUST ? (endpoint.includes("?") ? "&" : "?") + "t=" + Date.now() : "");
 
                 const res = await fetchWithTimeout(url, {
                     method: "GET",
@@ -1176,7 +1166,7 @@
                 const trimmed = (txt || "").trim();
 
                 if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
-                    throw new Error("GAS returned HTML. Re-deploy Web App: Execute as Me, Access: Anyone.");
+                    throw new Error("Endpoint returned HTML. Check proxy target + GAS deployment access.");
                 }
 
                 if (!res.ok) throw new Error("HTTP " + res.status + ": " + trimmed.slice(0, 200));
@@ -1221,7 +1211,6 @@
                 const mSel = el("monthSelect");
                 const ySel = el("yearSelect");
 
-                // Month dropdown
                 if (!mSel.options.length) {
                     for (let m = 1; m <= 12; m++) {
                         const o = document.createElement("option");
@@ -1232,7 +1221,6 @@
                     mSel.value = String(now.getMonth() + 1);
                 }
 
-                // Year dropdown
                 if (!ySel.options.length) {
                     const yNow = now.getFullYear();
                     for (let y = yNow - 2; y <= yNow + 2; y++) {
@@ -1244,7 +1232,6 @@
                     }
                 }
 
-                // Studio dropdown
                 const studioSel = el("studioSelect");
                 const current = studioSel.value;
                 const units = state.items.map(x => x.Location).sort((a, b) => a.localeCompare(b));
@@ -1269,7 +1256,6 @@
                 let rows;
 
                 if (showUnpaidOnly) {
-                    // Show only studios NOT in rentRecords for selected month/year
                     rows = uniqStudios
                         .filter(sid => !state.paidSet.has(sid))
                         .map(sid => {
@@ -1281,12 +1267,11 @@
                                 PaymentDate: "",
                                 Amount: n(info.TenantRent),
                                 Maintenance: 0,
-                                Profit: 0,
+                                Profit: Math.max(0, n(info.TenantRent) - n(info.OwnerRent)), /* show expected profit */
                                 __unpaid: true
                             };
                         });
                 } else {
-                    // Show records from rentRecords for selected month/year
                     rows = (state.rentRecords || []).filter(r =>
                         Number(r.Month ?? r.month ?? 0) === month && Number(r.Year ?? r.year ?? 0) === year
                     ).map(r => ({
@@ -1300,7 +1285,6 @@
                         __unpaid: false
                     }));
 
-                    // Filter by selected studio if chosen
                     if (selectedStudioId) {
                         const sid = normalizeStudioId(selectedStudioId);
                         rows = rows.filter(r => r.StudioId === sid);
@@ -1320,17 +1304,17 @@
                     const docsBadge = getVerificationBadge(r.StudioId);
 
                     return `
-                        <tr>
-                            <td><strong>${escapeHtml(r.StudioId)}</strong></td>
-                            <td>${monthName(r.Month)} ${escapeHtml(String(r.Year))}</td>
-                            <td>${escapeHtml(r.PaymentDate || "—")}</td>
-                            <td class="right">${fmtMoney(r.Amount)}</td>
-                            <td class="right">${fmtMoney(r.Maintenance)}</td>
-                            <td class="right">${fmtMoney(r.Profit)}</td>
-                            <td><span class="badge ${badgeCss}">${status}</span></td>
-                            <td><span class="badge ${docsBadge.css}">${escapeHtml(docsBadge.text)}</span></td>
-                        </tr>
-                    `;
+                            <tr>
+                                <td><strong>${escapeHtml(r.StudioId)}</strong></td>
+                                <td>${monthName(r.Month)} ${escapeHtml(String(r.Year))}</td>
+                                <td>${escapeHtml(r.PaymentDate || "—")}</td>
+                                <td class="right">${fmtMoney(r.Amount)}</td>
+                                <td class="right">${fmtMoney(r.Maintenance)}</td>
+                                <td class="right">${fmtMoney(r.Profit)}</td>
+                                <td><span class="badge ${badgeCss}">${status}</span></td>
+                                <td><span class="badge ${docsBadge.css}">${escapeHtml(docsBadge.text)}</span></td>
+                            </tr>
+                        `;
                 }).join("");
             }
 
@@ -1338,7 +1322,6 @@
                 const studioId = s(el("studioSelect").value);
                 if (!studioId) {
                     el("summaryContent").innerHTML = '<div style="color:var(--text-muted); margin-top:16px; font-size:14px;">Select a studio to view summary…</div>';
-                    // Clear entry fields when nothing selected
                     el("ownershipType").value = "";
                     el("amount").value = "";
                     return;
@@ -1347,29 +1330,32 @@
                 if (!it) return;
 
                 el("ownershipType").value = it.ownershipType || "";
-                // Always sync amount to tenant rent when selecting a studio
                 el("amount").value = String(n(it.TenantRent));
 
                 const { month, year } = getSelectedMonthYear();
                 const isPaid = isPaidForSelectedPeriod(studioId);
 
                 el("summaryContent").innerHTML = `
-                    <div class="summary-box">
-                        <div class="summary-title"><i class="fas fa-building"></i> ${escapeHtml(studioId)}</div>
-                        <div class="summary-row">
-                            <span>Tenant Rent</span>
-                            <strong>${fmtMoney(it.TenantRent)}</strong>
+                        <div class="summary-box">
+                            <div class="summary-title"><i class="fas fa-building"></i> ${escapeHtml(studioId)}</div>
+                            <div class="summary-row">
+                                <span>Tenant Rent</span>
+                                <strong>${fmtMoney(it.TenantRent)}</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Owner Rent</span>
+                                <strong>${fmtMoney(it.OwnerRent)}</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>Expected Profit</span>
+                                <strong>${fmtMoney(Math.max(0, n(it.TenantRent) - n(it.OwnerRent)))}</strong>
+                            </div>
+                            <div class="summary-row">
+                                <span>${monthName(month)} ${year}</span>
+                                <span class="badge ${isPaid ? 'good' : 'bad'}">${isPaid ? 'PAID' : 'UNPAID'}</span>
+                            </div>
                         </div>
-                        <div class="summary-row">
-                            <span>Owner Rent</span>
-                            <strong>${fmtMoney(it.OwnerRent)}</strong>
-                        </div>
-                        <div class="summary-row">
-                            <span>${monthName(month)} ${year}</span>
-                            <span class="badge ${isPaid ? 'good' : 'bad'}">${isPaid ? 'PAID' : 'UNPAID'}</span>
-                        </div>
-                    </div>
-                `;
+                    `;
             }
 
             function renderAll() {
@@ -1386,81 +1372,81 @@
                 toast("Verification started (docs count not implemented in this static page).", "info");
             }
 
-          async function recordPayment() {
-  const studioId = s(el("studioSelect").value);
-  if (!studioId) { toast("Please select a studio.", "warning"); return; }
+            async function recordPayment() {
+                const studioId = s(el("studioSelect").value);
+                if (!studioId) { toast("Please select a studio.", "warning"); return; }
 
-  const { month, year } = getSelectedMonthYear();
-  const paymentDate = s(el("paymentDate").value);
-  const amount = n(el("amount").value);
-  const maintenance = n(el("maintenance").value);
+                const { month, year } = getSelectedMonthYear();
+                const paymentDate = s(el("paymentDate").value);
+                const amount = n(el("amount").value);
+                const maintenance = n(el("maintenance").value);
 
-  if (!paymentDate) { toast("Please select payment date.", "warning"); return; }
-  if (!(amount > 0)) { toast("Amount must be > 0", "warning"); return; }
+                if (!paymentDate) { toast("Please select payment date.", "warning"); return; }
+                if (!(amount > 0)) { toast("Amount must be > 0", "warning"); return; }
+                const it = state.items.find(x => normalizeStudioId(x.Location) === normalizeStudioId(studioId));
+                const tenantRent = n(it?.TenantRent);
+                const ownerRent = n(it?.OwnerRent);
 
-  const payload = {
-    StudioId: normalizeStudioId(studioId),
-    Month: Number(month),
-    Year: Number(year),
-    PaymentDate: paymentDate,        // yyyy-MM-dd
-    Amount: amount,
-    Maintenance: maintenance,
-    Ownership: s(el("ownershipType").value) || "Personnel"
-  };
+                // Profit = TenantRent - OwnerRent - Maintenance
+                const profit = tenantRent - ownerRent - maintenance;
 
-  try {
-    showLoading(true, "Recording payment to RentRecords…");
+                const payload = {
+                    StudioId: normalizeStudioId(studioId),
+                    Month: Number(month),
+                    Year: Number(year),
+                    PaymentDate: paymentDate,
+                    Amount: amount,
+                    Maintenance: maintenance,
+                    Profit: profit,
+                    Method: "Cash",
+                    Notes: ""
+                };
 
-    const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
-    const u = new URL(endpoint);
-    u.searchParams.set("action", "addRentPayment");
-    u.searchParams.set("_ts", String(Date.now()));
 
-    const body = "payload=" + encodeURIComponent(JSON.stringify(payload));
+                try {
+                    showLoading(true, "Recording payment to RentRecords…");
 
-    const res = await fetchWithTimeout(
-      u.toString(),
-      {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
-          "Accept": "application/json"
-        },
-        body
-      },
-      CONFIG.FETCH_TIMEOUT_MS
-    );
+                    const endpoint = (CONFIG.GAS_ENDPOINT || "").trim();
+                    const u = new URL(endpoint);
+                    u.searchParams.set("action", "addRentPayment");
+                    u.searchParams.set("_ts", String(Date.now()));
 
-    const txt = await res.text();
-    const trimmed = (txt || "").trim();
+                    /* ✅ FIX: send RAW JSON body (not form-urlencoded) */
+                    const res = await fetchWithTimeout(u.toString(), {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    }, CONFIG.FETCH_TIMEOUT_MS);
 
-    // If Apps Script returns HTML, it's usually a deployment/access issue
-    if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
-      throw new Error("GAS returned HTML (not JSON). Redeploy Web App: Execute as Me, Access: Anyone.");
-    }
+                    const txt = await res.text();
+                    const trimmed = (txt || "").trim();
 
-    let json;
-    try { json = JSON.parse(trimmed); }
-    catch { throw new Error("Invalid JSON: " + trimmed.slice(0, 200)); }
+                    if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
+                        throw new Error("GAS returned HTML. Re-deploy Web App: Execute as Me, Access: Anyone.");
+                    }
 
-    if (!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0, 200)));
-    if (!json || json.ok !== true) throw new Error(json?.error || json?.message || "API returned ok:false");
+                    let json;
+                    try { json = JSON.parse(trimmed); }
+                    catch { throw new Error("Invalid JSON: " + trimmed.slice(0, 200)); }
 
-    toast("Payment recorded", "success");
+                    if (!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0, 200)));
+                    if (!json || json.ok !== true) throw new Error(json?.error || json?.message || "API returned ok:false");
 
-    await refreshAll();
+                    toast("Payment recorded", "success");
+                    await refreshAll();
 
-    state.selectedFiles = [];
-    handleFileSelect([]);
-  } catch (e) {
-    toast("Record payment failed: " + (e?.message || "Unknown error"), "error");
-    console.error("Record payment error:", e);
-  } finally {
-    showLoading(false);
-  }
-}
-
+                    state.selectedFiles = [];
+                    handleFileSelect([]);
+                } catch (e) {
+                    toast("Record payment failed: " + (e?.message || "Unknown error"), "error");
+                    console.error("Record payment error:", e);
+                } finally {
+                    showLoading(false);
+                }
+            }
 
             async function sendReminders() {
                 toast("Send reminders is not wired in this static page.", "warning");
@@ -1476,14 +1462,14 @@
                 }
                 list.style.display = "block";
                 list.innerHTML = state.selectedFiles.map(f => `
-                    <div class="file-item">
-                        <div class="file-item-name">
-                            <i class="fas fa-file"></i>
-                            ${escapeHtml(f.name)}
+                        <div class="file-item">
+                            <div class="file-item-name">
+                                <i class="fas fa-file"></i>
+                                ${escapeHtml(f.name)}
+                            </div>
+                            <span class="file-item-size">${Math.round((f.size || 0) / 1024)} KB</span>
                         </div>
-                        <span class="file-item-size">${Math.round((f.size || 0) / 1024)} KB</span>
-                    </div>
-                `).join("");
+                    `).join("");
             }
 
             /*****************************************************************
@@ -1506,7 +1492,6 @@
                     el("sheetLink").href = state.sheetUrl || "#";
 
                     toast("Data loaded successfully!", "success");
-
                     renderAll();
                 } catch (e) {
                     toast("Refresh failed: " + e.message, "error");
@@ -1524,7 +1509,6 @@
                 el("yearSelect").addEventListener("change", renderAll);
                 el("showUnpaidOnly").addEventListener("change", renderAll);
                 el("studioSelect").addEventListener("change", () => {
-                    // Update entry form + summary + table
                     syncPaymentPanel();
                     renderHistoryTable();
                 });
@@ -1552,16 +1536,9 @@
              * INIT
              *****************************************************************/
             document.addEventListener("DOMContentLoaded", async () => {
-                // Init dropdowns first so they're never empty
                 renderDropdowns();
-
-                // Set default payment date
                 el("paymentDate").valueAsDate = new Date();
-
-                // Wire events
                 wireEvents();
-
-                // Load data
                 await refreshAll();
             });
 
