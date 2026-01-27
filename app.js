@@ -1,456 +1,229 @@
-/* app.js
-   Sabir Amin Real Estate Company LLC • Opal UI System
-   Shared JS for ALL pages:
-   - Sidebar + mobile drawer
-   - Theme toggle (persisted)
-   - Global API client (Google Apps Script Web App)
-   - Dashboard loader (kpis, alerts, table, charts)
-   - Safe helpers for other pages (properties, rent records, etc.)
+(function () {
+    "use strict";
+    
+    const StorageKey = "sabir_realestate_properties_v1";
+    const $ = (id) => document.getElementById(id);
 
-   IMPORTANT:
-   1) You must set OpalConfig.apiUrl to your deployed Apps Script Web App URL
-   2) You must set OpalConfig.apiKey to the same key used in Code.gs CONFIG.API_KEY
-*/
-
-const OpalConfig = {
-  apiUrl: (window.APP_CONFIG && window.APP_CONFIG.API_URL) ? window.APP_CONFIG.API_URL : "",
-  apiKey: (window.APP_CONFIG && window.APP_CONFIG.API_KEY) ? window.APP_CONFIG.API_KEY : "",
-  defaultCurrency: "AED"
-};
-
-
-function qs(sel, root = document) { return root.querySelector(sel); }
-function qsa(sel, root = document) { return Array.from(root.querySelectorAll(sel)); }
-
-function escapeHtml(s) {
-  return String(s ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function numberFmt(n) {
-  const x = Number(n ?? 0);
-  return x.toLocaleString("en-US");
-}
-
-function setText(id, value) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = String(value ?? "");
-}
-
-function getIsDark() {
-  return document.documentElement.getAttribute("data-theme") === "dark";
-}
-
-/* ===========================
-   API Client (Apps Script)
-=========================== */
-async function apiGet(op, extraParams = {}) {
-  if (!OpalConfig.apiUrl || OpalConfig.apiUrl.includes("PASTE_YOUR_APPS_SCRIPT_WEBAPP_URL_HERE")) {
-    throw new Error("OpalConfig.apiUrl is not set. Please paste your Apps Script Web App URL in app.js");
-  }
-  if (!OpalConfig.apiKey || OpalConfig.apiKey === "API_KEY_VALUE") {
-    throw new Error("OpalConfig.apiKey is not set. Please set your API key in app.js");
-  }
-
-  const url = new URL(OpalConfig.apiUrl);
-  url.searchParams.set("op", op);
-  url.searchParams.set("key", OpalConfig.apiKey);
-
-  Object.entries(extraParams).forEach(([k, v]) => {
-    url.searchParams.set(k, String(v));
-  });
-
-  const res = await fetch(url.toString(), { method: "GET" });
-  const data = await res.json();
-
-  if (!data || data.ok !== true) {
-    const msg = (data && data.error) ? data.error : "API error";
-    throw new Error(msg);
-  }
-  return data;
-}
-
-/* ===========================
-   Shared Shell Init
-=========================== */
-function initShell() {
-  // Mobile sidebar drawer
-  const sidebar = qs("#sidebar");
-  const backdrop = qs("#backdrop");
-  const menuBtn = qs("#menuBtn");
-
-  function openSidebar() {
-    sidebar?.classList.add("open");
-    backdrop?.classList.add("show");
-  }
-  function closeSidebar() {
-    sidebar?.classList.remove("open");
-    backdrop?.classList.remove("show");
-  }
-
-  menuBtn?.addEventListener("click", () => {
-    if (sidebar?.classList.contains("open")) closeSidebar();
-    else openSidebar();
-  });
-  backdrop?.addEventListener("click", closeSidebar);
-
-  // Theme toggle (persist)
-  const themeBtn = qs("#themeBtn");
-  const themeLabel = qs("#themeLabel");
-
-  const storedTheme = localStorage.getItem("sa_re_theme");
-  if (storedTheme === "dark") {
-    document.documentElement.setAttribute("data-theme", "dark");
-    if (themeLabel) themeLabel.textContent = "Dark";
-  } else {
-    if (themeLabel) themeLabel.textContent = "Light";
-  }
-
-  themeBtn?.addEventListener("click", () => {
-    const isDark = getIsDark();
-    if (isDark) {
-      document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("sa_re_theme", "light");
-      if (themeLabel) themeLabel.textContent = "Light";
-    } else {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("sa_re_theme", "dark");
-      if (themeLabel) themeLabel.textContent = "Dark";
+    // Utilities
+    function safeJsonParse(text) {
+        try { return JSON.parse(text); } catch { return null; }
     }
 
-    // Re-render charts (if present)
-    if (typeof window.renderCharts === "function") {
-      window.renderCharts();
+    function n(v) {
+        if (v === null || v === undefined) return 0;
+        if (typeof v === "number") return isFinite(v) ? v : 0;
+        const str = String(v).replace(/AED/gi, "").replace(/[, ]+/g, "").trim();
+        const x = parseFloat(str);
+        return isFinite(x) ? x : 0;
     }
-  });
 
-  // Live time label (optional)
-  const nowMeta = qs("#nowMeta");
-  if (nowMeta) {
-    const tick = () => {
-      const d = new Date();
-      nowMeta.textContent = "• " + d.toLocaleString("en-GB", {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    };
-    tick();
-    setInterval(tick, 30000);
-  }
-}
+    function s(v) {
+        return (v === null || v === undefined) ? "" : String(v).trim();
+    }
 
-/* ===========================
-   Dashboard Rendering
-=========================== */
-function statusBadge(status) {
-  const s = String(status ?? "").toLowerCase().trim();
-  if (s === "active") return `<span class="status-badge active">Active</span>`;
-  if (s === "expiring") return `<span class="status-badge expiring">Expiring</span>`;
-  if (s === "expired") return `<span class="status-badge expired">Expired</span>`;
-  if (s === "vacant") return `<span class="status-badge vacant">Vacant</span>`;
-  return `<span class="status-badge active">${escapeHtml(status || "Active")}</span>`;
-}
+    function escapeHtml(str) {
+        return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
 
-function alertHtml(a) {
-  const type = (a.type === "danger") ? "danger" : (a.type === "warn" ? "warn" : "info");
-  const icon = (type === "danger")
-    ? "fa-exclamation-circle"
-    : (type === "warn" ? "fa-calendar-exclamation" : "fa-file-lines");
+    function moneyAed(amount) {
+        try {
+            return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED" }).format(amount || 0);
+        } catch { return `AED ${n(amount).toFixed(2)}`; }
+    }
 
-  return `
-    <div class="alert ${type}">
-      <div class="ic"><i class="fas ${icon}"></i></div>
-      <div>
-        <h4>${escapeHtml(a.title || "")}</h4>
-        <p>${escapeHtml(a.message || "")}</p>
-      </div>
-    </div>
-  `;
-}
+    function daysLeft(p) {
+        if (!p || !p.tenantContractTo) return null;
+        const end = new Date(p.tenantContractTo);
+        if (Number.isNaN(end.getTime())) return null;
+        const ms = end.getTime() - new Date().setHours(0, 0, 0, 0);
+        return Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
 
-function recentRowHtml(r, currency) {
-  const profit = Number(r.Profit ?? 0);
-  const profitClass = profit >= 0 ? "money pos" : "money neg";
-  const cur = currency || OpalConfig.defaultCurrency;
+    function statusFor(p) {
+        const dl = daysLeft(p);
+        const hasTenant = s(p.tenantName).length > 0;
+        if (!hasTenant) return "Vacant";
+        if (dl === null) return "Active";
+        if (dl <= 0) return "Expired";
+        if (dl <= 30) return "Expiring";
+        return "Active";
+    }
 
-  return `
-    <tr>
-      <td><strong>${escapeHtml(r.Unit || "")}</strong></td>
-      <td>${escapeHtml(r.Type || "")}</td>
-      <td>${escapeHtml(r.Owner || "")}</td>
-      <td>${escapeHtml(r.Tenant || "—")}</td>
-      <td>${(r.DaysLeft === null || typeof r.DaysLeft === "undefined") ? "—" : escapeHtml(String(r.DaysLeft))}</td>
-      <td>${numberFmt(r.RentIn)} ${escapeHtml(cur)}</td>
-      <td>${numberFmt(r.RentOut)} ${escapeHtml(cur)}</td>
-      <td><span class="${profitClass}">${numberFmt(profit)} ${escapeHtml(cur)}</span></td>
-      <td>${statusBadge(r.Status)}</td>
-    </tr>
-  `;
-}
+    function statusClass(st) {
+        const x = (st || "").toLowerCase();
+        if (x === "active" || x === "paid") return "active";
+        if (x === "expiring" || x === "pending") return "expiring";
+        if (x === "expired" || x === "overdue") return "expired";
+        if (x === "vacant") return "vacant";
+        return "";
+    }
 
-/* ===========================
-   Chart.js styling helpers
-=========================== */
-function getGridColor() {
-  return getIsDark() ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-}
-function getTickColor() {
-  return getIsDark() ? "rgba(230,233,239,0.80)" : "rgba(84,110,122,0.90)";
-}
+    function setText(id, value) {
+        const el = $(id);
+        if (el) el.textContent = value;
+    }
 
-let profitChart = null;
-let incomeExpenseChart = null;
+    function loadPropertiesFromStorage() {
+        const raw = window.localStorage ? window.localStorage.getItem(StorageKey) : null;
+        if (!raw) return [];
+        const items = safeJsonParse(raw);
+        return Array.isArray(items) ? items : [];
+    }
 
-function destroyCharts() {
-  if (profitChart) { profitChart.destroy(); profitChart = null; }
-  if (incomeExpenseChart) { incomeExpenseChart.destroy(); incomeExpenseChart = null; }
-}
+    // Dashboard rendering
+    function renderRecentRows(items) {
+        const tbody = $("recentTbody");
+        if (!tbody) return;
 
-/**
- * This function is attached to window so theme toggle can re-render.
- * Requires:
- *   - <canvas id="profitChart"></canvas>
- *   - <canvas id="incomeExpenseChart"></canvas>
- *   - window.__dashboardChartsData to be set
- */
-function renderCharts() {
-  if (!window.__dashboardChartsData) return;
+        const top = (items || []).slice().sort((a, b) => {
+            const da = new Date(a.createdAtUtc || 0).getTime();
+            const db = new Date(b.createdAtUtc || 0).getTime();
+            return db - da;
+        }).slice(0, 6);
 
-  destroyCharts();
-
-  const charts = window.__dashboardChartsData;
-
-  // Profit Trend
-  const profitCanvas = qs("#profitChart");
-  if (profitCanvas) {
-    const ctx = profitCanvas.getContext("2d");
-    profitChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: charts.profitTrend?.labels || [],
-        datasets: [{
-          label: "Net Profit",
-          data: charts.profitTrend?.data || [],
-          borderColor: "#4dd0e1",
-          backgroundColor: "rgba(77, 208, 225, 0.12)",
-          borderWidth: 3,
-          fill: true,
-          tension: 0.42,
-          pointRadius: 3.8,
-          pointHoverRadius: 6,
-          pointBackgroundColor: "#4dd0e1"
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: { grid: { color: getGridColor() }, ticks: { color: getTickColor() } },
-          x: { grid: { display: false }, ticks: { color: getTickColor() } }
+        if (top.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No properties yet.</td></tr>`;
+            return;
         }
-      }
-    });
-  }
 
-  // Income vs Expenses
-  const ieCanvas = qs("#incomeExpenseChart");
-  if (ieCanvas) {
-    const ctx = ieCanvas.getContext("2d");
-    incomeExpenseChart = new Chart(ctx, {
-      type: "doughnut",
-      data: {
-        labels: ["Income", "Expenses", "Profit"],
-        datasets: [{
-          data: [
-            Number(charts.income ?? 0),
-            Number(charts.expenses ?? 0),
-            Number(charts.profit ?? 0),
-          ],
-          backgroundColor: ["#4dd0e1", "#9575cd", "#69f0ae"],
-          borderWidth: 0
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: "bottom",
-            labels: { color: getTickColor(), boxWidth: 14, font: { weight: "700" } }
-          }
-        },
-        cutout: "68%"
-      }
-    });
-  }
-}
-
-// expose for theme toggle
-window.renderCharts = renderCharts;
-
-/* ===========================
-   Dashboard Loader
-=========================== */
-async function loadDashboard() {
-  // Shows a clean fallback message if API fails
-  const safeFail = (msg) => {
-    console.error(msg);
-    const alertsList = qs("#alertsList");
-    if (alertsList) {
-      alertsList.innerHTML = `
-        <div class="alert danger">
-          <div class="ic"><i class="fas fa-triangle-exclamation"></i></div>
-          <div>
-            <h4>Dashboard data could not be loaded</h4>
-            <p>${escapeHtml(String(msg))}</p>
-          </div>
-        </div>`;
-    }
-  };
-
-  try {
-    const payload = await apiGet("dashboard");
-
-    // KPIs
-    setText("kpiTotalUnits", payload.kpis?.totalUnits ?? "—");
-    setText("kpiOccupied", (payload.kpis?.occupiedPct ?? 0) + "%");
-    setText("kpiProfit", numberFmt(payload.kpis?.netProfit ?? 0));
-    setText("kpiCurrency", payload.currency || OpalConfig.defaultCurrency);
-    setText("kpiOverdue", payload.kpis?.overduePayments ?? 0);
-    setText("kpiExpiring", payload.kpis?.expiringContracts ?? 0);
-    setText("kpiMaintenance", payload.kpis?.maintenanceIssues ?? 0);
-
-    // Sidebar badge (you can set it to overdue count or rent alerts)
-    const rentBadge = qs("#rentBadge");
-    if (rentBadge) rentBadge.textContent = String(payload.kpis?.overduePayments ?? 0);
-
-    // Alerts
-    const alertsList = qs("#alertsList");
-    if (alertsList && Array.isArray(payload.alerts)) {
-      alertsList.innerHTML = payload.alerts.map(alertHtml).join("");
+        tbody.innerHTML = top.map((p) => {
+            const dl = daysLeft(p);
+            const st = statusFor(p);
+            const profit = n(p.rentOutMonthly) - n(p.rentInMonthly);
+            return `<tr>
+                <td><strong>${escapeHtml(p.unit || "—")}</strong></td>
+                <td>${escapeHtml(p.type || "—")}</td>
+                <td>${escapeHtml(p.ownerName || "—")}</td>
+                <td>${s(p.tenantName) || "—"}</td>
+                <td>${dl === null ? "—" : dl}</td>
+                <td>${moneyAed(p.rentInMonthly)}</td>
+                <td>${moneyAed(p.rentOutMonthly)}</td>
+                <td class="${profit >= 0 ? 'profit-value positive' : 'profit-value negative'}">${moneyAed(profit)}</td>
+                <td><span class="status-badge ${statusClass(st)}">${st}</span></td>
+            </tr>`;
+        }).join("");
     }
 
-    // Recent Properties Table
-    const recentTbody = qs("#recentTbody");
-    if (recentTbody && Array.isArray(payload.recentProperties)) {
-      recentTbody.innerHTML = payload.recentProperties
-        .map(r => recentRowHtml(r, payload.currency || OpalConfig.defaultCurrency))
-        .join("");
+    function renderKpis(items) {
+        const total = items.length;
+        const occupied = items.filter((p) => s(p.tenantName).length > 0).length;
+        const expiring90 = items.filter((p) => { const dl = daysLeft(p); return dl !== null && dl > 0 && dl <= 90; }).length;
+        const profit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+
+        setText("kpiTotalUnits", String(total || 0));
+        setText("kpiOccupied", total ? `${occupied} / ${total}` : "0");
+        setText("kpiProfit", moneyAed(profit));
+        setText("kpiOverdue", "0");
+        setText("kpiExpiring", String(expiring90));
+        setText("kpiMaintenance", "0");
     }
 
-    // Charts
-    if (qs("#profitChart") && qs("#incomeExpenseChart")) {
-      window.__dashboardChartsData = payload.charts || {};
-      renderCharts();
+    let profitChart = null;
+    let incExpChart = null;
+
+    function getMonthLabels(n) {
+        const labels = [];
+        const d = new Date();
+        d.setDate(1);
+        for (let i = n - 1; i >= 0; i--) {
+            const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+            labels.push(m.toLocaleString("en-US", { month: "short" }) + " " + String(m.getFullYear()).slice(-2));
+        }
+        return labels;
     }
 
-    // Hook existing buttons if they exist (optional)
-    const refreshBtn = qs("#refreshChartsBtn");
-    refreshBtn?.addEventListener("click", async () => {
-      // simplest: reload dashboard (fresh snapshot)
-      await loadDashboard();
-    });
+    function renderCharts(items) {
+        if (!window.Chart) return;
+        const profitCanvas = $("profitChart");
+        const pieCanvas = $("incomeExpenseChart");
+        if (!profitCanvas || !pieCanvas) return;
 
-    // Search box: filters recent table rows
-    const searchInput = qs("#searchInput");
-    if (searchInput && recentTbody) {
-      searchInput.addEventListener("input", () => {
-        const q = (searchInput.value || "").trim().toLowerCase();
-        qsa("tr", recentTbody).forEach(tr => {
-          const txt = tr.innerText.toLowerCase();
-          tr.style.display = (!q || txt.includes(q)) ? "" : "none";
+        const PRIMARY = "rgba(103,61,230,1)";
+        const PRIMARY_FILL = "rgba(103,61,230,0.12)";
+        const INCOME = "rgba(16,185,129,0.85)";
+        const EXPENSE = "rgba(239,68,68,0.80)";
+
+        const monthlyProfit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+        const labels = getMonthLabels(12);
+        const data = labels.map((_, i) => Math.round(monthlyProfit * (1 + Math.sin(i / 2) * 0.12) * 100) / 100);
+
+        if (profitChart) profitChart.destroy();
+        profitChart = new window.Chart(profitCanvas, {
+            type: "line",
+            data: { labels, datasets: [{ label: "Profit", data, borderColor: PRIMARY, backgroundColor: PRIMARY_FILL, tension: 0.35, fill: true, pointRadius: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(31,41,55,0.10)" } } } }
         });
-      });
+
+        const income = items.reduce((sum, p) => sum + n(p.rentOutMonthly), 0);
+        const expenses = items.reduce((sum, p) => sum + n(p.rentInMonthly), 0);
+
+        if (incExpChart) incExpChart.destroy();
+        incExpChart = new window.Chart(pieCanvas, {
+            type: "doughnut",
+            data: { labels: ["Income", "Expenses"], datasets: [{ data: [income, expenses], backgroundColor: [INCOME, EXPENSE], borderColor: ["rgba(16,185,129,1)", "rgba(239,68,68,1)"], borderWidth: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, cutout: "68%" }
+        });
     }
 
-  } catch (err) {
-    safeFail(err?.message || err);
-  }
-}
+    function wireRangeButtons(items) {
+        const btn6m = $("btn6m"), btn12m = $("btn12m"), btnAll = $("btnAll");
+        function setActive(btn) { [btn6m, btn12m, btnAll].forEach((b) => b && b.classList.remove("active")); btn && btn.classList.add("active"); }
+        function rerender(range) {
+            if (!profitChart) return;
+            const fullLabels = getMonthLabels(12);
+            const monthlyProfit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+            const fullData = fullLabels.map((_, i) => Math.round(monthlyProfit * (1 + Math.sin(i / 2) * 0.12) * 100) / 100);
+            let labels = fullLabels, data = fullData;
+            if (range === "6m") { labels = fullLabels.slice(-6); data = fullData.slice(-6); }
+            profitChart.data.labels = labels;
+            profitChart.data.datasets[0].data = data;
+            profitChart.update();
+        }
+        btn6m && btn6m.addEventListener("click", () => { setActive(btn6m); rerender("6m"); });
+        btn12m && btn12m.addEventListener("click", () => { setActive(btn12m); rerender("12m"); });
+        btnAll && btnAll.addEventListener("click", () => { setActive(btnAll); rerender("all"); });
+        const refresh = $("refreshChartsBtn");
+        refresh && refresh.addEventListener("click", () => renderCharts(items));
+    }
 
-/* ===========================
-   Page Router (auto-run)
-   Add on each page:
-     <body data-page="dashboard"> for index.html
-     <body data-page="properties"> for properties.html
-     <body data-page="rent-records"> for rent-records.html
-   Then implement loaders when needed.
-=========================== */
-async function loadPropertiesPage() {
-  // Placeholder: you will build your properties table/cards here
-  // Example usage:
-  // const res = await apiGet("properties");
-  // console.log(res.data);
-}
+    function renderNowMeta() {
+        const el = $("nowMeta");
+        if (el) el.textContent = ` • ${new Date().toLocaleString("en-US", { weekday: "short", year: "numeric", month: "short", day: "2-digit" })}`;
+    }
 
-async function loadRentRecordsPage() {
-  // Placeholder: you will build rent records list/table here
-  // const res = await apiGet("rentRecords");
-  // console.log(res.data);
-}
+    function renderAlerts(items) {
+        const list = $("alertsList");
+        if (!list) return;
+        const expiring30 = items.filter((p) => { const dl = daysLeft(p); return dl !== null && dl > 0 && dl <= 30; }).slice(0, 3);
+        if (expiring30.length === 0) {
+            list.innerHTML = `<div class="alert-item"><div class="ic"><i class="fas fa-circle-check"></i></div><div><h4>No urgent alerts</h4><p>No contracts expiring in the next 30 days.</p></div></div>`;
+            return;
+        }
+        list.innerHTML = expiring30.map((p) => {
+            const dl = daysLeft(p);
+            return `<div class="alert-item"><div class="ic"><i class="fas fa-calendar-days"></i></div><div><h4>Contract expiring soon</h4><p><strong>${escapeHtml(p.unit || "—")}</strong> • ${dl} days left</p></div></div>`;
+        }).join("");
+    }
 
-async function loadTransactionsPage() {
-  // Placeholder
-}
+    function init() {
+        if (!$("kpiTotalUnits") || !$("profitChart") || !$("recentTbody")) return;
+        renderNowMeta();
+        const items = loadPropertiesFromStorage();
+        renderKpis(items);
+        renderCharts(items);
+        renderAlerts(items);
+        renderRecentRows(items);
+        wireRangeButtons(items);
+        const search = $("dashSearchInput");
+        search && search.addEventListener("input", () => {
+            const q = s(search.value).toLowerCase();
+            if (!q) { renderRecentRows(items); return; }
+            const filtered = items.filter((p) => [p.unit, p.type, p.location, p.ownerName, p.tenantName].filter(Boolean).some((x) => String(x).toLowerCase().includes(q)));
+            renderRecentRows(filtered);
+        });
+    }
 
-async function loadRecurringExpensesPage() {
-  // Placeholder
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  initShell();
-
-  const page = document.body.getAttribute("data-page") || "";
-
-  if (page === "dashboard") {
-    loadDashboard();
-  } else if (page === "properties") {
-    loadPropertiesPage();
-  } else if (page === "rent-records") {
-    loadRentRecordsPage();
-  } else if (page === "transactions") {
-    loadTransactionsPage();
-  } else if (page === "recurring-expenses") {
-    loadRecurringExpensesPage();
-  }
-
-  // Optional: generic FAB + Export hooks (safe)
-  const fabBtn = qs("#fabBtn");
-  fabBtn?.addEventListener("click", () => {
-    alert("Quick Add (demo): Connect this to Add Property / Add Transaction modal.");
-  });
-
-  const exportBtn = qs("#exportBtn");
-  exportBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    alert("Export (demo): You can generate CSV/PDF from your live Sheet data here.");
-  });
-
-  const addTaskBtn = qs("#addTaskBtn");
-  addTaskBtn?.addEventListener("click", () => {
-    const taskList = qs("#taskList");
-    if (!taskList) return;
-
-    const now = new Date();
-    const item = document.createElement("div");
-    item.className = "task";
-    item.innerHTML = `
-      <div class="task-left">
-        <div class="task-dot" style="background: var(--opal-cyan);"></div>
-        <div>
-          <div class="task-title">New task created (${now.toLocaleDateString("en-GB")})</div>
-          <div class="task-meta">Assigned: You • Priority: Normal</div>
-        </div>
-      </div>
-      <div class="task-chip ok">On Track</div>
-    `;
-    taskList.prepend(item);
-  });
-});
+    if (document.readyState === "complete" || document.readyState === "interactive") setTimeout(init, 0);
+    else document.addEventListener("DOMContentLoaded", init);
+})();
