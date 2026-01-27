@@ -1,1576 +1,251 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard • Sabir Amin Real Estate Company LLC</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-
-    <!-- Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-    <!-- Shared UI Styles -->
-    <link rel="stylesheet" href="app.css" />
-
-    <style>
-        /* =========================================================
-           HOSTINGER-INSPIRED DASHBOARD DESIGN
-           Matching rent-records.html styling
-        ========================================================= */
-        :root {
-            --primary: #673DE6;
-            --primary-dark: #5025C4;
-            --primary-light: #EDE9FE;
-            --primary-hover: #F3F4F6;
-            --bg: #F9FAFB;
-            --white: #FFFFFF;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --text-muted: #9CA3AF;
-            --border: #E5E7EB;
-            --border-light: #F3F4F6;
-            --success: #10B981;
-            --success-bg: #D1FAE5;
-            --warning: #F59E0B;
-            --warning-bg: #FEF3C7;
-            --warning-text: #92400E;
-            --danger: #EF4444;
-            --danger-bg: #FEE2E2;
-            --info: #3B82F6;
-            --info-bg: #DBEAFE;
-            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-            --sidebar-width: 240px;
-            --radius: 8px;
-            --radius-lg: 12px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            height: 100%;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            color: var(--text-primary);
-            background: var(--bg);
-            -webkit-font-smoothing: antialiased;
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: var(--sidebar-width);
-            background: var(--white);
-            border-right: 1px solid var(--border);
-            overflow-y: auto;
-            z-index: 50;
-        }
-
-        .sidebar-inner {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 24px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .brand-mark {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius);
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            display: grid;
-            place-items: center;
-            color: #fff;
-            font-size: 20px;
-        }
-
-        .brand-title {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .brand-title strong {
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .brand-title span {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-        }
-
-        .nav-section {
-            padding: 16px 0;
-        }
-
-        .nav-section-title {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            padding: 8px 24px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 16px;
-            margin: 4px 16px;
-            border-radius: var(--radius);
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link i {
-            width: 20px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .nav-link:hover {
-            background: var(--primary-hover);
-            color: var(--text-primary);
-        }
-
-        .nav-link.active {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .nav-badge {
-            margin-left: auto;
-            background: var(--danger);
-            color: #fff;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-weight: 600;
-        }
-
-        .sidebar-footer {
-            margin-top: auto;
-            padding: 24px;
-            border-top: 1px solid var(--border);
-            font-size: 12px;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .connection-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: var(--success-bg);
-            color: var(--success);
-            font-weight: 600;
-            font-size: 11px;
-        }
-
-        /* Main Content */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 32px;
-            min-height: 100vh;
-        }
-
-        /* Page Header */
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-        }
-
-        .page-title h1 {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .page-title p {
-            font-size: 14px;
-            color: var(--text-secondary);
-            max-width: 600px;
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .info-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: var(--radius);
-            background: var(--white);
-            border: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
-
-        /* Buttons */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            border-radius: var(--radius);
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            border: none;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--white);
-            color: var(--primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-hover);
-        }
-
-        .btn-icon {
-            padding: 10px 12px;
-        }
-
-        /* Search */
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-width: 280px;
-            padding: 10px 12px;
-            border-radius: var(--radius);
-            background: var(--white);
-            border: 1px solid var(--border);
-        }
-
-        .search-box i {
-            color: var(--text-muted);
-        }
-
-        .search-box input {
-            border: none;
-            outline: none;
-            width: 100%;
-            background: transparent;
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .search-box:focus-within {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(103, 61, 230, 0.1);
-        }
-
-        /* KPI Grid */
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .kpi-card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            padding: 20px;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .kpi-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-        }
-
-        .kpi-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .kpi-label {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
-
-        .kpi-value {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1;
-        }
-
-        .kpi-sub {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-        }
-
-        .kpi-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius);
-            background: var(--primary-light);
-            border: 1px solid var(--border);
-            display: grid;
-            place-items: center;
-            color: var(--primary);
-            font-size: 18px;
-        }
-
-        .kpi-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-
-        .kpi-chip.up {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        .kpi-chip.down {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .kpi-chip.warn {
-            background: var(--warning-bg);
-            color: var(--warning-text);
-        }
-
-        .kpi-chip.info {
-            background: var(--info-bg);
-            color: var(--info);
-        }
-
-        /* Cards */
-        .card {
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .card-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-title i {
-            color: var(--primary);
-        }
-
-        .card-sub {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .card-body {
-            padding: 24px;
-        }
-
-        /* Charts Grid */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        .chart-canvas {
-            height: 260px;
-        }
-
-        /* Segmented Buttons */
-        .segmented {
-            display: inline-flex;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--white);
-            overflow: hidden;
-        }
-
-        .segmented button {
-            padding: 8px 14px;
-            border: none;
-            background: transparent;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .segmented button.active {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        /* Two Column Layout */
-        .two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-
-        /* Alerts List */
-        .list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .alert {
-            display: flex;
-            gap: 12px;
-            align-items: flex-start;
-            padding: 14px 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--white);
-        }
-
-        .alert .ic {
-            width: 40px;
-            height: 40px;
-            border-radius: var(--radius);
-            background: var(--border-light);
-            border: 1px solid var(--border);
-            display: grid;
-            place-items: center;
-            color: var(--primary);
-            flex-shrink: 0;
-        }
-
-        .alert h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0;
-        }
-
-        .alert p {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .alert.danger {
-            background: var(--danger-bg);
-            border-color: rgba(239, 68, 68, 0.25);
-        }
-
-        .alert.danger .ic {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .alert.warn {
-            background: var(--warning-bg);
-            border-color: rgba(245, 158, 11, 0.25);
-        }
-
-        .alert.warn .ic {
-            background: var(--warning-bg);
-            color: var(--warning-text);
-        }
-
-        .alert.info {
-            background: var(--info-bg);
-            border-color: rgba(59, 130, 246, 0.25);
-        }
-
-        .alert.info .ic {
-            background: var(--info-bg);
-            color: var(--info);
-        }
-
-        .alert.ok {
-            background: var(--success-bg);
-            border-color: rgba(16, 185, 129, 0.25);
-        }
-
-        .alert.ok .ic {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        /* Tasks */
-        .task {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
-            background: var(--white);
-        }
-
-        .task-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .task-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--danger);
-        }
-
-        .task-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .task-meta {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        .task-chip {
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 999px;
-        }
-
-        .task-chip.overdue {
-            background: var(--danger-bg);
-            color: var(--danger);
-        }
-
-        .task-chip.due {
-            background: var(--warning-bg);
-            color: var(--warning-text);
-        }
-
-        .task-chip.ok {
-            background: var(--success-bg);
-            color: var(--success);
-        }
-
-        /* Table */
-        .table-wrap {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 900px;
-        }
-
-        th {
-            background: var(--border-light);
-            color: var(--text-secondary);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            padding: 12px 16px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-        }
-
-        td {
-            padding: 14px 16px;
-            font-size: 14px;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-
-        tbody tr:hover {
-            background: var(--border-light);
-        }
-
-        /* Status Chips */
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .chip::before {
-            content: "";
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .chip.ok {
-            color: var(--success);
-            background: var(--success-bg);
-        }
-
-        .chip.warn {
-            color: var(--warning-text);
-            background: var(--warning-bg);
-        }
-
-        .chip.danger {
-            color: var(--danger);
-            background: var(--danger-bg);
-        }
-
-        .chip.info {
-            color: var(--info);
-            background: var(--info-bg);
-        }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .charts-grid,
-            .two-col {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                position: static;
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
-
-            .main-content {
-                margin-left: 0;
-                padding: 16px;
-            }
-
-            .header-top {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box {
-                min-width: unset;
-                width: 100%;
-            }
-
-            .kpi-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .kpi-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Hide hamburger on desktop */
-        .hamburger {
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .hamburger {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                width: 40px;
-                height: 40px;
-                border-radius: var(--radius);
-                background: var(--white);
-                border: 1px solid var(--border);
-                cursor: pointer;
-                color: var(--text-primary);
-            }
-        }
-    </style>
-</head>
-
-<body data-page="dashboard">
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-inner">
-            <div class="brand">
-                <div class="brand-mark"><i class="fa-solid fa-building-columns"></i></div>
-                <div class="brand-title">
-                    <strong>Sabir Amin</strong>
-                    <span>Real Estate Company LLC</span>
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Main</div>
-                <a href="index.html" class="nav-link active"><i class="fas fa-th-large"></i> Dashboard</a>
-                <a href="properties.html" class="nav-link"><i class="fas fa-building"></i> Properties</a>
-                <a href="rent-records.html" class="nav-link">
-                    <i class="fas fa-file-invoice-dollar"></i> Rent Records
-                    <span class="nav-badge" id="rentBadge">0</span>
-                </a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Finance</div>
-                <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i> Transactions</a>
-                <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i> Recurring Expenses</a>
-                <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i> Monthly Profit</a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Reports</div>
-                <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i> Reports</a>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">System</div>
-                <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i> Settings</a>
-            </div>
-
-            <div class="sidebar-footer">
-                <i class="fa-brands fa-google-drive" style="color:var(--success);"></i>
-                <span class="connection-badge">Connected</span>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Header -->
-        <header class="page-header">
-            <div class="header-top">
-                <div class="page-title">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-                        <button class="hamburger" id="menuBtn" title="Menu"><i class="fas fa-bars"></i></button>
-                        <h1>Dashboard</h1>
-                    </div>
-                    <p>Portfolio overview with key alerts, tasks, and performance trends. <span id="nowMeta"
-                            style="font-weight:600;"></span>
-                    </p>
-                </div>
-
-                <div class="header-actions">
-                    <div class="search-box" title="Search">
-                        <i class="fas fa-search"></i>
-                        <input id="searchInput" type="text" placeholder="Search unit / owner / tenant…" />
-                    </div>
-
-                    <a class="btn btn-secondary" href="properties.html">
-                        <i class="fas fa-building"></i> Properties
-                    </a>
-
-                    <a class="btn btn-primary" href="rent-records.html">
-                        <i class="fas fa-file-invoice-dollar"></i> Rent Records
-                    </a>
-                </div>
-            </div>
-        </header>
-
-        <!-- KPIs -->
-        <section class="kpi-grid" aria-label="Key performance indicators">
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Total Units</div>
-                        <div class="kpi-value" id="kpiTotalUnits">—</div>
-                        <div class="kpi-sub">Studios & Apartments</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-building"></i></div>
-                </div>
-                <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Live</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Occupied</div>
-                        <div class="kpi-value" id="kpiOccupied">—</div>
-                        <div class="kpi-sub">Active tenants</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
-                </div>
-                <div class="kpi-chip up"><i class="fas fa-chart-line"></i> Updated</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Net Profit</div>
-                        <div class="kpi-value" id="kpiProfit">—</div>
-                        <div class="kpi-sub" id="kpiCurrency">AED</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-sack-dollar"></i></div>
-                </div>
-                <div class="kpi-chip up"><i class="fas fa-arrow-up"></i> Monthly</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Overdue</div>
-                        <div class="kpi-value" id="kpiOverdue">—</div>
-                        <div class="kpi-sub">Needs follow-up</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-triangle-exclamation"></i></div>
-                </div>
-                <div class="kpi-chip down"><i class="fas fa-arrow-down"></i> Action</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Expiring</div>
-                        <div class="kpi-value" id="kpiExpiring">—</div>
-                        <div class="kpi-sub">Within 90 days</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-calendar-days"></i></div>
-                </div>
-                <div class="kpi-chip warn"><i class="fas fa-clock"></i> Review</div>
-            </div>
-
-            <div class="kpi-card">
-                <div class="kpi-row">
-                    <div>
-                        <div class="kpi-label">Maintenance</div>
-                        <div class="kpi-value" id="kpiMaintenance">—</div>
-                        <div class="kpi-sub">Open issues</div>
-                    </div>
-                    <div class="kpi-icon"><i class="fas fa-screwdriver-wrench"></i></div>
-                </div>
-                <div class="kpi-chip info"><i class="fas fa-wrench"></i> Progress</div>
-            </div>
-        </section>
-
-        <!-- Charts -->
-        <section class="charts-grid" aria-label="Charts">
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><i class="fas fa-chart-line"></i> Monthly Profit Trend</div>
-                        <div class="card-sub">Track profit over time</div>
-                    </div>
-                    <div class="segmented">
-                        <button type="button" id="btn6m">6M</button>
-                        <button type="button" id="btn12m" class="active">12M</button>
-                        <button type="button" id="btnAll">All</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="chart-canvas"><canvas id="profitChart"></canvas></div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><i class="fas fa-chart-pie"></i> Income vs Expenses</div>
-                        <div class="card-sub">Current month snapshot</div>
-                    </div>
-                    <button class="btn btn-secondary btn-icon" id="refreshChartsBtn" title="Refresh">
-                        <i class="fas fa-rotate"></i>
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="chart-canvas"><canvas id="incomeExpenseChart"></canvas></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Alerts + Tasks -->
-        <section class="two-col" aria-label="Alerts and tasks">
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><i class="fas fa-bell"></i> Alerts</div>
-                        <div class="card-sub">Items requiring attention</div>
-                    </div>
-                    <a class="btn btn-secondary" href="properties.html"><i class="fas fa-list"></i> View All</a>
-                </div>
-                <div class="card-body">
-                    <div class="list" id="alertsList">
-                        <div class="alert info">
-                            <div class="ic"><i class="fas fa-rotate"></i></div>
-                            <div>
-                                <h4>Loading alerts…</h4>
-                                <p>Fetching data from Google Sheet</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div>
-                        <div class="card-title"><i class="fas fa-clipboard-check"></i> Action Center</div>
-                        <div class="card-sub">Next steps for this week</div>
-                    </div>
-                    <button class="btn btn-secondary" id="addTaskBtn"><i class="fas fa-plus"></i> Add</button>
-                </div>
-                <div class="card-body">
-                    <div class="list" id="taskList">
-                        <div class="task">
-                            <div class="task-left">
-                                <div class="task-dot"></div>
-                                <div>
-                                    <div class="task-title">Call overdue tenants</div>
-                                    <div class="task-meta">Admin • High Priority</div>
-                                </div>
-                            </div>
-                            <div class="task-chip overdue">Overdue</div>
-                        </div>
-                        <div class="task">
-                            <div class="task-left">
-                                <div class="task-dot" style="background:var(--warning);"></div>
-                                <div>
-                                    <div class="task-title">Renew expiring contracts</div>
-                                    <div class="task-meta">Leasing • Medium</div>
-                                </div>
-                            </div>
-                            <div class="task-chip due">Due Soon</div>
-                        </div>
-                        <div class="task">
-                            <div class="task-left">
-                                <div class="task-dot" style="background:var(--success);"></div>
-                                <div>
-                                    <div class="task-title">Upload missing receipts</div>
-                                    <div class="task-meta">Admin • Normal</div>
-                                </div>
-                            </div>
-                            <div class="task-chip ok">On Track</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Recent Properties Table -->
-        <section class="card" aria-label="Recent properties">
-            <div class="card-header">
-                <div>
-                    <div class="card-title"><i class="fas fa-table"></i> Recent Properties</div>
-                    <div class="card-sub">Live data from Google Sheet</div>
-                </div>
-                <a href="properties.html" class="btn btn-secondary"><i class="fas fa-arrow-right"></i> View All</a>
-            </div>
-            <div class="card-body" style="padding:0;">
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Unit</th>
-                                <th>Type</th>
-                                <th>Owner</th>
-                                <th>Tenant</th>
-                                <th>Days Left</th>
-                                <th>Rent In</th>
-                                <th>Rent Out</th>
-                                <th>Profit</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="recentTbody">
-                            <tr>
-                                <td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">
-                                    Loading recent properties…
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- App Config (must load before dashboard logic) -->
-    <script src="app-config.js"></script>
-
-    <!-- App.js for shared functionality -->
-    <script src="app.js"></script>
-
-    <!-- Dashboard Logic - Connected to Google Sheets -->
-    <script>
-        (function() {
-            "use strict";
-
-            // Use centralized config from app-config.js
-            const CONFIG = {
-                get API_URL() {
-                    return (window.APP_CONFIG && window.APP_CONFIG.API_URL) || "";
-                },
-                get SHEET_URL() {
-                    return (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
-                },
-                CURRENCY: "AED",
-                EXPIRING_90_DAYS: 90,
-                FETCH_TIMEOUT_MS: 15000
-            };
-
-            const $ = (id) => document.getElementById(id);
-
-            // Utility functions
-            function safeText(v) { 
-                return (v === null || v === undefined) ? "" : String(v).trim(); 
-            }
-
-            function toNumber(v) {
-                if (v === null || v === undefined || v === "") return 0;
-                if (typeof v === "number") return v;
-                const s = String(v).replace(/AED|USD|QAR|,/gi, "").trim();
-                const n = Number(s);
-                return Number.isFinite(n) ? n : 0;
-            }
-
-            function money(n) {
-                const v = toNumber(n);
-                try { 
-                    return new Intl.NumberFormat("en-AE", { style: "currency", currency: CONFIG.CURRENCY }).format(v); 
-                } catch { 
-                    return `${v.toFixed(0)} ${CONFIG.CURRENCY}`; 
-                }
-            }
-
-            function escapeHtml(str) {
-                return String(str || "")
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;");
-            }
-
-            // Status computation
-            function computeOccupied(p) {
-                const tenant = safeText(p.TenantName || p.Tenant || "");
-                const status = safeText(p.Status || "").toLowerCase();
-                return !!tenant && status !== "vacant";
-            }
-
-            function computeOverdue(p) {
-                const tenant = safeText(p.TenantName || p.Tenant || "");
-                const days = toNumber(p.DaysLeft);
-                return !!tenant && days <= 0;
-            }
-
-            function computeExpiring(p) {
-                const tenant = safeText(p.TenantName || p.Tenant || "");
-                const days = toNumber(p.DaysLeft);
-                return !!tenant && days > 0 && days <= CONFIG.EXPIRING_90_DAYS;
-            }
-
-            function computeMaintenance(p) {
-                const m = p.Maintenance;
-                if (typeof m === "number") return m > 0;
-                const t = safeText(m).toLowerCase();
-                return t && t !== "0" && t !== "no" && t !== "none";
-            }
-
-            // API Functions
-            async function fetchWithTimeout(url, options = {}, timeoutMs = 15000) {
-                const controller = new AbortController();
-                const t = setTimeout(() => controller.abort(), timeoutMs);
-                try {
-                    return await fetch(url, { 
-                        ...options, 
-                        signal: controller.signal, 
-                        mode: "cors", 
-                        cache: "no-store",
-                        redirect: "follow"
-                    });
-                } finally { 
-                    clearTimeout(t); 
-                }
-            }
-
-            async function fetchFromGoogleSheets() {
-                const apiUrl = CONFIG.API_URL;
-                if (!apiUrl) {
-                    throw new Error("API_URL not configured. Check app-config.js");
-                }
-
-                const u = new URL(apiUrl);
-                u.searchParams.set("action", "getDashboard");
-                u.searchParams.set("_ts", String(Date.now()));
-
-                const res = await fetchWithTimeout(u.toString(), { method: "GET" }, CONFIG.FETCH_TIMEOUT_MS);
-                const txt = await res.text();
-                const trimmed = (txt || "").trim();
-
-                // Check for HTML response (deployment error)
-                if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")) {
-                    throw new Error("API returned HTML instead of JSON. Re-deploy Apps Script: Execute as Me, Access: Anyone.");
-                }
-
-                let payload;
-                try { 
-                    payload = JSON.parse(trimmed); 
-                } catch { 
-                    throw new Error("Invalid JSON from API: " + trimmed.slice(0, 200)); 
-                }
-
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                if (payload.ok === false) throw new Error(payload.error || "API returned ok=false");
-
-                return {
-                    payload,
-                    rows: Array.isArray(payload.properties) ? payload.properties : 
-                          Array.isArray(payload.data) ? payload.data :
-                          Array.isArray(payload.rows) ? payload.rows : []
-                };
-            }
-
-            // Chart instances - stored globally to track them
-            let profitChartInstance = null;
-            let incomeExpenseChartInstance = null;
-
-            // Helper function to safely destroy a chart on a canvas
-            function destroyChartOnCanvas(canvasId) {
-                const canvas = $(canvasId);
-                if (!canvas || !window.Chart) return;
-                
-                // Method 1: Use Chart.getChart() to find existing chart
-                const existingChart = Chart.getChart(canvas);
-                if (existingChart) {
-                    existingChart.destroy();
-                }
-            }
-
-            function buildProfitTrend(rows) {
-                const map = new Map();
-                rows.forEach(r => {
-                    const m = toNumber(r.Month);
-                    const profit = toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent)));
-                    if (m >= 1 && m <= 12) map.set(m, (map.get(m) || 0) + profit);
-                });
-
-                if (map.size === 0) {
-                    const total = rows.reduce((a, r) => a + toNumber(r.Profit ?? (toNumber(r.TenantRent) - toNumber(r.OwnerRent))), 0);
-                    return { labels: ["Total"], data: [Math.round(total)] };
-                }
-
-                const labels = [], data = [];
-                for (let m = 1; m <= 12; m++) { 
-                    labels.push(`M${m}`); 
-                    data.push(Math.round(map.get(m) || 0)); 
-                }
-                return { labels, data };
-            }
-
-            function buildIncomeVsExpense(rows) {
-                const currentMonth = new Date().getMonth() + 1;
-                let income = 0, expense = 0, monthFound = false;
-
-                rows.forEach(r => {
-                    const m = toNumber(r.Month);
-                    if (m >= 1 && m <= 12) monthFound = true;
-
-                    if (monthFound) { 
-                        if (m === currentMonth) { 
-                            income += toNumber(r.TenantRent); 
-                            expense += toNumber(r.OwnerRent); 
-                        } 
-                    } else { 
-                        income += toNumber(r.TenantRent); 
-                        expense += toNumber(r.OwnerRent); 
-                    }
-                });
-
-                return { labels: ["Income", "Expenses"], data: [Math.round(income), Math.round(expense)] };
-            }
-
-            function renderCharts(rows) {
-                const profitTrend = buildProfitTrend(rows);
-                const incExp = buildIncomeVsExpense(rows);
-                window.__dashboardChartsData = { profitTrend };
-
-                // Hostinger color palette
-                const PRIMARY = "rgba(103, 61, 230, 1)";
-                const PRIMARY_FILL = "rgba(103, 61, 230, 0.12)";
-                const INCOME = "rgba(16, 185, 129, 0.85)";
-                const EXPENSE = "rgba(239, 68, 68, 0.80)";
-
-                const profitCanvas = $("profitChart");
-                if (profitCanvas && window.Chart) {
-                    // Destroy any existing chart on this canvas using Chart.getChart()
-                    const existingProfitChart = Chart.getChart(profitCanvas);
-                    if (existingProfitChart) existingProfitChart.destroy();
-                    if (profitChartInstance) { try { profitChartInstance.destroy(); } catch(e) {} }
-                    
-                    profitChartInstance = new Chart(profitCanvas, {
-                        type: "line",
-                        data: { 
-                            labels: profitTrend.labels, 
-                            datasets: [{ 
-                                label: "Profit", 
-                                data: profitTrend.data, 
-                                borderColor: PRIMARY, 
-                                backgroundColor: PRIMARY_FILL, 
-                                tension: 0.35, 
-                                fill: true, 
-                                pointRadius: 3 
-                            }] 
-                        },
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { display: false } }, 
-                            scales: { 
-                                x: { grid: { display: false } }, 
-                                y: { grid: { color: "rgba(0,0,0,0.05)" } } 
-                            } 
-                        }
-                    });
-                }
-
-                const pieCanvas = $("incomeExpenseChart");
-                if (pieCanvas && window.Chart) {
-                    // Destroy any existing chart on this canvas using Chart.getChart()
-                    const existingPieChart = Chart.getChart(pieCanvas);
-                    if (existingPieChart) existingPieChart.destroy();
-                    if (incomeExpenseChartInstance) { try { incomeExpenseChartInstance.destroy(); } catch(e) {} }
-                    
-                    incomeExpenseChartInstance = new Chart(pieCanvas, {
-                        type: "doughnut",
-                        data: { 
-                            labels: incExp.labels, 
-                            datasets: [{ 
-                                data: incExp.data, 
-                                backgroundColor: [INCOME, EXPENSE], 
-                                borderWidth: 1 
-                            }] 
-                        },
-                        options: { 
-                            responsive: true, 
-                            maintainAspectRatio: false, 
-                            plugins: { legend: { position: "bottom" } }, 
-                            cutout: "65%" 
-                        }
-                    });
-                }
-            }
-
-            function renderKPIs(rows) {
-                const total = rows.length;
-                const occupied = rows.filter(computeOccupied).length;
-                const overdue = rows.filter(computeOverdue).length;
-                const expiring = rows.filter(computeExpiring).length;
-                const maintenance = rows.filter(computeMaintenance).length;
-
-                // Match properties.html calculation: sum of (TenantRent - OwnerRent)
-                const profit = rows.reduce((acc, r) => acc + (toNumber(r.TenantRent) - toNumber(r.OwnerRent)), 0);
-
-                if ($("kpiTotalUnits")) $("kpiTotalUnits").textContent = String(total);
-                if ($("kpiOccupied")) $("kpiOccupied").textContent = String(occupied);
-                if ($("kpiOverdue")) $("kpiOverdue").textContent = String(overdue);
-                if ($("kpiExpiring")) $("kpiExpiring").textContent = String(expiring);
-                if ($("kpiMaintenance")) $("kpiMaintenance").textContent = String(maintenance);
-                if ($("kpiProfit")) $("kpiProfit").textContent = money(profit);
-                if ($("kpiCurrency")) $("kpiCurrency").textContent = CONFIG.CURRENCY;
-                if ($("rentBadge")) $("rentBadge").textContent = String(overdue);
-            }
-
-            function renderRecentTable(rows) {
-                const tb = $("recentTbody");
-                if (!tb) return;
-
-                const sorted = [...rows].sort((a, b) => toNumber(b.S_No) - toNumber(a.S_No));
-                const show = sorted.slice(0, 12);
-
-                if (!show.length) {
-                    tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No data found. Check Google Sheet connection.</td></tr>`;
-                    return;
-                }
-
-                tb.innerHTML = show.map(r => {
-                    const unit = escapeHtml(safeText(r.Flat || r.Unit || r.Location || r.S_No || "—"));
-                    const type = escapeHtml(safeText(r.Property || r.FlatType || r.Type || "—"));
-                    const owner = escapeHtml(safeText(r.OwnerName || "—"));
-                    const tenant = escapeHtml(safeText(r.TenantName || "—"));
-                    const days = toNumber(r.DaysLeft);
-                    const rentIn = toNumber(r.OwnerRent);
-                    const rentOut = toNumber(r.TenantRent);
-                    const profit = toNumber(r.Profit ?? (rentOut - rentIn));
-
-                    const statusChip = computeOverdue(r) ? `<span class="chip danger">Overdue</span>` :
-                        computeExpiring(r) ? `<span class="chip warn">Expiring</span>` :
-                        computeOccupied(r) ? `<span class="chip ok">Active</span>` : 
-                        `<span class="chip info">Vacant</span>`;
-
-                    return `<tr>
-                        <td><strong>${unit}</strong></td>
-                        <td>${type}</td>
-                        <td>${owner}</td>
-                        <td>${tenant}</td>
-                        <td>${Number.isFinite(days) ? days : "—"}</td>
-                        <td>${money(rentIn)}</td>
-                        <td>${money(rentOut)}</td>
-                        <td>${money(profit)}</td>
-                        <td>${statusChip}</td>
-                    </tr>`;
-                }).join("");
-            }
-
-            function renderAlerts(rows) {
-                const box = $("alertsList");
-                if (!box) return;
-
-                const overdue = rows.filter(computeOverdue).slice(0, 5);
-                const expiring = rows.filter(computeExpiring).sort((a, b) => toNumber(a.DaysLeft) - toNumber(b.DaysLeft)).slice(0, 5);
-                const items = [];
-
-                overdue.forEach(r => items.push({ 
-                    type: "danger", 
-                    icon: "fa-triangle-exclamation",
-                    title: `Overdue: ${escapeHtml(safeText(r.Flat || r.Location || r.S_No))}`, 
-                    desc: `Tenant: ${escapeHtml(safeText(r.TenantName))} • Days: ${toNumber(r.DaysLeft)}` 
-                }));
-
-                expiring.forEach(r => items.push({ 
-                    type: "warn", 
-                    icon: "fa-calendar-days",
-                    title: `Expiring: ${escapeHtml(safeText(r.Flat || r.Location || r.S_No))}`, 
-                    desc: `Tenant: ${escapeHtml(safeText(r.TenantName))} • ${toNumber(r.DaysLeft)} days left` 
-                }));
-
-                if (!items.length) {
-                    box.innerHTML = `
-                        <div class="alert ok">
-                            <div class="ic"><i class="fas fa-circle-check"></i></div>
-                            <div>
-                                <h4>All clear</h4>
-                                <p>No urgent alerts at this time.</p>
-                            </div>
-                        </div>`;
-                    return;
-                }
-
-                box.innerHTML = items.slice(0, 8).map(a => `
-                    <div class="alert ${a.type}">
-                        <div class="ic"><i class="fas ${a.icon}"></i></div>
-                        <div>
-                            <h4>${a.title}</h4>
-                            <p>${a.desc}</p>
-                        </div>
-                    </div>
-                `).join("");
-            }
-
-            function wireSearch(rows) {
-                const input = $("searchInput");
-                if (!input) return;
-
-                input.addEventListener("input", () => {
-                    const q = safeText(input.value).toLowerCase();
-                    const filtered = !q ? rows : rows.filter(r => {
-                        const hay = [r.Flat, r.Property, r.OwnerName, r.TenantName, r.Location, r.Unit]
-                            .map(safeText).join(" ").toLowerCase();
-                        return hay.includes(q);
-                    });
-
-                    renderKPIs(filtered); 
-                    renderAlerts(filtered); 
-                    renderRecentTable(filtered); 
-                    renderCharts(filtered);
-                });
-            }
-
-            // Loading state
-            function showLoading(show) {
-                const tb = $("recentTbody");
-                const alerts = $("alertsList");
-
-                if (show) {
-                    if (tb) tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading data from Google Sheet...</td></tr>`;
-                    if (alerts) alerts.innerHTML = `<div class="alert info"><div class="ic"><i class="fas fa-rotate fa-spin"></i></div><div><h4>Loading...</h4><p>Fetching data from Google Sheet</p></div></div>`;
-                }
-            }
-
-            function showError(message) {
-                const tb = $("recentTbody");
-                const alerts = $("alertsList");
-
-                if (tb) tb.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--danger);"><i class="fas fa-triangle-exclamation"></i> ${escapeHtml(message)}</td></tr>`;
-                if (alerts) alerts.innerHTML = `<div class="alert danger"><div class="ic"><i class="fas fa-triangle-exclamation"></i></div><div><h4>Connection Error</h4><p>${escapeHtml(message)}</p></div></div>`;
-            }
-
-            // Main refresh function (exposed globally for refresh button)
-            window.refreshDashboard = async function() {
-                try {
-                    showLoading(true);
-                    const { rows } = await fetchFromGoogleSheets();
-
-                    renderKPIs(rows);
-                    renderAlerts(rows);
-                    renderRecentTable(rows);
-                    renderCharts(rows);
-                    wireSearch(rows);
-
-                    // Update timestamp
-                    if ($("nowMeta")) $("nowMeta").textContent = `• ${new Date().toLocaleString()}`;
-
-                    console.log(`Dashboard loaded: ${rows.length} properties from Google Sheet`);
-                } catch (err) {
-                    console.error("Dashboard error:", err);
-                    showError(err.message || "Failed to load data");
-                }
-            };
-
-            // Initialize dashboard
-            async function initDashboard() {
-                try {
-                    // Set initial timestamp
-                    if ($("nowMeta")) $("nowMeta").textContent = `• ${new Date().toLocaleString()}`;
-                    if ($("kpiCurrency")) $("kpiCurrency").textContent = CONFIG.CURRENCY;
-
-                    // Fetch and render data
-                    await window.refreshDashboard();
-
-                    // Wire up refresh button
-                    $("refreshChartsBtn")?.addEventListener("click", window.refreshDashboard);
-
-                    // Range buttons for profit chart
-                    function setRange(range) {
-                        const { labels: fullLabels, data: fullData } = window.__dashboardChartsData?.profitTrend || { labels: [], data: [] };
-                        let labels = fullLabels, data = fullData;
-
-                        if (range === "6m") { 
-                            labels = fullLabels.slice(-6); 
-                            data = fullData.slice(-6); 
-                        }
-
-                        if (profitChartInstance) { 
-                            profitChartInstance.data.labels = labels; 
-                            profitChartInstance.data.datasets[0].data = data; 
-                            profitChartInstance.update(); 
-                        }
-
-                        $("btn6m")?.classList.toggle("active", range === "6m");
-                        $("btn12m")?.classList.toggle("active", range === "12m");
-                        $("btnAll")?.classList.toggle("active", range === "all");
-                    }
-
-                    $("btn6m")?.addEventListener("click", () => setRange("6m"));
-                    $("btn12m")?.addEventListener("click", () => setRange("12m"));
-                    $("btnAll")?.addEventListener("click", () => setRange("all"));
-
-                } catch (err) {
-                    console.error("Dashboard init error:", err);
-                    showError(err.message || "Initialization failed");
-                }
-            }
-
-            // Start when DOM ready
-            document.addEventListener("DOMContentLoaded", () => { 
-                if (document.body?.getAttribute("data-page") === "dashboard") {
-                    initDashboard(); 
-                }
-            });
-        })();
-    </script>
-</body>
-</html>
+(function () {
+    "use strict";
+    
+    const StorageKey = "sabir_realestate_properties_v1";
+    const $ = (id) => document.getElementById(id);
+
+    // Utilities
+    function safeJsonParse(text) {
+        try { return JSON.parse(text); } catch { return null; }
+    }
+
+    function n(v) {
+        if (v === null || v === undefined) return 0;
+        if (typeof v === "number") return isFinite(v) ? v : 0;
+        const str = String(v).replace(/AED/gi, "").replace(/[, ]+/g, "").trim();
+        const x = parseFloat(str);
+        return isFinite(x) ? x : 0;
+    }
+
+    function s(v) {
+        return (v === null || v === undefined) ? "" : String(v).trim();
+    }
+
+    function escapeHtml(str) {
+        return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function moneyAed(amount) {
+        try {
+            return new Intl.NumberFormat("en-AE", { style: "currency", currency: "AED" }).format(amount || 0);
+        } catch { return `AED ${n(amount).toFixed(2)}`; }
+    }
+
+    function daysLeft(p) {
+        if (!p || !p.tenantContractTo) return null;
+        const end = new Date(p.tenantContractTo);
+        if (Number.isNaN(end.getTime())) return null;
+        const ms = end.getTime() - new Date().setHours(0, 0, 0, 0);
+        return Math.ceil(ms / (1000 * 60 * 60 * 24));
+    }
+
+    function statusFor(p) {
+        const dl = daysLeft(p);
+        const hasTenant = s(p.tenantName).length > 0;
+        if (!hasTenant) return "Vacant";
+        if (dl === null) return "Active";
+        if (dl <= 0) return "Expired";
+        if (dl <= 30) return "Expiring";
+        return "Active";
+    }
+
+    function statusClass(st) {
+        const x = (st || "").toLowerCase();
+        if (x === "active" || x === "paid") return "active";
+        if (x === "expiring" || x === "pending") return "expiring";
+        if (x === "expired" || x === "overdue") return "expired";
+        if (x === "vacant") return "vacant";
+        return "";
+    }
+
+    function setText(id, value) {
+        const el = $(id);
+        if (el) el.textContent = value;
+    }
+
+    function loadPropertiesFromStorage() {
+        const raw = window.localStorage ? window.localStorage.getItem(StorageKey) : null;
+        if (!raw) return [];
+        const items = safeJsonParse(raw);
+        return Array.isArray(items) ? items : [];
+    }
+
+    // Dashboard rendering
+    function renderRecentRows(items) {
+        const tbody = $("recentTbody");
+        if (!tbody) return;
+
+        const top = (items || []).slice().sort((a, b) => {
+            const da = new Date(a.createdAtUtc || 0).getTime();
+            const db = new Date(b.createdAtUtc || 0).getTime();
+            return db - da;
+        }).slice(0, 6);
+
+        if (top.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="padding:24px; text-align:center; color:var(--text-muted);">No properties yet.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = top.map((p) => {
+            const dl = daysLeft(p);
+            const st = statusFor(p);
+            const profit = n(p.rentOutMonthly) - n(p.rentInMonthly);
+            return `<tr>
+                <td><strong>${escapeHtml(p.unit || "—")}</strong></td>
+                <td>${escapeHtml(p.type || "—")}</td>
+                <td>${escapeHtml(p.ownerName || "—")}</td>
+                <td>${s(p.tenantName) || "—"}</td>
+                <td>${dl === null ? "—" : dl}</td>
+                <td>${moneyAed(p.rentInMonthly)}</td>
+                <td>${moneyAed(p.rentOutMonthly)}</td>
+                <td class="${profit >= 0 ? 'profit-value positive' : 'profit-value negative'}">${moneyAed(profit)}</td>
+                <td><span class="status-badge ${statusClass(st)}">${st}</span></td>
+            </tr>`;
+        }).join("");
+    }
+
+    function renderKpis(items) {
+        const total = items.length;
+        const occupied = items.filter((p) => s(p.tenantName).length > 0).length;
+        const expiring90 = items.filter((p) => { const dl = daysLeft(p); return dl !== null && dl > 0 && dl <= 90; }).length;
+        const profit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+
+        setText("kpiTotalUnits", String(total || 0));
+        setText("kpiOccupied", total ? `${occupied} / ${total}` : "0");
+        setText("kpiProfit", moneyAed(profit));
+        setText("kpiOverdue", "0");
+        setText("kpiExpiring", String(expiring90));
+        setText("kpiMaintenance", "0");
+    }
+
+    let profitChart = null;
+    let incExpChart = null;
+
+    function getMonthLabels(n) {
+        const labels = [];
+        const d = new Date();
+        d.setDate(1);
+        for (let i = n - 1; i >= 0; i--) {
+            const m = new Date(d.getFullYear(), d.getMonth() - i, 1);
+            labels.push(m.toLocaleString("en-US", { month: "short" }) + " " + String(m.getFullYear()).slice(-2));
+        }
+        return labels;
+    }
+
+    // Helper function to safely destroy chart on a canvas
+    function destroyExistingChart(canvas) {
+        if (!canvas || !window.Chart) return;
+        try {
+            const existing = Chart.getChart(canvas);
+            if (existing) existing.destroy();
+        } catch (e) { /* ignore */ }
+    }
+
+    function renderCharts(items) {
+        if (!window.Chart) return;
+        const profitCanvas = $("profitChart");
+        const pieCanvas = $("incomeExpenseChart");
+        if (!profitCanvas || !pieCanvas) return;
+
+        const PRIMARY = "rgba(103,61,230,1)";
+        const PRIMARY_FILL = "rgba(103,61,230,0.12)";
+        const INCOME = "rgba(16,185,129,0.85)";
+        const EXPENSE = "rgba(239,68,68,0.80)";
+
+        const monthlyProfit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+        const labels = getMonthLabels(12);
+        const data = labels.map((_, i) => Math.round(monthlyProfit * (1 + Math.sin(i / 2) * 0.12) * 100) / 100);
+
+        // Destroy any existing charts first (fixes "Canvas already in use" error)
+        destroyExistingChart(profitCanvas);
+        if (profitChart) { try { profitChart.destroy(); } catch(e) {} }
+        
+        profitChart = new window.Chart(profitCanvas, {
+            type: "line",
+            data: { labels, datasets: [{ label: "Profit", data, borderColor: PRIMARY, backgroundColor: PRIMARY_FILL, tension: 0.35, fill: true, pointRadius: 2 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: "rgba(31,41,55,0.10)" } } } }
+        });
+
+        const income = items.reduce((sum, p) => sum + n(p.rentOutMonthly), 0);
+        const expenses = items.reduce((sum, p) => sum + n(p.rentInMonthly), 0);
+
+        // Destroy any existing charts first (fixes "Canvas already in use" error)
+        destroyExistingChart(pieCanvas);
+        if (incExpChart) { try { incExpChart.destroy(); } catch(e) {} }
+        
+        incExpChart = new window.Chart(pieCanvas, {
+            type: "doughnut",
+            data: { labels: ["Income", "Expenses"], datasets: [{ data: [income, expenses], backgroundColor: [INCOME, EXPENSE], borderColor: ["rgba(16,185,129,1)", "rgba(239,68,68,1)"], borderWidth: 1 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } }, cutout: "68%" }
+        });
+    }
+
+    function wireRangeButtons(items) {
+        const btn6m = $("btn6m"), btn12m = $("btn12m"), btnAll = $("btnAll");
+        function setActive(btn) { [btn6m, btn12m, btnAll].forEach((b) => b && b.classList.remove("active")); btn && btn.classList.add("active"); }
+        function rerender(range) {
+            if (!profitChart) return;
+            const fullLabels = getMonthLabels(12);
+            const monthlyProfit = items.reduce((sum, p) => sum + n(p.rentOutMonthly) - n(p.rentInMonthly), 0);
+            const fullData = fullLabels.map((_, i) => Math.round(monthlyProfit * (1 + Math.sin(i / 2) * 0.12) * 100) / 100);
+            let labels = fullLabels, data = fullData;
+            if (range === "6m") { labels = fullLabels.slice(-6); data = fullData.slice(-6); }
+            profitChart.data.labels = labels;
+            profitChart.data.datasets[0].data = data;
+            profitChart.update();
+        }
+        btn6m && btn6m.addEventListener("click", () => { setActive(btn6m); rerender("6m"); });
+        btn12m && btn12m.addEventListener("click", () => { setActive(btn12m); rerender("12m"); });
+        btnAll && btnAll.addEventListener("click", () => { setActive(btnAll); rerender("all"); });
+        const refresh = $("refreshChartsBtn");
+        refresh && refresh.addEventListener("click", () => renderCharts(items));
+    }
+
+    function renderNowMeta() {
+        const el = $("nowMeta");
+        if (el) el.textContent = ` • ${new Date().toLocaleString("en-US", { weekday: "short", year: "numeric", month: "short", day: "2-digit" })}`;
+    }
+
+    function renderAlerts(items) {
+        const list = $("alertsList");
+        if (!list) return;
+        const expiring30 = items.filter((p) => { const dl = daysLeft(p); return dl !== null && dl > 0 && dl <= 30; }).slice(0, 3);
+        if (expiring30.length === 0) {
+            list.innerHTML = `<div class="alert-item"><div class="ic"><i class="fas fa-circle-check"></i></div><div><h4>No urgent alerts</h4><p>No contracts expiring in the next 30 days.</p></div></div>`;
+            return;
+        }
+        list.innerHTML = expiring30.map((p) => {
+            const dl = daysLeft(p);
+            return `<div class="alert-item"><div class="ic"><i class="fas fa-calendar-days"></i></div><div><h4>Contract expiring soon</h4><p><strong>${escapeHtml(p.unit || "—")}</strong> • ${dl} days left</p></div></div>`;
+        }).join("");
+    }
+
+    function init() {
+        // Skip init if we're on the dashboard page (data-page="dashboard")
+        // The inline script in index.html handles dashboard rendering
+        const pageAttr = document.body?.getAttribute("data-page");
+        if (pageAttr === "dashboard") {
+            return;
+        }
+        
+        if (!$("kpiTotalUnits") || !$("profitChart") || !$("recentTbody")) return;
+        renderNowMeta();
+        const items = loadPropertiesFromStorage();
+        renderKpis(items);
+        renderCharts(items);
+        renderAlerts(items);
+        renderRecentRows(items);
+        wireRangeButtons(items);
+        const search = $("dashSearchInput");
+        search && search.addEventListener("input", () => {
+            const q = s(search.value).toLowerCase();
+            if (!q) { renderRecentRows(items); return; }
+            const filtered = items.filter((p) => [p.unit, p.type, p.location, p.ownerName, p.tenantName].filter(Boolean).some((x) => String(x).toLowerCase().includes(q)));
+            renderRecentRows(filtered);
+        });
+    }
+
+    if (document.readyState === "complete" || document.readyState === "interactive") setTimeout(init, 0);
+    else document.addEventListener("DOMContentLoaded", init);
+})();
