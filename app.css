@@ -1,1195 +1,1408 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rent Records - Sabir Amin Real Estate Company LLC</title>
+/* =========================================================
+   SABIR AMIN REAL ESTATE UI – Hostinger-Inspired Design System
+   Professional, Clean, Modern
+   ========================================================= */
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+:root {
+    /* Brand Colors - Hostinger Purple Theme */
+    --primary: #673DE6;
+    --primary-dark: #5025C4;
+    --primary-light: #EDE9FE;
+    --primary-hover: #F3F4F6;
+    
+    /* Neutrals */
+    --bg: #F9FAFB;
+    --white: #FFFFFF;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --border: #E5E7EB;
+    --border-light: #F3F4F6;
+    
+    /* Status Colors */
+    --success: #10B981;
+    --success-bg: #D1FAE5;
+    --warning: #F59E0B;
+    --warning-bg: #FEF3C7;
+    --warning-text: #92400E;
+    --danger: #EF4444;
+    --danger-bg: #FEE2E2;
+    --info: #3B82F6;
+    --info-bg: #DBEAFE;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    
+    /* Layout */
+    --sidebar-w: 240px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --focus: rgba(103, 61, 230, 0.15);
+}
 
-  <!-- Use SAME design from your app.css -->
-  <link rel="stylesheet" href="app.css" />
-</head>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-<body>
+html, body {
+    height: 100%;
+}
 
-  <!-- Loading + Error (kept) -->
-  <div id="ppLoading" style="position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(245,247,250,0.85);z-index:9999;">
-    <div style="background:white;padding:16px 18px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,0.12);display:flex;align-items:center;gap:10px;font-family:Inter, sans-serif;">
-      <i class="fas fa-spinner fa-spin" style="color:#00bcd4;"></i>
-      <span style="font-size:14px;color:#37474f;font-weight:800;">Loading live data…</span>
-    </div>
-  </div>
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--text-primary);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    line-height: 1.5;
+}
 
-  <div id="ppError" style="display:none;margin:12px 0;padding:12px 14px;border-radius:10px;border:1px solid rgba(244,67,54,0.35);background:rgba(244,67,54,0.08);color:#b71c1c;font-family:Inter, sans-serif;font-size:13px;font-weight:800;"></div>
+/* Focus States */
+:where(a, button, input, select, textarea):focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--focus);
+    border-color: var(--primary);
+}
 
-  <!-- Toast (kept) -->
-  <div class="toast" id="toast" style="position:fixed;right:18px;bottom:18px;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid rgba(0,0,0,0.06);box-shadow:0 10px 24px rgba(0,0,0,0.10);z-index:9999;max-width:520px;">
-    <i class="fas fa-circle-check" style="color:#00bcd4;"></i>
-    <div>
-      <div class="msg" id="toastMsg" style="font-size:13px;font-weight:800;color:#263238;">Done</div>
-      <div class="sub" id="toastSub" style="display:none;font-size:12px;font-weight:700;color:#546e7a;margin-top:2px;"></div>
-    </div>
-  </div>
+/* =========================================================
+   SIDEBAR NAVIGATION
+   ========================================================= */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-w);
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 50;
+}
 
-  <!-- Sidebar (same structure) -->
-  <nav class="sidebar">
-    <div class="logo">
-      <div class="logo-icon"><i class="fas fa-gem"></i></div>
-      <span class="logo-text">Opal</span>
-    </div>
+.sidebar-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 
-    <div class="nav-section">
-      <div class="nav-section-title">Main</div>
-      <a href="index.html" class="nav-link"><i class="fas fa-th-large"></i>Dashboard</a>
-      <a href="properties.html" class="nav-link"><i class="fas fa-building"></i>Properties</a>
-      <a href="rent-records.html" class="nav-link active">
-        <i class="fas fa-file-invoice-dollar"></i>Rent Records
-        <span class="nav-badge" id="rentBadge">3</span>
-      </a>
-    </div>
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    border-bottom: 1px solid var(--border);
+}
 
-    <div class="nav-section">
-      <div class="nav-section-title">Finance</div>
-      <a href="transactions.html" class="nav-link"><i class="fas fa-exchange-alt"></i>Transactions</a>
-      <a href="recurring-expenses.html" class="nav-link"><i class="fas fa-redo"></i>Recurring Expenses</a>
-      <a href="monthly-profit.html" class="nav-link"><i class="fas fa-chart-line"></i>Monthly Profit</a>
-    </div>
+.brand-mark {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
 
-    <div class="nav-section">
-      <div class="nav-section-title">Reports</div>
-      <a href="reports.html" class="nav-link"><i class="fas fa-chart-bar"></i>Reports</a>
-    </div>
+.brand-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
 
-    <div class="nav-section">
-      <div class="nav-section-title">System</div>
-      <a href="settings.html" class="nav-link"><i class="fas fa-cog"></i>Settings</a>
-    </div>
-  </nav>
+.brand-title strong {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
 
-  <!-- Main -->
-  <main class="main-content">
-    <header class="page-header">
-      <div class="page-title">
-        <h1>Rent Records</h1>
-        <p>Track rent payments, unpaid studios, payment history, and reminders (Google Sheet integrated).</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn btn-secondary" id="exportBtn"><i class="fas fa-download"></i> Export CSV</button>
-        <button class="btn btn-secondary" id="syncBtn"><i class="fas fa-rotate"></i> Refresh</button>
-        <button class="btn btn-primary" id="openEntryBtn"><i class="fas fa-plus"></i> Record Monthly Rent</button>
-      </div>
-    </header>
+.brand-title span {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
 
-    <!-- Summary Strip (kept) -->
-    <section class="summary-strip" aria-label="Monthly summary">
-      <div class="summary-card income">
-        <div class="summary-value" id="sumReceived">—</div>
-        <div class="summary-label">Total Received (Selected Month)</div>
-      </div>
-      <div class="summary-card due">
-        <div class="summary-value" id="sumDue">—</div>
-        <div class="summary-label">Total Due (Selected Month)</div>
-      </div>
-      <div class="summary-card overdue">
-        <div class="summary-value" id="sumOverdue">—</div>
-        <div class="summary-label">Overdue Studios</div>
-      </div>
-      <div class="summary-card pending">
-        <div class="summary-value" id="sumPending">—</div>
-        <div class="summary-label">Pending This Week</div>
-      </div>
-    </section>
+.nav-section {
+    padding: 16px 0;
+}
 
-    <!-- Filters (kept) -->
-    <section class="filters-bar" aria-label="Filters">
-      <div class="filters-left">
-        <div class="search-box">
-          <i class="fas fa-search"></i>
-          <input id="searchInput" type="text" placeholder="Search tenant / unit / owner / contact…" />
-        </div>
+.nav-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    padding: 8px 24px;
+}
 
-        <select class="filter-select" id="statusFilter">
-          <option value="all">All Status</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="overdue">Overdue</option>
-        </select>
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    margin: 4px 16px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
 
-        <select class="filter-select" id="propertyFilter">
-          <option value="all">All Units</option>
-        </select>
-      </div>
+.nav-link i {
+    width: 20px;
+    font-size: 18px;
+    text-align: center;
+}
 
-      <div class="filters-right">
-        <select class="filter-select" id="monthFilter"></select>
-        <select class="filter-select" id="yearFilter"></select>
-      </div>
-    </section>
+.nav-link:hover {
+    background: var(--primary-hover);
+    color: var(--text-primary);
+}
 
-    <!-- Rent Entry (kept) -->
-    <section class="card" aria-label="Record monthly rent" id="rentEntryCard">
-      <div class="card-header">
-        <div>
-          <div class="card-title"><i class="fas fa-pen-to-square"></i> Record Monthly Rent</div>
-          <div class="card-sub">Post a rent payment to Google Sheet, view unpaid studios, and see payment history.</div>
-        </div>
-        <div class="split-actions">
-          <div class="checkbox" title="Show only unpaid studios in the Studio list">
-            <input type="checkbox" id="onlyUnpaidChk" checked />
-            <span>Show Only Unpaid Studios</span>
-          </div>
-          <button class="btn btn-secondary" id="toggleEntryBtn" title="Collapse / Expand">
-            <i class="fas fa-chevron-up"></i> Collapse
-          </button>
-        </div>
-      </div>
+.nav-link.active {
+    background: var(--primary);
+    color: white;
+}
 
-      <div class="card-body" id="entryBody">
-        <div class="entry-top" style="margin-bottom:12px;">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Month:</label>
-            <select class="filter-select" id="entryMonth"></select>
+.nav-badge {
+    margin-left: auto;
+    background: var(--danger);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+}
 
-            <label style="font-size:13px;font-weight:900;color:var(--text-secondary);">Year:</label>
-            <select class="filter-select" id="entryYear"></select>
-          </div>
+.sidebar-footer {
+    margin-top: auto;
+    padding: 24px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 
-          <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-secondary" id="bulkReminderBtn" title="Send reminders to all unpaid (hook)">
-              <i class="fas fa-envelope"></i> Email Unpaid (Bulk)
-            </sbutton>
-            <button class="btn btn-danger" id="clearFormBtn" title="Clear entry form">
-              <i class="fas fa-eraser"></i> Clear
-            </button>
-          </div>
-        </div>
+.connection-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: var(--success-bg);
+    color: var(--success);
+    font-weight: 600;
+    font-size: 11px;
+}
 
-        <div class="rent-entry-grid">
-          <!-- Left: Entry Form -->
-          <div class="entry-form">
-            <div class="form-row">
-              <label>Studio ID:</label>
-              <select class="control" id="studioSelect"></select>
-            </div>
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--border-light);
+    color: var(--text-primary);
+    font-weight: 600;
+    white-space: nowrap;
+}
 
-            <div class="form-row">
-              <label>Payment Date:</label>
-              <input class="control" id="paymentDate" type="date" />
-            </div>
+/* =========================================================
+   MAIN CONTENT
+   ========================================================= */
+.main-content, main {
+    margin-left: var(--sidebar-w);
+    padding: 32px;
+    min-height: 100vh;
+}
 
-            <div class="form-row">
-              <label>Amount:</label>
-              <input class="control" id="amountInput" type="number" step="0.01" placeholder="e.g. 2600" />
-            </div>
+.content {
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
-            <div class="form-row">
-              <label>Maintenance:</label>
-              <input class="control" id="maintenanceInput" type="number" step="0.01" placeholder="optional" />
-            </div>
+/* =========================================================
+   PAGE HEADER
+   ========================================================= */
+.page-header {
+    margin-bottom: 32px;
+}
 
-            <div class="form-row">
-              <label>Payment Method:</label>
-              <select class="control" id="paymentMethod">
-                <option value="Cash">Cash</option>
-                <option value="Bank Transfer">Bank Transfer</option>
-                <option value="Cheque">Cheque</option>
-                <option value="Card">Card</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+}
 
-            <div class="form-row">
-              <label>Notes:</label>
-              <input class="control" id="notesInput" type="text" placeholder="e.g. Cash, transfer ref, partial…" />
-            </div>
+.page-title h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
 
-            <div class="form-actions">
-              <button class="btn btn-primary" id="recordPaymentBtn">
-                <i class="fas fa-circle-check"></i> Record Payment
-              </button>
-              <button class="btn btn-secondary" id="emailReminderBtn">
-                <i class="fas fa-envelope"></i> Email Reminder
-              </button>
-            </div>
+.page-title p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 600px;
+}
 
-            <div style="margin-top:10px;font-size:12px;color:var(--text-secondary);font-weight:800;">
-              Tip: Unpaid = Studios sheet MINUS RentRecords sheet for selected month/year.
-            </div>
-          </div>
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 
-          <!-- Right: Unpaid Panel -->
-          <div class="unpaid-panel">
-            <div class="unpaid-head">
-              <div class="unpaid-title" id="unpaidTitle">Unpaid Studios for —</div>
-              <div class="unpaid-meta" id="unpaidMeta">—</div>
-            </div>
+/* Info Badge */
+.info-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    background: var(--white);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
 
-            <div class="unpaid-stats">
-              <div id="unpaidCount">Total Unpaid Studios: —</div>
-              <div id="unpaidAmount">Total Unpaid Amount: —</div>
-            </div>
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
 
-            <div class="unpaid-list" id="unpaidList">Loading…</div>
-          </div>
-        </div>
+.btn:active {
+    transform: translateY(1px);
+}
 
-        <!-- Payment History (kept) -->
-        <div style="height:14px;"></div>
-        <div class="card" style="border-radius: var(--radius-lg);">
-          <div class="card-header">
-            <div>
-              <div class="card-title"><i class="fas fa-clock-rotate-left"></i> Payment History</div>
-              <div class="card-sub">History for selected studio (latest first)</div>
-            </div>
-            <button class="btn btn-secondary" id="historyRefreshBtn">
-              <i class="fas fa-rotate"></i> Refresh History
-            </button>
-          </div>
-          <div class="table-container">
-            <table style="min-width: 760px;">
-              <thead>
-                <tr>
-                  <th>Payment Date</th>
-                  <th>Amount</th>
-                  <th>Maintenance</th>
-                  <th>Month</th>
-                  <th>Year</th>
-                  <th>Method</th>
-                  <th>Notes</th>
-                </tr>
-              </thead>
-              <tbody id="historyTbody"></tbody>
-            </table>
-          </div>
-        </div>
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
 
-      </div>
-    </section>
+.btn-primary:hover {
+    background: var(--primary-dark);
+}
 
-    <!-- Rent Records Table (kept) -->
-    <section class="card" aria-label="Rent records table" style="margin-top:16px;">
-      <div class="card-header">
-        <div>
-          <div class="card-title"><i class="fas fa-table"></i> Rent Records</div>
-          <div class="card-sub">Filtered by status / unit / month-year • Live data from Google Sheet</div>
-        </div>
-        <div class="split-actions">
-          <button class="btn btn-secondary" id="markPaidBtn" title="Mark selected row as paid (hook)">
-            <i class="fas fa-check"></i> Mark Paid
-          </button>
-          <button class="btn btn-secondary" id="openInSheetBtn" title="Open Sheet (requires link in app-config)">
-            <i class="fas fa-up-right-from-square"></i> Open Sheet
-          </button>
-        </div>
-      </div>
+.btn-secondary {
+    background: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--border);
+}
 
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Tenant</th>
-              <th>Unit</th>
-              <th>Due Date</th>
-              <th>Amount</th>
-              <th>Received Date</th>
-              <th>Payment Method</th>
-              <th>Status</th>
-              <th>Notes</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="rentRecordsTbody"></tbody>
-        </table>
-      </div>
+.btn-secondary:hover {
+    background: var(--primary-hover);
+}
 
-      <div class="pagination">
-        <div class="pagination-info" id="pageInfo">Showing 0–0 of 0 records</div>
-        <div class="pagination-controls">
-          <button class="pagination-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
-          <button class="pagination-btn active" id="pageBtn">1</button>
-          <button class="pagination-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </section>
-  </main>
+.btn-success {
+    background: var(--success);
+    color: white;
+}
 
-  <!-- Your shared app files -->
-  <script src="app-config.js"></script>
-  <script src="app.js"></script>
-  <script src="app-data.js"></script>
+.btn-success:hover {
+    background: #059669;
+}
 
-  <script>
-    /*********************************************************************
-     * RENT RECORDS – CORRECT UNPAID LOGIC (matches your C# behavior)
-     *
-     * Unpaid Studios for selected Month/Year:
-     *  - Read Studios sheet: Studios[StudioId]
-     *  - Read RentRecords sheet: RentRecords[StudioId, Month, Year]
-     *  - PaidSet = StudioId where Month==selected AND Year==selected
-     *  - Unpaid = Studios - PaidSet
-     *
-     * Enrich unpaid display using Table sheet (Location == StudioId):
-     *  - TenantName, TenantContact, TenantRent, Property
-     *
-     * No UI/Design removed.
-     *********************************************************************/
+.btn-warning {
+    background: var(--warning);
+    color: white;
+}
 
-    const $ = (id) => document.getElementById(id);
+.btn-warning:hover {
+    background: #d97706;
+}
 
-    const ppLoading = $("ppLoading");
-    const ppError = $("ppError");
+.btn-info {
+    background: var(--info);
+    color: white;
+}
 
-    const toast = $("toast");
-    const toastMsg = $("toastMsg");
-    const toastSub = $("toastSub");
+.btn-info:hover {
+    background: #2563eb;
+}
 
-    function showToast(message, sub) {
-      toastMsg.textContent = message || "Done";
-      if (sub) {
-        toastSub.style.display = "";
-        toastSub.textContent = sub;
-      } else {
-        toastSub.style.display = "none";
-        toastSub.textContent = "";
-      }
-      toast.style.display = "flex";
-      setTimeout(() => { toast.style.display = "none"; }, 2600);
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-icon {
+    padding: 10px 12px;
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   CONTENT LAYOUTS
+   ========================================================= */
+.content-grid {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+/* Summary Cards */
+.summary-strip, .summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.summary-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.summary-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.summary-title, .summary-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.summary-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--border-light);
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+}
+
+.summary-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.summary-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+.card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-title i {
+    color: var(--primary);
+}
+
+.card-subtitle, .card-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* =========================================================
+   FORMS
+   ========================================================= */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-control, input.control, select.control, textarea.control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-primary);
+    background: var(--white);
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, input.control:focus, select.control:focus, textarea.control:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus);
+}
+
+.form-control:disabled, input.control:disabled, select.control:disabled {
+    background: var(--border-light);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    margin: 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* File Upload */
+.file-upload-area {
+    border: 2px dashed var(--border);
+    padding: 24px;
+    text-align: center;
+    border-radius: var(--radius);
+    background: var(--border-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-upload-area:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.file-upload-area i {
+    font-size: 32px;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.file-list {
+    margin-top: 12px;
+    display: none;
+}
+
+.file-item {
+    padding: 12px;
+    margin: 8px 0;
+    background: var(--border-light);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.file-item-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.file-item-size {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Summary Box (gradient) */
+.summary-box {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-top: 16px;
+}
+
+.summary-box .summary-title {
+    font-weight: 600;
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: white;
+    text-transform: none;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+}
+
+.summary-row:last-child {
+    border-bottom: none;
+}
+
+.summary-row strong {
+    font-weight: 600;
+}
+
+/* =========================================================
+   FILTERS & SEARCH
+   ========================================================= */
+.filters-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filters-left, .filters-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 320px;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.search-box i {
+    color: var(--text-muted);
+}
+
+.search-box input {
+    border: none;
+    outline: none;
+    width: 100%;
+    background: transparent;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-box:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus);
+}
+
+.filter-select {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.filter-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--focus);
+    outline: none;
+}
+
+/* =========================================================
+   TABLES
+   ========================================================= */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th {
+    background: var(--border-light);
+    color: var(--text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+th.right {
+    text-align: right;
+}
+
+td {
+    padding: 16px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+td.right {
+    text-align: right;
+}
+
+tbody tr {
+    transition: background 0.2s ease;
+}
+
+tbody tr:hover {
+    background: var(--border-light);
+}
+
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
+.badge, .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge::before, .status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge.good, .status-badge.paid, .status-badge.active {
+    color: var(--success);
+    background: var(--success-bg);
+}
+
+.badge.warn, .status-badge.pending, .status-badge.expiring {
+    color: var(--warning-text);
+    background: var(--warning-bg);
+}
+
+.badge.bad, .status-badge.overdue, .status-badge.expired {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+.badge.info, .status-badge.vacant {
+    color: var(--info);
+    background: var(--info-bg);
+}
+
+/* =========================================================
+   ALERTS & NOTIFICATIONS
+   ========================================================= */
+.alert {
+    display: none;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border-radius: var(--radius);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.alert.success {
+    display: block;
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.alert.error {
+    display: block;
+    background: var(--danger-bg);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+}
+
+.alert.warning {
+    display: block;
+    background: var(--warning-bg);
+    color: var(--warning-text);
+    border: 1px solid var(--warning);
+}
+
+.alert.info {
+    display: block;
+    background: var(--info-bg);
+    color: var(--info);
+    border: 1px solid var(--info);
+}
+
+/* Alert list items (dashboard) */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.alert-item, .list .alert {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-item .ic, .list .alert .ic {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--border-light);
+    display: grid;
+    place-items: center;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.alert-item h4, .list .alert h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.alert-item p, .list .alert p {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+/* =========================================================
+   LOADING OVERLAY
+   ========================================================= */
+.loading-overlay, #loading {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+}
+
+.loading-card {
+    background: var(--white);
+    padding: 32px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    min-width: 280px;
+}
+
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.loading-hint {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* =========================================================
+   SEGMENTED BUTTONS
+   ========================================================= */
+.segmented {
+    display: inline-flex;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    overflow: hidden;
+}
+
+.segmented button {
+    padding: 10px 14px;
+    min-width: 56px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.segmented button.active {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.segmented button:hover:not(.active) {
+    background: var(--border-light);
+}
+
+/* =========================================================
+   VIEW TOGGLE
+   ========================================================= */
+.view-toggle {
+    display: inline-flex;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    overflow: hidden;
+}
+
+.view-toggle button {
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.view-toggle button.active {
+    background: var(--primary);
+    color: white;
+}
+
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--border-light);
+}
+
+.pagination-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pagination-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--border-light);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* =========================================================
+   UNIT/TENANT INFO DISPLAY
+   ========================================================= */
+.unit-info, .tenant-info {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.unit-avatar, .tenant-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, var(--primary-light), var(--border-light));
+    border: 1px solid var(--border);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--primary);
+}
+
+.unit-name {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.unit-location {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* =========================================================
+   COMPLIANCE BAR
+   ========================================================= */
+.compliance {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.compliance-bar {
+    width: 80px;
+    height: 8px;
+    background: var(--border-light);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.compliance-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.compliance-fill.high {
+    background: var(--success);
+}
+
+.compliance-fill.medium {
+    background: var(--warning);
+}
+
+.compliance-fill.low {
+    background: var(--danger);
+}
+
+.compliance-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* =========================================================
+   DAYS BADGE
+   ========================================================= */
+.days-badge {
+    padding: 6px 10px;
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 50px;
+}
+
+.days-badge.safe {
+    color: var(--success);
+    background: var(--success-bg);
+}
+
+.days-badge.warning {
+    color: var(--warning-text);
+    background: var(--warning-bg);
+}
+
+.days-badge.danger {
+    color: var(--danger);
+    background: var(--danger-bg);
+}
+
+/* =========================================================
+   PROFIT VALUE
+   ========================================================= */
+.profit-value {
+    font-weight: 600;
+}
+
+.profit-value.positive {
+    color: var(--success);
+}
+
+.profit-value.negative {
+    color: var(--danger);
+}
+
+/* =========================================================
+   ACTION BUTTONS
+   ========================================================= */
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background: var(--border-light);
+    box-shadow: var(--shadow-sm);
+}
+
+.action-btn.primary {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.action-btn.primary:hover {
+    background: var(--primary-dark);
+}
+
+/* =========================================================
+   DRIVE LINK
+   ========================================================= */
+.drive-link {
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+}
+
+.drive-link:hover {
+    text-decoration: underline;
+}
+
+/* =========================================================
+   MODALS
+   ========================================================= */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    backdrop-filter: blur(4px);
+}
+
+.modal-backdrop.active {
+    display: flex;
+}
+
+.modal {
+    width: min(800px, 100%);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--border-light);
+}
+
+.modal-title h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.modal-title p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.modal-close {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: var(--border-light);
+}
+
+.modal-body {
+    padding: 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modal-actions {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: var(--border-light);
+}
+
+/* Key-Value Display */
+.kv {
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--white);
+}
+
+.kv label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.kv div {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1200px) {
+    .summary-strip, .summary {
+        grid-template-columns: repeat(2, minmax(200px, 1fr));
     }
 
-    function setLoading(on) { ppLoading.style.display = on ? "flex" : "none"; }
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
 
-    function setError(msg) {
-      if (!msg) { ppError.style.display = "none"; ppError.textContent = ""; return; }
-      ppError.style.display = "block";
-      ppError.textContent = msg;
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
     }
 
-    /*********************************************************************
-     * SAFE API CLIENT (fallback if app-data.js doesn't expose functions)
-     *********************************************************************/
-    const API_FALLBACK = {
-      timeoutMs: 15000,
-      get apiUrl(){
-        return (window.APP_CONFIG && (window.APP_CONFIG.API_URL || window.APP_CONFIG.SCRIPT_URL)) || "";
-      },
-      async fetchWithTimeout(url, options = {}, timeoutMs = 15000){
-        const controller = new AbortController();
-        const t = setTimeout(() => controller.abort(), timeoutMs);
-        try{
-          return await fetch(url, {
-            ...options,
-            signal: controller.signal,
-            mode: "cors",
-            redirect: "follow",
-            cache: "no-store"
-          });
-        } finally { clearTimeout(t); }
-      },
-      async call(action, payload){
-        const base = this.apiUrl;
-        if(!base) throw new Error("API_URL missing in app-config.js (APP_CONFIG.API_URL).");
-
-        const u = new URL(base);
-        u.searchParams.set("action", action);
-        u.searchParams.set("_ts", String(Date.now()));
-
-        // send payload as JSON in POST (preferred)
-        const res = await this.fetchWithTimeout(u.toString(), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload || {})
-        }, this.timeoutMs);
-
-        const txt = await res.text();
-        const trimmed = (txt || "").trim();
-
-        // detect HTML (common when not public or auth redirect)
-        if(trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html") || trimmed.includes("<body")){
-          throw new Error("API returned HTML instead of JSON. Fix Apps Script deployment: Execute as Me, Access: Anyone.");
-        }
-
-        let json;
-        try { json = JSON.parse(trimmed); }
-        catch { throw new Error("API did not return valid JSON. First 200 chars: " + trimmed.slice(0,200)); }
-
-        if(!res.ok) throw new Error("HTTP " + res.status + ": " + (json.error || trimmed.slice(0,200)));
-        if(json && json.ok === false) throw new Error(json.error || "API returned ok=false");
-        return json;
-      }
-    };
-
-    function getAPI(){
-      // If your app-data.js exposes PropertyPilotApi, use it
-      if(window.PropertyPilotApi) return window.PropertyPilotApi;
-      if(window.PropertyPilot) return window.PropertyPilot;
-
-      // Fallback minimal API (actions must exist on Apps Script)
-      return {
-        sheetUrl: (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "",
-        async getStudios(){
-          const r = await API_FALLBACK.call("getStudios", {});
-          return r.data || r.studios || r.rows || [];
-        },
-        async getTable(){
-          const r = await API_FALLBACK.call("getTable", {});
-          return r.data || r.table || r.rows || [];
-        },
-        async getRentRecords({month, year}){
-          const r = await API_FALLBACK.call("getRentRecords", { month, year });
-          return r.data || r.records || r.rows || [];
-        },
-        async addRentPayment(payload){
-          const r = await API_FALLBACK.call("addRentPayment", payload);
-          return r;
-        },
-        async getPaymentHistory({studioId}){
-          const r = await API_FALLBACK.call("getPaymentHistory", { studioId });
-          return r.data || r.history || r.rows || [];
-        },
-        async exportCsv({month, year}){
-          const r = await API_FALLBACK.call("exportCsv", { month, year });
-          return r.csv || "";
-        },
-        async sendReminder({studioId, month, year}){
-          const r = await API_FALLBACK.call("sendReminder", { studioId, month, year });
-          return r;
-        },
-        async sendBulkReminder({month, year}){
-          const r = await API_FALLBACK.call("sendBulkReminder", { month, year });
-          return r;
-        }
-      };
+    .main-content, main {
+        margin-left: 0;
+        padding: 16px;
     }
 
-    // ---- State
-    const State = {
-      records: [],
-      filtered: [],
-      studios: [],     // from Studios sheet (StudioId list)
-      tableRows: [],   // from Table sheet (Location + tenant details)
-      tableMap: new Map(), // Location -> row
-      unpaid: { studios: [], totalUnpaid: 0, totalAmount: 0 },
-      page: 1,
-      pageSize: 12,
-    };
-
-    // ---- Helpers
-    function pad2(n) { return String(n).padStart(2, "0"); }
-
-    function normStr(v){
-      return String(v ?? "").trim();
+    .page-header {
+        margin-bottom: 24px;
     }
 
-    function normalizeId(v){
-      return normStr(v).toLowerCase().replace(/\s+/g, " ");
+    .header-top {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    function toNum(v){
-      const n = Number(v);
-      return isFinite(n) ? n : 0;
+    .header-actions {
+        justify-content: flex-start;
     }
 
-    function toMoney(n, currency){
-      const v = Number(n || 0);
-      if (!isFinite(v)) return "—";
-      return v.toLocaleString(undefined, { maximumFractionDigits: 2 }) + (currency ? ` ${currency}` : "");
+    .search-box {
+        min-width: unset;
+        width: 100%;
     }
 
-    function initials(name){
-      const s = normStr(name);
-      if (!s) return "NA";
-      return s.split(/\s+/).slice(0,2).map(p => (p[0] || "").toUpperCase()).join("");
+    .form-grid {
+        grid-template-columns: 1fr;
     }
 
-    function monthName(m){
-      const names = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-      return names[(m-1)] || String(m);
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    function normalizeStatus(v){
-      const s = normStr(v).toLowerCase();
-      if(s === "paid") return "paid";
-      if(s === "overdue") return "overdue";
-      return "pending";
+    .filters-left, .filters-right {
+        width: 100%;
     }
 
-    function parseDateToMonthYear(d){
-      const s = normStr(d);
-      if(!s) return null;
-
-      // ISO / Date object / excel-like
-      const dt = new Date(s);
-      if(!isNaN(dt.getTime())){
-        return { month: dt.getMonth() + 1, year: dt.getFullYear() };
-      }
-
-      return null;
+    table {
+        min-width: 800px;
     }
 
-    function fillMonthSelect(sel){
-      const months = [
-        { v: 1, t: "January" }, { v: 2, t: "February" }, { v: 3, t: "March" }, { v: 4, t: "April" },
-        { v: 5, t: "May" }, { v: 6, t: "June" }, { v: 7, t: "July" }, { v: 8, t: "August" },
-        { v: 9, t: "September" }, { v: 10, t: "October" }, { v: 11, t: "November" }, { v: 12, t: "December" },
-      ];
-      sel.innerHTML = months.map(m => `<option value="${m.v}">${m.t}</option>`).join("");
+    .nav-section {
+        padding: 8px 0;
     }
 
-    function fillYearSelect(sel, baseYear){
-      const y = baseYear || new Date().getFullYear();
-      const years = [];
-      for(let i = y - 3; i <= y + 2; i++) years.push(i);
-      sel.innerHTML = years.map(v => `<option value="${v}">${v}</option>`).join("");
+    .brand {
+        padding: 16px;
+    }
+}
+
+@media (max-width: 640px) {
+    .summary-strip, .summary {
+        grid-template-columns: 1fr;
     }
 
-    function getSelectedMonthYear(){
-      return { month: Number($("monthFilter").value), year: Number($("yearFilter").value) };
+    .btn {
+        width: 100%;
+        justify-content: center;
     }
-
-    function syncEntryMonthYear(){
-      $("entryMonth").value = $("monthFilter").value;
-      $("entryYear").value = $("yearFilter").value;
-    }
-
-    function syncFilterMonthYear(){
-      $("monthFilter").value = $("entryMonth").value;
-      $("yearFilter").value = $("entryYear").value;
-    }
-
-    /*********************************************************************
-     * IMPORTANT FIX:
-     * PaidSet uses RentRecords sheet columns:
-     *  - StudioId
-     *  - Month
-     *  - Year
-     * (fallback: PaymentDate month/year)
-     *********************************************************************/
-    function buildPaidSetFromRentRecords(rentRecords, selectedMonth, selectedYear){
-      const paid = new Set();
-      const m = Number(selectedMonth);
-      const y = Number(selectedYear);
-
-      for(const r of (rentRecords || [])){
-        const sid = normalizeId(r.StudioId ?? r.studioId ?? r.Location ?? r.location ?? r["StudioId"] ?? "");
-        if(!sid) continue;
-
-        // Prefer explicit Month/Year columns
-        const rm = Number(r.Month ?? r.month ?? r["Month"] ?? 0);
-        const ry = Number(r.Year ?? r.year ?? r["Year"] ?? 0);
-
-        let match = false;
-        if(rm && ry){
-          match = (rm === m && ry === y);
-        } else {
-          // fallback from PaymentDate
-          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
-          if(my) match = (my.month === m && my.year === y);
-        }
-
-        if(match) paid.add(sid);
-      }
-
-      return paid;
-    }
-
-    function buildTableMap(tableRows){
-      const map = new Map();
-      for(const row of (tableRows || [])){
-        const loc = normalizeId(row.Location ?? row.location ?? row.StudioId ?? row.studioId ?? "");
-        if(!loc) continue;
-        map.set(loc, row);
-      }
-      return map;
-    }
-
-    function computeUnpaidStudios(studioRows, rentRecords, tableMap, month, year){
-      const paidSet = buildPaidSetFromRentRecords(rentRecords, month, year);
-
-      // Studios sheet can be:
-      //  - [{StudioId:"z1"}] OR ["z1"] OR rows with "StudioId" only
-      const studioIds = [];
-      for(const s of (studioRows || [])){
-        const raw =
-          (typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? s.Location ?? s.location ?? ""));
-        const sid = normalizeId(raw);
-        if(sid) studioIds.push(sid);
-      }
-
-      // Deduplicate
-      const uniq = Array.from(new Set(studioIds)).sort((a,b)=>a.localeCompare(b));
-
-      const unpaid = [];
-      for(const sid of uniq){
-        if(paidSet.has(sid)) continue;
-
-        const info = tableMap.get(sid) || {};
-        unpaid.push({
-          StudioId: sid,
-          TenantName: info.TenantName ?? info.tenantName ?? "",
-          TenantContact: info.TenantContact ?? info.tenantContact ?? "",
-          TenantRent: toNum(info.TenantRent ?? info.tenantRent ?? 0),
-          Property: info.Property ?? info.property ?? "",
-          Flat: info.Flat ?? info.flat ?? "",
-          OwnerName: info.OwnerName ?? info.ownerName ?? "",
-          OwnerContact: info.OwnerContact ?? info.ownerContact ?? ""
-        });
-      }
-
-      const totalAmount = unpaid.reduce((a,b)=>a + toNum(b.TenantRent), 0);
-      return { studios: unpaid, totalUnpaid: unpaid.length, totalAmount };
-    }
-
-    /*********************************************************************
-     * Rendering
-     *********************************************************************/
-    function renderPropertyFilter(){
-      const sel = $("propertyFilter");
-
-      // Use Table sheet "Location" as unit IDs (since studios list doesn't have unit names)
-      const locations = Array.from(State.tableMap.keys()).sort((a,b)=>a.localeCompare(b));
-      const opts = [`<option value="all">All Units</option>`].concat(
-        locations.map(loc => `<option value="${loc}">${loc}</option>`)
-      );
-      sel.innerHTML = opts.join("");
-    }
-
-    function renderStudioSelect(){
-      const sel = $("studioSelect");
-      const onlyUnpaid = $("onlyUnpaidChk").checked;
-
-      const list = onlyUnpaid
-        ? (State.unpaid.studios || []).map(u => ({
-            id: u.StudioId,
-            tenant: u.TenantName || "—",
-            rent: u.TenantRent || 0
-          }))
-        : (State.studios || []).map(s => {
-            const id = (typeof s === "string") ? s : (s.StudioId ?? s.studioId ?? "");
-            const info = State.tableMap.get(normalizeId(id)) || {};
-            return { id: normalizeId(id), tenant: info.TenantName || "—", rent: toNum(info.TenantRent) };
-          });
-
-      sel.innerHTML = list.length
-        ? list.map(x => `<option value="${x.id}">${x.id} • ${x.tenant} • ${toMoney(x.rent,"AED")}</option>`).join("")
-        : `<option value="">No studios available</option>`;
-
-      if(!sel.value && list.length) sel.value = list[0].id;
-    }
-
-    function renderUnpaidPanel(){
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
-
-      $("unpaidTitle").textContent = `Unpaid Studios for ${monthName(month)} ${year}`;
-      $("unpaidMeta").textContent = `As of ${new Date().toLocaleDateString("en-GB")}`;
-
-      $("unpaidCount").textContent = `Total Unpaid Studios: ${State.unpaid.totalUnpaid || 0}`;
-      $("unpaidAmount").textContent = `Total Unpaid Amount: ${toMoney(State.unpaid.totalAmount || 0, "AED")}`;
-
-      const list = State.unpaid.studios || [];
-      if(!list.length){
-        $("unpaidList").textContent = "No unpaid studios for this period.";
-        return;
-      }
-
-      const lines = list.map(u => {
-        const tn = u.TenantName ? String(u.TenantName) : "Vacant/Unknown";
-        const contact = u.TenantContact ? `Contact: ${u.TenantContact}` : "Contact: —";
-        const rent = toMoney(u.TenantRent, "AED");
-        const prop = u.Property ? ` • ${u.Property}` : "";
-        return `${u.StudioId} - ${tn}${prop}\nRent: ${rent}\n${contact}\n`;
-      });
-
-      $("unpaidList").textContent = lines.join("\n");
-    }
-
-    function buildDisplayRecords(month, year){
-      // Build per-studio status list for the selected month/year:
-      // - If in RentRecords: PAID (with amount, date)
-      // - Else: PENDING (due amount from Table.TenantRent)
-      const paidByStudio = new Map();
-
-      for(const r of (State.records || [])){
-        const sid = normalizeId(r.StudioId ?? r.studioId ?? "");
-        if(!sid) continue;
-
-        const rm = Number(r.Month ?? r.month ?? 0);
-        const ry = Number(r.Year ?? r.year ?? 0);
-
-        let match = false;
-        if(rm && ry) match = (rm === month && ry === year);
-        else {
-          const my = parseDateToMonthYear(r.PaymentDate ?? r.paymentDate ?? "");
-          if(my) match = (my.month === month && my.year === year);
-        }
-        if(!match) continue;
-
-        paidByStudio.set(sid, r);
-      }
-
-      const studioIds = Array.from(new Set(
-        (State.studios || []).map(s => normalizeId(typeof s === "string" ? s : (s.StudioId ?? s.studioId ?? "")))
-      )).filter(Boolean).sort((a,b)=>a.localeCompare(b));
-
-      const rows = [];
-      for(const sid of studioIds){
-        const info = State.tableMap.get(sid) || {};
-        const tenant = info.TenantName ?? "—";
-        const rent = toNum(info.TenantRent ?? 0);
-
-        if(paidByStudio.has(sid)){
-          const pr = paidByStudio.get(sid);
-          rows.push({
-            studioId: sid,
-            tenant,
-            unit: sid,
-            dueDate: `01/${pad2(month)}/${year}`,
-            amount: toNum(pr.Amount ?? pr.amount ?? rent),
-            receivedDate: normStr(pr.PaymentDate ?? pr.paymentDate ?? ""),
-            method: normStr(pr.Method ?? pr.method ?? pr.PaymentMethod ?? $("paymentMethod")?.value ?? "—"),
-            status: "paid",
-            notes: normStr(pr.Notes ?? pr.notes ?? "")
-          });
-        } else {
-          rows.push({
-            studioId: sid,
-            tenant,
-            unit: sid,
-            dueDate: `01/${pad2(month)}/${year}`,
-            amount: rent,
-            receivedDate: "",
-            method: "",
-            status: rent > 0 ? "pending" : "pending",
-            notes: ""
-          });
-        }
-      }
-
-      return rows;
-    }
-
-    function renderSummary(){
-      const rows = State.displayRecords || [];
-      const received = rows.filter(r => r.status === "paid").reduce((a,b)=>a + toNum(b.amount), 0);
-      const due = rows.filter(r => r.status !== "paid").reduce((a,b)=>a + toNum(b.amount), 0);
-      const overdueCount = rows.filter(r => r.status === "overdue").length;
-      const pendingCount = rows.filter(r => r.status === "pending").length;
-
-      $("sumReceived").textContent = toMoney(received, "AED");
-      $("sumDue").textContent = toMoney(due, "AED");
-      $("sumOverdue").textContent = String(overdueCount);
-      $("sumPending").textContent = String(pendingCount);
-
-      // Badge = unpaid count
-      $("rentBadge").textContent = String(State.unpaid.totalUnpaid || 0);
-    }
-
-    function applyFilters(){
-      const q = normStr($("searchInput").value).toLowerCase();
-      const statusFilter = $("statusFilter").value;
-      const unitFilter = $("propertyFilter").value;
-
-      State.filtered = (State.displayRecords || []).filter(r => {
-        const hay = `${r.tenant} ${r.unit} ${r.studioId} ${r.notes}`.toLowerCase();
-        const matchesQ = !q || hay.includes(q);
-
-        const status = normalizeStatus(r.status);
-        const matchesStatus = statusFilter === "all" || status === statusFilter;
-
-        const matchesUnit = unitFilter === "all" || normalizeId(r.unit) === normalizeId(unitFilter);
-
-        return matchesQ && matchesStatus && matchesUnit;
-      });
-
-      State.page = 1;
-    }
-
-    function renderTable(){
-      const tbody = $("rentRecordsTbody");
-      tbody.innerHTML = "";
-
-      const total = (State.filtered || []).length;
-      const start = (State.page - 1) * State.pageSize;
-      const end = Math.min(start + State.pageSize, total);
-      const pageRows = (State.filtered || []).slice(start, end);
-
-      pageRows.forEach(r => {
-        const status = normalizeStatus(r.status);
-        const tr = document.createElement("tr");
-        tr.dataset.studioId = r.studioId;
-
-        tr.innerHTML = `
-          <td>
-            <div class="tenant-info">
-              <div class="tenant-avatar">${initials(r.tenant)}</div>
-              <div>
-                <div style="font-weight:1000;">${r.tenant || "—"}</div>
-                <div style="font-size:12px;color:var(--text-secondary);font-weight:800;">${r.studioId || "—"}</div>
-              </div>
-            </div>
-          </td>
-          <td><strong>${r.unit || "—"}</strong></td>
-          <td>${r.dueDate || "—"}</td>
-          <td>${toMoney(r.amount, "AED")}</td>
-          <td>${r.receivedDate || "—"}</td>
-          <td>${r.method || "—"}</td>
-          <td><span class="status-badge ${status}">${status.toUpperCase()}</span></td>
-          <td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${String(r.notes||"").replaceAll('"','&quot;')}">${r.notes || "—"}</td>
-          <td>
-            <button class="action-btn primary" data-action="select" title="Load this studio into entry form">
-              <i class="fas fa-arrow-right"></i> Select
-            </button>
-            <button class="action-btn" data-action="remind" title="Send reminder (hook)">
-              <i class="fas fa-envelope"></i> Remind
-            </button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      $("pageInfo").textContent = total
-        ? `Showing ${start + 1}–${end} of ${total} records`
-        : `Showing 0–0 of 0 records`;
-
-      $("prevBtn").disabled = State.page <= 1;
-      $("nextBtn").disabled = end >= total;
-    }
-
-    function renderHistory(history){
-      const tbody = $("historyTbody");
-      tbody.innerHTML = "";
-
-      const rows = Array.isArray(history) ? history : [];
-      if(!rows.length){
-        tbody.innerHTML = `<tr><td colspan="7" style="color:var(--text-secondary);font-weight:800;">No history found for this studio.</td></tr>`;
-        return;
-      }
-
-      rows.forEach(h => {
-        const paymentDate = normStr(h.PaymentDate ?? h.paymentDate ?? "—");
-        const amount = toNum(h.Amount ?? h.amount ?? 0);
-        const maintenance = toNum(h.Maintenance ?? h.maintenance ?? 0);
-        const month = normStr(h.Month ?? h.month ?? "—");
-        const year = normStr(h.Year ?? h.year ?? "—");
-        const method = normStr(h.Method ?? h.method ?? h.PaymentMethod ?? "—");
-        const notes = normStr(h.Notes ?? h.notes ?? "");
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${paymentDate}</td>
-          <td>${toMoney(amount, "AED")}</td>
-          <td>${toMoney(maintenance, "AED")}</td>
-          <td>${month}</td>
-          <td>${year}</td>
-          <td>${method || "—"}</td>
-          <td>${notes || "—"}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    async function refreshHistory(){
-      const api = getAPI();
-      const studioId = $("studioSelect").value;
-      if(!studioId) { renderHistory([]); return; }
-      const history = await api.getPaymentHistory({ studioId });
-      renderHistory(history);
-    }
-
-    async function refreshForPeriod(){
-      const api = getAPI();
-      const { month, year } = getSelectedMonthYear();
-
-      // 0) Load Studios + Table first (needed for unpaid)
-      const studiosRaw = await api.getStudios();
-      const tableRaw = (typeof api.getTable === "function") ? await api.getTable() : (await (api.getProperties?.() ?? [])); // fallback if you already use getProperties
-
-      // Normalize Studios
-      State.studios = Array.isArray(studiosRaw) ? studiosRaw : [];
-
-      // Normalize Table
-      State.tableRows = Array.isArray(tableRaw) ? tableRaw : [];
-      State.tableMap = buildTableMap(State.tableRows);
-      renderPropertyFilter();
-
-      // 1) RentRecords for selected month/year
-      const records = await api.getRentRecords({ month, year });
-      State.records = Array.isArray(records) ? records : [];
-
-      // 2) Compute unpaid (Studios - RentRecords)
-      State.unpaid = computeUnpaidStudios(State.studios, State.records, State.tableMap, month, year);
-
-      // 3) Studio dropdown should show unpaid (checkbox)
-      renderStudioSelect();
-      renderUnpaidPanel();
-
-      // 4) Build table records for UI (paid + pending)
-      State.displayRecords = buildDisplayRecords(month, year);
-
-      applyFilters();
-      renderSummary();
-      renderTable();
-    }
-
-    function validateEntry(){
-      const studioId = $("studioSelect").value;
-      const paymentDate = $("paymentDate").value;
-      const amount = toNum($("amountInput").value);
-
-      if(!studioId) return "Please select a Studio ID.";
-      if(!paymentDate) return "Please select a Payment Date.";
-      if(!(amount > 0)) return "Please enter a valid Amount > 0.";
-      return "";
-    }
-
-    async function recordPayment(){
-      const api = getAPI();
-      const err = validateEntry();
-      if(err){ setError(err); showToast("Validation failed", err); return; }
-      setError("");
-
-      const payload = {
-        StudioId: $("studioSelect").value,
-        Month: Number($("entryMonth").value),
-        Year: Number($("entryYear").value),
-        PaymentDate: $("paymentDate").value,
-        Amount: toNum($("amountInput").value),
-        Maintenance: toNum($("maintenanceInput").value || 0),
-        Method: $("paymentMethod").value,
-        Notes: normStr($("notesInput").value),
-      };
-
-      try{
-        setLoading(true);
-        await api.addRentPayment(payload);
-        setLoading(false);
-
-        showToast("Payment recorded", `${payload.StudioId} • ${monthName(payload.Month)} ${payload.Year}`);
-
-        syncFilterMonthYear();
-        await refreshForPeriod();
-        await refreshHistory();
-
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to record payment.");
-      }
-    }
-
-    async function sendReminder(studioId){
-      const api = getAPI();
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
-
-      try{
-        setLoading(true);
-        await api.sendReminder({ studioId, month, year });
-        setLoading(false);
-        showToast("Reminder triggered", `${studioId} • ${monthName(month)} ${year}`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to send reminder.");
-      }
-    }
-
-    async function sendBulkReminder(){
-      const api = getAPI();
-      const month = Number($("entryMonth").value);
-      const year = Number($("entryYear").value);
-
-      try{
-        setLoading(true);
-        const res = await api.sendBulkReminder({ month, year });
-        setLoading(false);
-        showToast("Bulk reminder triggered", res?.count ? `${res.count} recipients` : `${monthName(month)} ${year}`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Failed to send bulk reminders.");
-      }
-    }
-
-    async function exportCsv(){
-      const api = getAPI();
-      const { month, year } = getSelectedMonthYear();
-
-      try{
-        setLoading(true);
-        const csv = await api.exportCsv({ month, year });
-
-        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `rent-records_${year}-${pad2(month)}.csv`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-
-        setLoading(false);
-        showToast("Exported CSV", `rent-records_${year}-${pad2(month)}.csv`);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Export failed.");
-      }
-    }
-
-    function clearForm(){
-      $("amountInput").value = "";
-      $("maintenanceInput").value = "";
-      $("notesInput").value = "";
-      $("paymentMethod").value = "Cash";
-      $("paymentDate").valueAsDate = new Date();
-      showToast("Cleared", "Entry form reset");
-    }
-
-    function toggleEntry(){
-      const body = $("entryBody");
-      const btn = $("toggleEntryBtn");
-      const isHidden = body.style.display === "none";
-      body.style.display = isHidden ? "" : "none";
-      btn.innerHTML = isHidden
-        ? `<i class="fas fa-chevron-up"></i> Collapse`
-        : `<i class="fas fa-chevron-down"></i> Expand`;
-    }
-
-    function applyAndRender(){
-      applyFilters();
-      renderTable();
-    }
-
-    // ---- Events (kept)
-    $("searchInput").addEventListener("input", applyAndRender);
-    $("statusFilter").addEventListener("change", applyAndRender);
-    $("propertyFilter").addEventListener("change", applyAndRender);
-
-    $("monthFilter").addEventListener("change", async () => {
-      syncEntryMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-    $("yearFilter").addEventListener("change", async () => {
-      syncEntryMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-
-    $("entryMonth").addEventListener("change", async () => {
-      syncFilterMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-    $("entryYear").addEventListener("change", async () => {
-      syncFilterMonthYear();
-      await refreshForPeriod();
-      await refreshHistory();
-    });
-
-    $("onlyUnpaidChk").addEventListener("change", () => renderStudioSelect());
-    $("studioSelect").addEventListener("change", () => refreshHistory());
-
-    $("recordPaymentBtn").addEventListener("click", recordPayment);
-    $("emailReminderBtn").addEventListener("click", () => sendReminder($("studioSelect").value));
-    $("bulkReminderBtn").addEventListener("click", sendBulkReminder);
-
-    $("historyRefreshBtn").addEventListener("click", refreshHistory);
-    $("clearFormBtn").addEventListener("click", clearForm);
-    $("toggleEntryBtn").addEventListener("click", toggleEntry);
-
-    $("syncBtn").addEventListener("click", async () => {
-      try{
-        setError("");
-        setLoading(true);
-        await refreshForPeriod();
-        await refreshHistory();
-        setLoading(false);
-        showToast("Refreshed", "Live data updated");
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Refresh failed.");
-      }
-    });
-
-    $("exportBtn").addEventListener("click", exportCsv);
-
-    $("prevBtn").addEventListener("click", () => {
-      if(State.page <= 1) return;
-      State.page -= 1;
-      renderTable();
-    });
-
-    $("nextBtn").addEventListener("click", () => {
-      const total = (State.filtered || []).length;
-      const maxPage = Math.max(1, Math.ceil(total / State.pageSize));
-      if(State.page >= maxPage) return;
-      State.page += 1;
-      renderTable();
-    });
-
-    $("rentRecordsTbody").addEventListener("click", async (e) => {
-      const btn = e.target.closest("button[data-action]");
-      if(!btn) return;
-
-      const tr = btn.closest("tr");
-      const studioId = tr?.dataset?.studioId || "";
-      const action = btn.dataset.action;
-
-      if(action === "select" && studioId){
-        $("studioSelect").value = studioId;
-        await refreshHistory();
-        showToast("Selected", studioId);
-        $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      if(action === "remind" && studioId){
-        await sendReminder(studioId);
-      }
-    });
-
-    $("openInSheetBtn").addEventListener("click", () => {
-      const api = getAPI();
-      const url = api.sheetUrl || (window.APP_CONFIG && window.APP_CONFIG.SHEET_URL) || "";
-      if(!url){
-        showToast("Sheet link not set", "Add SHEET_URL in app-config.js");
-        return;
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
-    });
-
-    $("openEntryBtn").addEventListener("click", () => {
-      $("rentEntryCard").scrollIntoView({ behavior: "smooth", block: "start" });
-      const body = $("entryBody");
-      if(body.style.display === "none") toggleEntry();
-    });
-
-    // ---- Init
-    window.addEventListener("DOMContentLoaded", async () => {
-      try{
-        setError("");
-        setLoading(true);
-
-        fillMonthSelect($("monthFilter"));
-        fillMonthSelect($("entryMonth"));
-        fillYearSelect($("yearFilter"), new Date().getFullYear());
-        fillYearSelect($("entryYear"), new Date().getFullYear());
-
-        const now = new Date();
-        $("monthFilter").value = String(now.getMonth() + 1);
-        $("yearFilter").value = String(now.getFullYear());
-        syncEntryMonthYear();
-        $("paymentDate").valueAsDate = new Date();
-
-        await refreshForPeriod();
-        await refreshHistory();
-
-        setLoading(false);
-      } catch(e){
-        setLoading(false);
-        setError(e?.message || "Initialization failed.");
-      }
-    });
-  </script>
-</body>
-</html>
+}
